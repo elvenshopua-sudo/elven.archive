@@ -23,6 +23,8 @@
   </script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { font-feature-settings: "cv02", "cv03", "cv04", "cv11"; }
     .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
@@ -85,14 +87,14 @@
     </main>
 
     <footer class="border-t border-zinc-100 dark:border-zinc-900 py-8 text-center text-[10px] uppercase tracking-mega text-zinc-400">
-      © 2026 ELVÉN. ALL RIGHTS RESERVED.
+      &copy; 2026 ELVÉN. ALL RIGHTS RESERVED.
     </footer>
   </div>
 
   <!-- МОДАЛЬНЕ ВІКНО ТОВАРУ -->
   <div id="product-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 w-full max-w-4xl p-6 sm:p-10 relative grid grid-cols-1 md:grid-cols-2 gap-8 shadow-2xl my-8">
-      <button onclick="closeProductModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-black dark:hover:text-white text-xl">×</button>
+      <button onclick="closeProductModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-black dark:hover:text-white text-xl">&times;</button>
       
       <div class="space-y-4">
         <div class="aspect-[3/4] bg-zinc-100 dark:bg-zinc-900 overflow-hidden relative">
@@ -135,13 +137,13 @@
         <span class="bg-black dark:bg-white text-white dark:text-black text-[10px] font-bold px-2.5 py-1 tracking-widest uppercase">ADMIN PANEL</span>
         <h1 class="text-sm font-semibold tracking-ultra uppercase">ELVÉN Management</h1>
       </div>
-      <button id="exit-admin" class="text-xs uppercase tracking-widest bg-zinc-200 dark:bg-zinc-800 px-4 py-2 hover:bg-zinc-300 dark:hover:bg-zinc-700 transition">Вийти на сайт ×</button>
+      <button id="exit-admin" class="text-xs uppercase tracking-widest bg-zinc-200 dark:bg-zinc-800 px-4 py-2 hover:bg-zinc-300 dark:hover:bg-zinc-700 transition">Вийти на сайт &times;</button>
     </header>
 
     <div id="admin-login-screen" class="flex-grow flex items-center justify-center p-4">
       <div class="w-full max-w-sm space-y-6 text-center border border-zinc-200 dark:border-zinc-800 p-8">
         <h3 class="text-xs font-semibold uppercase tracking-ultra text-zinc-400">Введіть пароль адміністратора</h3>
-        <input type="password" id="admin-pass-input" placeholder="Пароль" class="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-700 py-2 text-xs text-center focus:outline-none">
+        <input type="password" id="admin-pass-input" placeholder="Пароль (elven2026)" class="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-700 py-2 text-xs text-center focus:outline-none">
         <button id="admin-login-btn" class="w-full bg-black dark:bg-white text-white dark:text-black font-semibold py-3 text-xs uppercase tracking-ultra">Авторизуватися</button>
       </div>
     </div>
@@ -220,7 +222,7 @@
       <div>
         <div class="flex justify-between items-center mb-8 border-b border-zinc-100 dark:border-zinc-900 pb-4">
           <h3 class="text-xs font-semibold uppercase tracking-ultra text-black dark:text-white">Кошик</h3>
-          <button id="close-cart" class="text-zinc-400 hover:text-black dark:hover:text-white text-lg font-light">×</button>
+          <button id="close-cart" class="text-zinc-400 hover:text-black dark:hover:text-white text-lg font-light">&times;</button>
         </div>
         <div id="cart-items" class="space-y-4 mb-8"></div>
         <div class="border-t border-zinc-100 dark:border-zinc-900 pt-4 mb-8 flex justify-between text-xs tracking-ultra uppercase font-medium">
@@ -272,8 +274,10 @@
     const ADMIN_PASSWORD = 'elven2026';
 
     // ВСТАВТЕ СВОЇ КЛЮЧІ SUPABASE СЮДИ:
-    const SUPABASE_URL = 'https://ваш-проєкт.supabase.co'; https://tbkrdfspdozxdiptcmgi.supabase.co
-    const SUPABASE_ANON_KEY = 'eyJhbGciOi...'; sb_publishable_7-9ZVZfZehf8pr59oYztUQ_3G6EYLfI
+    const SUPABASE_URL = 'https://tbkrdfspdozxdiptcmgi.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_7-9ZVZfZehf8pr59oYztUQ_3G6EYLfI';
+    
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const themeBtn = document.getElementById('theme-toggle-btn');
     const themeIcon = document.getElementById('theme-icon');
@@ -298,14 +302,23 @@
       });
     }
 
-    let products = JSON.parse(localStorage.getItem('elven_products')) || [
-      { id: 1, name: 'Худі ELVÉN Heavyweight Black', sku: 'ELV-HD-01', price: 1650, oldPrice: 2000, desc: 'Преміальний оверсайз крій, щільна європейська бавовна. Зносостійкий матеріал.', images: ['https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800'], sizes: ['S', 'M', 'L', 'XL'], badge: 'SALE' },
-      { id: 2, name: 'Футболка Oversize Basic White', sku: 'ELV-TS-02', price: 750, oldPrice: '', desc: 'Базова футболка вільного крою з дихаючої бавовни.', images: ['https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800'], sizes: ['M', 'L', 'XL'], badge: 'NEW' },
-      { id: 3, name: 'Штани Спортивні Cargo Black', sku: 'ELV-PG-03', price: 1400, oldPrice: '', desc: 'Зручні карго штани з міцного ріп-стоп матеріалу.', images: ['https://images.unsplash.com/photo-1552902865-b72c031ac5ea?w=800'], sizes: ['S', 'M', 'L'], badge: 'TOP' },
-      { id: 4, name: 'Світшот Oversize Vintage Grey', sku: 'ELV-SW-04', price: 1350, oldPrice: '', desc: 'Вінтажний світшот вільного стилю.', images: ['https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=800'], sizes: ['M', 'L'], badge: '' }
-    ];
-
+    let products = [];
     let cart = [];
+
+    // Завантаження товарів з хмари Supabase
+    async function loadProductsFromCloud() {
+      try {
+        const { data, error } = await db.from('products').select('*');
+        if (error) throw error;
+        if (data) {
+          products = data;
+          renderProducts();
+          renderAdminProductsList();
+        }
+      } catch (err) {
+        console.error('Помилка завантаження товарів:', err);
+      }
+    }
 
     function renderProducts() {
       const grid = document.getElementById('product-grid');
@@ -425,7 +438,7 @@
               <p class="text-xs uppercase font-medium tracking-wide text-black dark:text-white">${item.name} ${item.sku ? `(${item.sku})` : ''}</p>
               <p class="text-[10px] text-zinc-400 uppercase tracking-widest mt-0.5">${item.selectedSize} — ${item.price} UAH</p>
             </div>
-            <button onclick="removeFromCart(${idx})" class="text-zinc-400 hover:text-black dark:hover:text-white text-xs px-2">×</button>
+            <button onclick="removeFromCart(${idx})" class="text-zinc-400 hover:text-black dark:hover:text-white text-xs px-2">&times;</button>
           </div>
         `).join('');
       }
@@ -460,6 +473,7 @@
         const rawPhone = phoneInput.value.replace(/\D/g, '');
         const phoneError = document.getElementById('phone-error');
         if (rawPhone.length !== 12) {
+          if (phoneError) phoneError.classList.add('hidden'); // Fix warning
           if (phoneError) phoneError.classList.remove('hidden');
           return;
         } else {
@@ -473,7 +487,6 @@
         const address = document.getElementById('cust-address').value;
         const total = cart.reduce((sum, item) => sum + item.price, 0);
 
-        // ТУТ ДОДАНО АРТИКУЛ ДО ПОВІДОМЛЕННЯ В TELEGRAM
         const itemsText = cart.map(i => {
           const skuStr = i.sku ? `[Артикул: ${i.sku}]` : '[Без артикула]';
           return `• ${i.name} ${skuStr} — Розмір: *${i.selectedSize}* — ${i.price} UAH`;
@@ -522,7 +535,7 @@
       adminPanel.classList.add('hidden');
       clientSite.classList.remove('hidden');
       document.getElementById('admin-pass-input').value = '';
-      renderProducts();
+      loadProductsFromCloud();
     };
 
     document.getElementById('admin-login-btn').onclick = () => {
@@ -561,62 +574,47 @@
     }
 
     const adminForm = document.getElementById('admin-product-form');
-    adminForm.addEventListener('submit', (e) => {
+    adminForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const editId = document.getElementById('edit-product-id').value;
       const fileInput = document.getElementById('ap-files');
       const urlInput = document.getElementById('ap-img').value;
 
-      const finishSave = (imageArray) => {
+      const finishSave = async (imageArray) => {
         const sizes = Array.from(document.querySelectorAll('input[name="ap-size"]:checked')).map(cb => cb.value);
-        const name = document.getElementById('ap-name').value;
-        const sku = document.getElementById('ap-sku').value;
-        const price = Number(document.getElementById('ap-price').value);
-        const oldPrice = document.getElementById('ap-old-price').value;
-        const badge = document.getElementById('ap-badge').value;
-        const desc = document.getElementById('ap-desc').value;
+        const productPayload = {
+          name: document.getElementById('ap-name').value,
+          sku: document.getElementById('ap-sku').value,
+          price: Number(document.getElementById('ap-price').value),
+          oldPrice: document.getElementById('ap-old-price').value,
+          badge: document.getElementById('ap-badge').value,
+          desc: document.getElementById('ap-desc').value,
+          images: imageArray,
+          sizes: sizes.length ? sizes : ['S', 'M', 'L']
+        };
 
-        if (editId) {
-          products = products.map(p => {
-            if (p.id == editId) {
-              return {
-                ...p,
-                name,
-                sku,
-                price,
-                oldPrice,
-                badge,
-                desc,
-                images: imageArray.length ? imageArray : p.images,
-                sizes: sizes.length ? sizes : p.sizes
-              };
-            }
-            return p;
-          });
+        try {
+          if (editId) {
+            const { error } = await db.from('products').update(productPayload).eq('id', editId);
+            if (error) throw error;
+          } else {
+            // Генеруємо випадковий id для нового товару у хмарі
+            productPayload.id = Date.now();
+            const { error } = await db.from('products').insert([productPayload]);
+            if (error) throw error;
+          }
+
           document.getElementById('edit-product-id').value = '';
           document.getElementById('form-title').innerText = 'Додати новий товар';
           document.getElementById('save-btn').innerText = 'Зберегти товар';
           document.getElementById('cancel-edit-btn').classList.add('hidden');
-        } else {
-          const newP = {
-            id: Date.now(),
-            name,
-            sku,
-            price,
-            oldPrice,
-            badge,
-            desc,
-            images: imageArray.length ? imageArray : ['https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800'],
-            sizes: sizes.length ? sizes : ['S', 'M', 'L']
-          };
-          products.push(newP);
-        }
 
-        localStorage.setItem('elven_products', JSON.stringify(products));
-        renderAdminProductsList();
-        renderProducts();
-        adminForm.reset();
-        alert('Успішно збережено!');
+          await loadProductsFromCloud();
+          adminForm.reset();
+          alert('Успішно збережено в хмарі!');
+        } catch (err) {
+          alert('Помилка збереження в Supabase: ' + err.message);
+        }
       };
 
       if (fileInput && fileInput.files && fileInput.files.length > 0) {
@@ -664,12 +662,15 @@
       adminForm.reset();
     }
 
-    window.deleteProduct = function(id) {
-      if (confirm('Видалити цей товар?')) {
-        products = products.filter(item => item.id !== id);
-        localStorage.setItem('elven_products', JSON.stringify(products));
-        renderAdminProductsList();
-        renderProducts();
+    window.deleteProduct = async function(id) {
+      if (confirm('Видалити цей товар з хмари?')) {
+        try {
+          const { error } = await db.from('products').delete().eq('id', id);
+          if (error) throw error;
+          await loadProductsFromCloud();
+        } catch (err) {
+          alert('Помилка видалення: ' + err.message);
+        }
       }
     }
 
@@ -680,7 +681,8 @@
     if (cartBtn) cartBtn.onclick = () => { if (cartModal) cartModal.classList.remove('hidden'); };
     if (closeCart) closeCart.onclick = () => { if (cartModal) cartModal.classList.add('hidden'); };
 
-    renderProducts();
+    // Завантаження при запуску
+    loadProductsFromCloud();
   </script>
 </body>
 </html>
