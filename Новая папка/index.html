@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="uk" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ELVÉN | Official Store</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+          },
+          letterSpacing: {
+            ultra: '0.25em',
+            mega: '0.35em'
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-feature-settings: "cv02", "cv03", "cv04", "cv11"; }
+    .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  </style>
+</head>
+<body class="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans min-h-screen flex flex-col justify-between transition-colors duration-300">
+
+  <!-- ГОЛОВНИЙ САЙТ -->
+  <div id="client-site" class="flex flex-col min-h-screen justify-between">
+    <header class="sticky top-0 z-40 glass bg-white/80 dark:bg-zinc-950/80 border-b border-zinc-100 dark:border-zinc-900 transition-colors duration-300">
+      <div class="max-w-7xl mx-auto px-4 sm:px-8 py-4 flex justify-between items-center">
+        <div class="flex items-center py-0.5">
+          <img src="Минималистичный логотип ELVÉN.png" alt="ELVÉN" class="h-8 sm:h-10 w-auto object-contain dark:invert transition-opacity" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='block';">
+          <span id="fallback-logo" class="text-lg font-bold tracking-mega uppercase hidden text-black dark:text-white">ELVÉN</span>
+        </div>
+        <div class="flex items-center gap-3 sm:gap-6">
+          <button id="theme-toggle-btn" class="text-xs text-zinc-500 hover:text-black dark:hover:text-white transition p-1">
+            <i id="theme-icon" class="fa-solid fa-moon"></i>
+          </button>
+          <button id="cart-btn" class="relative bg-black dark:bg-white text-white dark:text-black px-4 py-2 text-[11px] font-semibold tracking-ultra uppercase flex items-center gap-2 hover:opacity-80 transition">
+            <span>Кошик</span>
+            <span id="cart-count" class="text-[10px] opacity-80">(0)</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-8 py-12 w-full space-y-20 flex-grow">
+      <section class="text-center py-24 px-4 border-b border-zinc-100 dark:border-zinc-900">
+        <p class="text-[10px] font-medium uppercase tracking-mega text-zinc-400 mb-4">Collection 2026</p>
+        <h2 class="text-2xl sm:text-4xl font-light uppercase tracking-ultra text-black dark:text-white mb-6">ESSENTIAL OVERSIZE</h2>
+        <p class="text-zinc-400 text-xs tracking-widest uppercase max-w-md mx-auto font-light leading-relaxed">Чисті лінії. Преміальна бавовна. Строгий силует.</p>
+      </section>
+
+      <section>
+        <div class="flex justify-between items-center mb-10">
+          <h3 class="text-xs font-semibold uppercase tracking-mega text-zinc-400">Каталог</h3>
+        </div>
+        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12"></div>
+      </section>
+
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-10 pt-12 border-t border-zinc-100 dark:border-zinc-900">
+        <div class="space-y-3">
+          <h4 class="text-xs font-semibold uppercase tracking-ultra text-black dark:text-white">Доставка та Оплата</h4>
+          <ul class="text-xs text-zinc-500 dark:text-zinc-400 space-y-2 font-light leading-relaxed">
+            <li><strong>Нова Пошта:</strong> Щодня. Накладений платіж без передоплати.</li>
+            <li><strong>Укрпошта:</strong> Ср, Чт, Пт, Нд. 100% передоплата.</li>
+            <li><strong>Міжнародна:</strong> Польща та Молдова.</li>
+          </ul>
+        </div>
+        <div class="space-y-3">
+          <h4 class="text-xs font-semibold uppercase tracking-ultra text-black dark:text-white">Умови Обміну</h4>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400 font-light leading-relaxed">Обмін протягом 14 днів при збереженні бірок, товарного вигляду та відсутності слідів носіння.</p>
+        </div>
+        <div class="space-y-3">
+          <h4 class="text-xs font-semibold uppercase tracking-ultra text-black dark:text-white">Повернення</h4>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400 font-light leading-relaxed">Огляд та повернення здійснюються безпосередньо у відділенні пошти при отриманні.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="border-t border-zinc-100 dark:border-zinc-900 py-8 text-center text-[10px] uppercase tracking-mega text-zinc-400">
+      © 2026 ELVÉN. ALL RIGHTS RESERVED.
+    </footer>
+  </div>
+
+  <!-- МОДАЛЬНЕ ВІКНО ТОВАРУ -->
+  <div id="product-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 w-full max-w-4xl p-6 sm:p-10 relative grid grid-cols-1 md:grid-cols-2 gap-8 shadow-2xl my-8">
+      <button onclick="closeProductModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-black dark:hover:text-white text-xl">×</button>
+      
+      <div class="space-y-4">
+        <div class="aspect-[3/4] bg-zinc-100 dark:bg-zinc-900 overflow-hidden relative">
+          <img id="modal-main-img" src="" alt="" class="w-full h-full object-cover">
+        </div>
+        <div id="modal-thumbs" class="flex gap-2 overflow-x-auto pb-2"></div>
+      </div>
+
+      <div class="flex flex-col justify-between space-y-6">
+        <div class="space-y-3">
+          <div class="flex justify-between items-center">
+            <span id="modal-badge" class="inline-block px-2.5 py-0.5 text-[9px] uppercase tracking-widest font-bold"></span>
+            <span id="modal-sku" class="text-[10px] text-zinc-400/60 dark:text-zinc-600 tracking-wider"></span>
+          </div>
+          <h2 id="modal-title" class="text-xl sm:text-2xl font-light uppercase tracking-wide text-black dark:text-white"></h2>
+          <div id="modal-price-box" class="flex items-center gap-3"></div>
+          
+          <div class="border-t border-zinc-100 dark:border-zinc-900 pt-4 space-y-2">
+            <p class="text-[11px] uppercase tracking-wider text-zinc-400 font-semibold">Опис:</p>
+            <p id="modal-desc" class="text-xs text-zinc-600 dark:text-zinc-400 font-light leading-relaxed"></p>
+          </div>
+
+          <div class="space-y-2">
+            <p class="text-[11px] uppercase tracking-wider text-zinc-400 font-semibold">Оберіть розмір:</p>
+            <div id="modal-sizes" class="flex gap-2"></div>
+          </div>
+        </div>
+
+        <button id="modal-add-btn" class="w-full bg-black dark:bg-white text-white dark:text-black font-semibold py-4 text-xs uppercase tracking-ultra hover:opacity-80 transition">
+          Додати в кошик
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ПОВНОЕКРАННА АДМІН-ПАНЕЛЬ -->
+  <div id="admin-panel" class="fixed inset-0 bg-white dark:bg-zinc-950 z-50 hidden flex flex-col overflow-y-auto">
+    <header class="border-b border-zinc-200 dark:border-zinc-800 px-6 py-4 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50">
+      <div class="flex items-center gap-3">
+        <span class="bg-black dark:bg-white text-white dark:text-black text-[10px] font-bold px-2.5 py-1 tracking-widest uppercase">ADMIN PANEL</span>
+        <h1 class="text-sm font-semibold tracking-ultra uppercase">ELVÉN Management</h1>
+      </div>
+      <button id="exit-admin" class="text-xs uppercase tracking-widest bg-zinc-200 dark:bg-zinc-800 px-4 py-2 hover:bg-zinc-300 dark:hover:bg-zinc-700 transition">Вийти на сайт ×</button>
+    </header>
+
+    <div id="admin-login-screen" class="flex-grow flex items-center justify-center p-4">
+      <div class="w-full max-w-sm space-y-6 text-center border border-zinc-200 dark:border-zinc-800 p-8">
+        <h3 class="text-xs font-semibold uppercase tracking-ultra text-zinc-400">Введіть пароль адміністратора</h3>
+        <input type="password" id="admin-pass-input" placeholder="Пароль (elven2026)" class="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-700 py-2 text-xs text-center focus:outline-none">
+        <button id="admin-login-btn" class="w-full bg-black dark:bg-white text-white dark:text-black font-semibold py-3 text-xs uppercase tracking-ultra">Авторизуватися</button>
+      </div>
+    </div>
+
+    <div id="admin-dashboard" class="hidden flex-grow max-w-7xl mx-auto w-full p-6 sm:p-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
+      <div class="lg:col-span-1 border border-zinc-200 dark:border-zinc-800 p-6 space-y-5 h-fit bg-zinc-50/50 dark:bg-zinc-900/30">
+        <h3 id="form-title" class="text-xs font-semibold uppercase tracking-ultra border-b border-zinc-200 dark:border-zinc-800 pb-3">Додати новий товар</h3>
+        <form id="admin-product-form" class="space-y-3.5">
+          <input type="hidden" id="edit-product-id">
+          <div>
+            <label class="block text-[10px] text-zinc-400 uppercase mb-1">Назва товару:</label>
+            <input type="text" id="ap-name" required class="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-700 py-1.5 text-xs focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-[10px] text-zinc-400 uppercase mb-1">Артикул (SKU):</label>
+            <input type="text" id="ap-sku" placeholder="напр. ELV-001" class="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-700 py-1.5 text-xs focus:outline-none">
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[10px] text-zinc-400 uppercase mb-1">Ціна (UAH):</label>
+              <input type="number" id="ap-price" required class="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-700 py-1.5 text-xs focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-[10px] text-zinc-400 uppercase mb-1">Стара ціна (Знижка):</label>
+              <input type="number" id="ap-old-price" placeholder="Необов'язково" class="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-700 py-1.5 text-xs focus:outline-none">
+            </div>
+          </div>
+          <div>
+            <label class="block text-[10px] text-zinc-400 uppercase mb-1">Статус:</label>
+            <select id="ap-badge" class="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-700 py-1.5 text-xs focus:outline-none">
+              <option value="" class="dark:bg-zinc-900">Звичайний</option>
+              <option value="NEW" class="dark:bg-zinc-900">Новинка (NEW)</option>
+              <option value="SALE" class="dark:bg-zinc-900">Розпродаж (SALE)</option>
+              <option value="TOP" class="dark:bg-zinc-900">Топ продажів (TOP)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] text-zinc-400 uppercase mb-1">Детальний опис:</label>
+            <textarea id="ap-desc" rows="3" placeholder="Опис матеріалу, крою тощо..." class="w-full bg-transparent border border-zinc-300 dark:border-zinc-700 p-2 text-xs focus:outline-none"></textarea>
+          </div>
+          <div>
+            <label class="block text-[10px] text-zinc-400 uppercase mb-1">Фотографії (можна кілька):</label>
+            <input type="file" id="ap-files" accept="image/*" multiple class="w-full text-xs text-zinc-500 file:mr-4 file:py-1.5 file:px-3 file:border-0 file:text-xs file:font-semibold file:bg-zinc-200 dark:file:bg-zinc-800 file:text-zinc-800 dark:file:text-zinc-200">
+          </div>
+          <div>
+            <label class="block text-[10px] text-zinc-400 uppercase mb-1">Або URL картинки:</label>
+            <input type="text" id="ap-img" placeholder="https://..." class="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-700 py-1.5 text-xs focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-[10px] text-zinc-400 uppercase mb-1">Розміри:</label>
+            <div class="flex gap-4 text-xs pt-1">
+              <label><input type="checkbox" name="ap-size" value="S" checked> S</label>
+              <label><input type="checkbox" name="ap-size" value="M" checked> M</label>
+              <label><input type="checkbox" name="ap-size" value="L" checked> L</label>
+              <label><input type="checkbox" name="ap-size" value="XL" checked> XL</label>
+              <label><input type="checkbox" name="ap-size" value="XXL"> XXL</label>
+            </div>
+          </div>
+          <div class="flex gap-2 pt-3">
+            <button type="submit" id="save-btn" class="flex-grow bg-black dark:bg-white text-white dark:text-black font-semibold py-3 text-xs uppercase tracking-ultra">Зберегти товар</button>
+            <button type="button" id="cancel-edit-btn" class="hidden bg-zinc-300 dark:bg-zinc-800 px-4 text-xs uppercase">Скасувати</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="lg:col-span-2 space-y-4">
+        <h3 class="text-xs font-semibold uppercase tracking-ultra border-b border-zinc-200 dark:border-zinc-800 pb-3">Керування товарами в каталозі</h3>
+        <div id="admin-products-list" class="space-y-3 max-h-[70vh] overflow-y-auto pr-2"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- КОШИК -->
+  <div id="cart-modal" class="fixed inset-0 bg-black/40 backdrop-blur-md z-50 hidden flex justify-end">
+    <div class="bg-white dark:bg-zinc-950 w-full max-w-md h-full p-8 overflow-y-auto flex flex-col justify-between border-l border-zinc-200 dark:border-zinc-900">
+      <div>
+        <div class="flex justify-between items-center mb-8 border-b border-zinc-100 dark:border-zinc-900 pb-4">
+          <h3 class="text-xs font-semibold uppercase tracking-ultra text-black dark:text-white">Кошик</h3>
+          <button id="close-cart" class="text-zinc-400 hover:text-black dark:hover:text-white text-lg font-light">×</button>
+        </div>
+        <div id="cart-items" class="space-y-4 mb-8"></div>
+        <div class="border-t border-zinc-100 dark:border-zinc-900 pt-4 mb-8 flex justify-between text-xs tracking-ultra uppercase font-medium">
+          <span>Сума:</span>
+          <span id="cart-total">0 грн</span>
+        </div>
+
+        <form id="order-form" class="space-y-4">
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Прізвище та Ім'я *</label>
+            <input type="text" id="cust-name" required placeholder="Іван Іванов" class="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-800 py-2 text-xs focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Номер телефону *</label>
+            <input type="tel" id="cust-phone" required placeholder="+380 (97) 000-00-00" class="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-800 py-2 text-xs focus:outline-none">
+            <span id="phone-error" class="text-red-500 text-[10px] hidden">Некоректний номер</span>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Telegram</label>
+              <input type="text" id="cust-tg" placeholder="@nickname" class="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-800 py-2 text-xs focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Instagram</label>
+              <input type="text" id="cust-insta" placeholder="@nickname" class="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-800 py-2 text-xs focus:outline-none">
+            </div>
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Доставка *</label>
+            <select id="cust-delivery" required class="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-800 py-2 text-xs focus:outline-none text-zinc-700 dark:text-zinc-300">
+              <option value="Нова Пошта (Накладений платіж)">Нова Пошта (Накладений)</option>
+              <option value="Укрпошта (Повна оплата)">Укрпошта (Передоплата)</option>
+              <option value="Закордон (Польща / Молдова)">Міжнародна доставка</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Місто та Відділення *</label>
+            <input type="text" id="cust-address" required placeholder="м. Київ, №15" class="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-800 py-2 text-xs focus:outline-none">
+          </div>
+          <button type="submit" id="submit-btn" class="w-full bg-black dark:bg-white text-white dark:text-black font-semibold py-3.5 transition mt-6 text-xs tracking-ultra uppercase hover:opacity-80">Оформити замовлення</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TELEGRAM_BOT_TOKEN = '9041628328:AAFZiTfZSwnVw51YARVIyKJvxt_o7Kaeyus';
+    const TELEGRAM_CHAT_ID = '5006773006';
+    const ADMIN_PASSWORD = 'elven2026';
+
+    const themeBtn = document.getElementById('theme-toggle-btn');
+    const themeIcon = document.getElementById('theme-icon');
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem('elven_theme') || 'dark';
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+        if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
+      } else {
+        document.documentElement.classList.remove('dark');
+        if (themeIcon) themeIcon.className = 'fa-solid fa-moon';
+      }
+    }
+    initTheme();
+
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        const isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('elven_theme', isDark ? 'dark' : 'light');
+        if (themeIcon) themeIcon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+      });
+    }
+
+    let products = JSON.parse(localStorage.getItem('elven_products')) || [
+      { id: 1, name: 'Худі ELVÉN Heavyweight Black', sku: 'ELV-HD-01', price: 1650, oldPrice: 2000, desc: 'Преміальний оверсайз крій, щільна європейська бавовна. Зносостійкий матеріал.', images: ['https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800'], sizes: ['S', 'M', 'L', 'XL'], badge: 'SALE' },
+      { id: 2, name: 'Футболка Oversize Basic White', sku: 'ELV-TS-02', price: 750, oldPrice: '', desc: 'Базова футболка вільного крою з дихаючої бавовни.', images: ['https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800'], sizes: ['M', 'L', 'XL'], badge: 'NEW' },
+      { id: 3, name: 'Штани Спортивні Cargo Black', sku: 'ELV-PG-03', price: 1400, oldPrice: '', desc: 'Зручні карго штани з міцного ріп-стоп матеріалу.', images: ['https://images.unsplash.com/photo-1552902865-b72c031ac5ea?w=800'], sizes: ['S', 'M', 'L'], badge: 'TOP' },
+      { id: 4, name: 'Світшот Oversize Vintage Grey', sku: 'ELV-SW-04', price: 1350, oldPrice: '', desc: 'Вінтажний світшот вільного стилю.', images: ['https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=800'], sizes: ['M', 'L'], badge: '' }
+    ];
+
+    let cart = [];
+
+    function renderProducts() {
+      const grid = document.getElementById('product-grid');
+      if (!grid) return;
+      grid.innerHTML = products.map(p => {
+        const mainImg = p.images && p.images.length ? p.images[0] : (p.img || '');
+        let badgeHtml = '';
+        if (p.badge === 'NEW') badgeHtml = '<span class="absolute top-2 left-2 bg-white text-black dark:bg-black dark:text-white text-[9px] px-2 py-0.5 uppercase tracking-widest font-bold">NEW</span>';
+        if (p.badge === 'SALE') badgeHtml = '<span class="absolute top-2 left-2 bg-red-600 text-white text-[9px] px-2 py-0.5 uppercase tracking-widest font-bold">SALE</span>';
+        if (p.badge === 'TOP') badgeHtml = '<span class="absolute top-2 left-2 bg-amber-500 text-black text-[9px] px-2 py-0.5 uppercase tracking-widest font-bold">TOP</span>';
+
+        let priceHtml = `<p class="text-zinc-400 font-light text-xs">${p.price} UAH</p>`;
+        if (p.oldPrice && Number(p.oldPrice) > Number(p.price)) {
+          priceHtml = `<div class="flex items-center gap-2"><p class="text-red-500 font-medium text-xs">${p.price} UAH</p><p class="text-zinc-400 line-through text-[11px]">${p.oldPrice} UAH</p></div>`;
+        }
+
+        return `
+        <div class="group flex flex-col justify-between cursor-pointer" onclick="openProductModal(${p.id})">
+          <div class="relative overflow-hidden bg-zinc-100 dark:bg-zinc-900 mb-4 aspect-[3/4]">
+            ${badgeHtml}
+            <img src="${mainImg}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-700 ease-out">
+          </div>
+          <div class="space-y-1">
+            <div class="flex justify-between items-center">
+              <h4 class="font-normal text-xs uppercase tracking-wider text-black dark:text-white">${p.name}</h4>
+              ${p.sku ? `<span class="text-[9px] text-zinc-400/50 dark:text-zinc-600 tracking-wider font-mono">${p.sku}</span>` : ''}
+            </div>
+            ${priceHtml}
+          </div>
+        </div>
+      `}).join('');
+    }
+
+    function openProductModal(id) {
+      const p = products.find(item => item.id === id);
+      if (!p) return;
+
+      const imgs = p.images && p.images.length ? p.images : [p.img || 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800'];
+
+      document.getElementById('modal-title').innerText = p.name;
+      document.getElementById('modal-sku').innerText = p.sku ? `SKU: ${p.sku}` : '';
+      document.getElementById('modal-main-img').src = imgs[0];
+      document.getElementById('modal-desc').innerText = p.desc || 'Преміальний оверсайз крій, щільна європейська бавовна.';
+
+      const badgeEl = document.getElementById('modal-badge');
+      if (p.badge) {
+        badgeEl.innerText = p.badge;
+        badgeEl.className = `inline-block px-2.5 py-0.5 text-[9px] uppercase tracking-widest font-bold ${p.badge === 'SALE' ? 'bg-red-600 text-white' : p.badge === 'TOP' ? 'bg-amber-500 text-black' : 'bg-white text-black dark:bg-black dark:text-white'}`;
+        badgeEl.style.display = 'inline-block';
+      } else {
+        badgeEl.style.display = 'none';
+      }
+
+      const priceBox = document.getElementById('modal-price-box');
+      if (p.oldPrice && Number(p.oldPrice) > Number(p.price)) {
+        priceBox.innerHTML = `<p class="text-red-500 font-medium text-lg">${p.price} UAH</p><p class="text-zinc-400 line-through text-sm">${p.oldPrice} UAH</p>`;
+      } else {
+        priceBox.innerHTML = `<p class="text-black dark:text-white font-medium text-lg">${p.price} UAH</p>`;
+      }
+
+      const thumbsEl = document.getElementById('modal-thumbs');
+      thumbsEl.innerHTML = imgs.map((imgSrc) => `
+        <div onclick="event.stopPropagation(); changeMainImage('${imgSrc}')" class="w-16 h-20 bg-zinc-100 dark:bg-zinc-900 cursor-pointer overflow-hidden border border-zinc-300 dark:border-zinc-700 hover:border-black dark:hover:border-white transition">
+          <img src="${imgSrc}" class="w-full h-full object-cover">
+        </div>
+      `).join('');
+
+      const sizesEl = document.getElementById('modal-sizes');
+      const sizesList = p.sizes || ['S', 'M', 'L'];
+      sizesEl.innerHTML = sizesList.map((s, idx) => `
+        <label class="cursor-pointer border border-zinc-300 dark:border-zinc-700 px-4 py-2 text-xs uppercase font-medium hover:border-black dark:hover:border-white transition has-[:checked]:bg-black has-[:checked]:text-white dark:has-[:checked]:bg-white dark:has-[:checked]:text-black">
+          <input type="radio" name="modal-size" value="${s}" ${idx === 0 ? 'checked' : ''} class="hidden"> ${s}
+        </label>
+      `).join('');
+
+      document.getElementById('modal-add-btn').onclick = (e) => {
+        e.stopPropagation();
+        const selectedSize = document.querySelector('input[name="modal-size"]:checked').value;
+        cart.push({ ...p, img: imgs[0], selectedSize });
+        updateCartUI();
+        closeProductModal();
+        alert('Товар додано до кошика!');
+      };
+
+      document.getElementById('product-modal').classList.remove('hidden');
+    }
+    window.openProductModal = openProductModal;
+
+    function changeMainImage(src) {
+      document.getElementById('modal-main-img').src = src;
+    }
+    window.changeMainImage = changeMainImage;
+
+    function closeProductModal() {
+      document.getElementById('product-modal').classList.add('hidden');
+    }
+    window.closeProductModal = closeProductModal;
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      updateCartUI();
+    }
+    window.removeFromCart = removeFromCart;
+
+    function updateCartUI() {
+      const countEl = document.getElementById('cart-count');
+      if (countEl) countEl.innerText = `(${cart.length})`;
+      const itemsContainer = document.getElementById('cart-items');
+      if (!itemsContainer) return;
+      
+      if (cart.length === 0) {
+        itemsContainer.innerHTML = `<p class="text-zinc-400 text-xs tracking-ultra uppercase text-center py-8">Кошик порожній</p>`;
+      } else {
+        itemsContainer.innerHTML = cart.map((item, idx) => `
+          <div class="flex justify-between items-center border-b border-zinc-100 dark:border-zinc-900 pb-3">
+            <div>
+              <p class="text-xs uppercase font-medium tracking-wide text-black dark:text-white">${item.name} ${item.sku ? `(${item.sku})` : ''}</p>
+              <p class="text-[10px] text-zinc-400 uppercase tracking-widest mt-0.5">${item.selectedSize} — ${item.price} UAH</p>
+            </div>
+            <button onclick="removeFromCart(${idx})" class="text-zinc-400 hover:text-black dark:hover:text-white text-xs px-2">×</button>
+          </div>
+        `).join('');
+      }
+
+      const total = cart.reduce((sum, item) => sum + item.price, 0);
+      const totalEl = document.getElementById('cart-total');
+      if (totalEl) totalEl.innerText = `${total} UAH`;
+    }
+
+    const phoneInput = document.getElementById('cust-phone');
+    if (phoneInput) {
+      phoneInput.addEventListener('input', (e) => {
+        let x = e.target.value.replace(/\D/g, '');
+        if (!x.startsWith('380')) x = '380' + x.replace(/^3?8?0?/, '');
+        if (x.length > 12) x = x.substring(0, 12);
+
+        let formatted = '+380';
+        if (x.length > 3) formatted += ' (' + x.substring(3, 5);
+        if (x.length >= 5) formatted += ') ' + x.substring(5, 8);
+        if (x.length >= 8) formatted += '-' + x.substring(8, 10);
+        if (x.length >= 10) formatted += '-' + x.substring(10, 12);
+        e.target.value = formatted;
+      });
+    }
+
+    const orderForm = document.getElementById('order-form');
+    if (orderForm) {
+      orderForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (cart.length === 0) return alert('Кошик порожній');
+
+        const rawPhone = phoneInput.value.replace(/\D/g, '');
+        const phoneError = document.getElementById('phone-error');
+        if (rawPhone.length !== 12) {
+          if (phoneError) phoneError.classList.remove('hidden');
+          return;
+        } else {
+          if (phoneError) phoneError.classList.add('hidden');
+        }
+
+        const name = document.getElementById('cust-name').value;
+        const tg = document.getElementById('cust-tg').value.replace('@', '');
+        const insta = document.getElementById('cust-insta').value.replace('@', '');
+        const delivery = document.getElementById('cust-delivery').value;
+        const address = document.getElementById('cust-address').value;
+        const total = cart.reduce((sum, item) => sum + item.price, 0);
+
+        // ТУТ ДОДАНО АРТИКУЛ ДО ПОВІДОМЛЕННЯ В TELEGRAM
+        const itemsText = cart.map(i => {
+          const skuStr = i.sku ? `[Артикул: ${i.sku}]` : '[Без артикула]';
+          return `• ${i.name} ${skuStr} — Розмір: *${i.selectedSize}* — ${i.price} UAH`;
+        }).join('\n');
+
+        const message = `🛍 *НОВЕ ЗАМОВЛЕННЯ [ELVÉN]*\n\n👤 *Клієнт:* ${name}\n📞 *Тел:* [${phoneInput.value}](tel:+${rawPhone})\n💬 *Telegram:* ${tg ? `[@${tg}](https://t.me/${tg})` : 'не вказано'}\n📷 *Instagram:* ${insta ? `[@${insta}](https://instagram.com/${insta})` : 'не вказано'}\n\n📦 *Товари:*\n${itemsText}\n\n💰 *Загалом:* ${total} UAH\n\n🚚 *Служба:* ${delivery}\n📍 *Адреса:* ${address}`;
+
+        try {
+          const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: 'Markdown', disable_web_page_preview: true })
+          });
+          if (res.ok) {
+            alert('Дякуємо! Замовлення успішно прийнято.');
+            cart = [];
+            updateCartUI();
+            document.getElementById('cart-modal').classList.add('hidden');
+            orderForm.reset();
+          } else {
+            alert('Помилка відправки в Telegram бот.');
+          }
+        } catch (err) {
+          alert('Помилка мережі.');
+        }
+      });
+    }
+
+    // --- АДМІН-ПАНЕЛЬ ---
+    const adminPanel = document.getElementById('admin-panel');
+    const clientSite = document.getElementById('client-site');
+    const adminLoginScreen = document.getElementById('admin-login-screen');
+    const adminDashboard = document.getElementById('admin-dashboard');
+
+    window.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'a' || e.key === 'A' || e.key === 'ф' || e.key === 'Ф')) {
+        e.preventDefault();
+        clientSite.classList.add('hidden');
+        adminPanel.classList.remove('hidden');
+        adminLoginScreen.classList.remove('hidden');
+        adminDashboard.classList.add('hidden');
+      }
+    });
+
+    document.getElementById('exit-admin').onclick = () => {
+      adminPanel.classList.add('hidden');
+      clientSite.classList.remove('hidden');
+      document.getElementById('admin-pass-input').value = '';
+      renderProducts();
+    };
+
+    document.getElementById('admin-login-btn').onclick = () => {
+      const pass = document.getElementById('admin-pass-input').value;
+      if (pass === ADMIN_PASSWORD) {
+        adminLoginScreen.classList.add('hidden');
+        adminDashboard.classList.remove('hidden');
+        renderAdminProductsList();
+        document.getElementById('admin-pass-input').value = '';
+      } else {
+        alert('Невірний пароль!');
+      }
+    };
+
+    function renderAdminProductsList() {
+      const listEl = document.getElementById('admin-products-list');
+      if (!listEl) return;
+      listEl.innerHTML = products.map(p => {
+        const mainImg = p.images && p.images.length ? p.images[0] : p.img;
+        return `
+          <div class="flex items-center justify-between border border-zinc-200 dark:border-zinc-800 p-3 bg-white dark:bg-zinc-900">
+            <div class="flex items-center gap-3">
+              <img src="${mainImg}" class="w-10 h-12 object-cover">
+              <div>
+                <p class="text-xs font-semibold">${p.name} <span class="text-[10px] text-zinc-400 font-mono">[${p.sku || 'без SKU'}]</span></p>
+                <p class="text-[10px] text-zinc-400">${p.price} UAH ${p.badge ? `| [${p.badge}]` : ''}</p>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="editProduct(${p.id})" class="text-xs bg-zinc-200 dark:bg-zinc-800 px-3 py-1.5 uppercase hover:opacity-80">Редагувати</button>
+              <button onclick="deleteProduct(${p.id})" class="text-xs bg-red-600 text-white px-3 py-1.5 uppercase hover:opacity-80">Видалити</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    const adminForm = document.getElementById('admin-product-form');
+    adminForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const editId = document.getElementById('edit-product-id').value;
+      const fileInput = document.getElementById('ap-files');
+      const urlInput = document.getElementById('ap-img').value;
+
+      const finishSave = (imageArray) => {
+        const sizes = Array.from(document.querySelectorAll('input[name="ap-size"]:checked')).map(cb => cb.value);
+        const name = document.getElementById('ap-name').value;
+        const sku = document.getElementById('ap-sku').value;
+        const price = Number(document.getElementById('ap-price').value);
+        const oldPrice = document.getElementById('ap-old-price').value;
+        const badge = document.getElementById('ap-badge').value;
+        const desc = document.getElementById('ap-desc').value;
+
+        if (editId) {
+          products = products.map(p => {
+            if (p.id == editId) {
+              return {
+                ...p,
+                name,
+                sku,
+                price,
+                oldPrice,
+                badge,
+                desc,
+                images: imageArray.length ? imageArray : p.images,
+                sizes: sizes.length ? sizes : p.sizes
+              };
+            }
+            return p;
+          });
+          document.getElementById('edit-product-id').value = '';
+          document.getElementById('form-title').innerText = 'Додати новий товар';
+          document.getElementById('save-btn').innerText = 'Зберегти товар';
+          document.getElementById('cancel-edit-btn').classList.add('hidden');
+        } else {
+          const newP = {
+            id: Date.now(),
+            name,
+            sku,
+            price,
+            oldPrice,
+            badge,
+            desc,
+            images: imageArray.length ? imageArray : ['https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800'],
+            sizes: sizes.length ? sizes : ['S', 'M', 'L']
+          };
+          products.push(newP);
+        }
+
+        localStorage.setItem('elven_products', JSON.stringify(products));
+        renderAdminProductsList();
+        renderProducts();
+        adminForm.reset();
+        alert('Успішно збережено!');
+      };
+
+      if (fileInput && fileInput.files && fileInput.files.length > 0) {
+        let loadedImages = [];
+        let filesCount = fileInput.files.length;
+        Array.from(fileInput.files).forEach(file => {
+          const reader = new FileReader();
+          reader.onload = function(ev) {
+            loadedImages.push(ev.target.result);
+            if (loadedImages.length === filesCount) {
+              finishSave(loadedImages);
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      } else {
+        const existing = editId ? products.find(p => p.id == editId) : null;
+        const singleUrl = urlInput || (existing ? (existing.images ? existing.images[0] : existing.img) : '');
+        finishSave(singleUrl ? [singleUrl] : []);
+      }
+    });
+
+    window.editProduct = function(id) {
+      const p = products.find(item => item.id === id);
+      if (!p) return;
+      document.getElementById('edit-product-id').value = p.id;
+      document.getElementById('ap-name').value = p.name;
+      document.getElementById('ap-sku').value = p.sku || '';
+      document.getElementById('ap-price').value = p.price;
+      document.getElementById('ap-old-price').value = p.oldPrice || '';
+      document.getElementById('ap-badge').value = p.badge || '';
+      document.getElementById('ap-desc').value = p.desc || '';
+      document.getElementById('ap-img').value = '';
+      
+      document.getElementById('form-title').innerText = 'Редагувати товар ID: ' + p.id;
+      document.getElementById('save-btn').innerText = 'Оновити товар';
+      document.getElementById('cancel-edit-btn').classList.remove('hidden');
+    }
+
+    document.getElementById('cancel-edit-btn').onclick = () => {
+      document.getElementById('edit-product-id').value = '';
+      document.getElementById('form-title').innerText = 'Додати новий товар';
+      document.getElementById('save-btn').innerText = 'Зберегти товар';
+      document.getElementById('cancel-edit-btn').classList.add('hidden');
+      adminForm.reset();
+    }
+
+    window.deleteProduct = function(id) {
+      if (confirm('Видалити цей товар?')) {
+        products = products.filter(item => item.id !== id);
+        localStorage.setItem('elven_products', JSON.stringify(products));
+        renderAdminProductsList();
+        renderProducts();
+      }
+    }
+
+    const cartBtn = document.getElementById('cart-btn');
+    const closeCart = document.getElementById('close-cart');
+    const cartModal = document.getElementById('cart-modal');
+
+    if (cartBtn) cartBtn.onclick = () => { if (cartModal) cartModal.classList.remove('hidden'); };
+    if (closeCart) closeCart.onclick = () => { if (cartModal) cartModal.classList.add('hidden'); };
+
+    renderProducts();
+  </script>
+</body>
+</html>
