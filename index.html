@@ -2,6 +2,7 @@
 <html lang="uk" class="dark">
 <head>
   <meta charset="UTF-8">
+  <script>try{if(!sessionStorage.getItem('elven_pre')){document.documentElement.classList.add('preloading')}}catch(e){}</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#09090b">
   <title>ELVÉN | Official Store</title>
@@ -93,6 +94,106 @@
     @keyframes pop { from { transform: scale(0) rotate(-45deg); opacity: 0; } to { transform: none; opacity: 1; } }
     ::selection { background: #71717a; color: #fff; }
     @media (prefers-reduced-motion: reduce) { .orb, .marquee-track { animation: none !important; } .word > span { transform: none; } }
+
+    /* ===== Шнурок теми ===== */
+    .cord { position: absolute; top: 0; right: 6.5rem; width: 0; height: 0; z-index: 5; }
+    @media (min-width: 640px) { .cord { right: 11rem; } }
+    .cord-sway { position: absolute; left: 0; top: 0; transform-origin: 0 0; animation: sway 5.5s ease-in-out infinite; }
+    .cord.dragging .cord-sway { animation-play-state: paused; }
+    @keyframes sway { 0%,100% { transform: rotate(-1.8deg); } 50% { transform: rotate(1.8deg); } }
+    .cord-line { position: absolute; left: -1px; top: 0; width: 2px; height: 70px; transform-origin: 50% 0; will-change: transform; background: linear-gradient(#a1a1aa, #71717a); border-radius: 2px; }
+    .cord-handle { position: absolute; left: -18px; top: 70px; width: 36px; height: 36px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; touch-action: none; cursor: grab; will-change: transform; box-shadow: 0 6px 18px -4px rgba(0,0,0,.45), 0 0 0 3px rgba(128,128,128,.18); font-size: 16px; -webkit-user-select: none; user-select: none; }
+    .cord-handle::before { content: ""; position: absolute; inset: -12px; }
+    .cord.dragging .cord-handle { cursor: grabbing; }
+    .cord-handle:focus-visible { outline: 2px solid #f59e0b; outline-offset: 4px; }
+    .cord-hint { position: absolute; left: 26px; top: 80px; font-size: 9px; letter-spacing: .25em; text-transform: uppercase; color: #a1a1aa; white-space: nowrap; pointer-events: none; animation: hint 2.4s ease-in-out infinite; }
+    @keyframes hint { 0%,100% { opacity: .35; transform: translate3d(0,0,0); } 50% { opacity: 1; transform: translate3d(0,4px,0); } }
+    html.theme-vt *, html.theme-vt *::before, html.theme-vt *::after { transition: none !important; }
+    html.theme-vt::view-transition-old(root), html.theme-vt::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+    html.theme-vt::view-transition-old(root) { z-index: 1; }
+    html.theme-vt::view-transition-new(root) { z-index: 2147483646; }
+
+    /* ===== Тележка-переход ===== */
+    #cart-intro { position: fixed; inset: 0; z-index: 75; display: none; overflow: hidden; will-change: clip-path; cursor: pointer; }
+    #ci-ground { position: absolute; left: 0; right: 0; top: 62%; height: 2px; background: currentColor; opacity: .3; }
+    #ci-dashwrap { position: absolute; left: 0; right: 0; top: calc(62% + 18px); height: 4px; overflow: hidden; }
+    #ci-dash { position: absolute; left: 0; top: 0; width: calc(100% + 90px); height: 4px; background: repeating-linear-gradient(90deg, currentColor 0 44px, transparent 44px 90px); opacity: .18; will-change: transform; }
+    #ci-wrap { position: absolute; left: 0; bottom: 38%; width: clamp(220px, 58vw, 440px); will-change: transform; }
+    @media (min-width: 768px) { #ci-wrap { width: clamp(300px, 32vw, 460px); } }
+    #ci-cart { display: block; width: 100%; height: auto; overflow: visible; transform-origin: 30% 100%; will-change: transform; }
+    #ci-cart .it { transform-box: fill-box; transform-origin: 50% 100%; }
+    #ci-cart .wheel { transform-box: fill-box; transform-origin: center; }
+    #cart-intro.ci-rev .it { animation: jig .09s ease-in-out infinite alternate; }
+    #cart-intro.ci-rev .it2 { animation-delay: -.05s; }
+    #cart-intro.ci-rev .it3 { animation-delay: -.02s; }
+    #cart-intro.ci-go .it { transform: translate3d(-8px,-10px,0) rotate(-7deg); transition: transform .45s cubic-bezier(.2,.8,.2,1); }
+    #cart-intro.ci-go .it2 { transform: translate3d(-4px,-16px,0) rotate(5deg); }
+    #cart-intro.ci-go .wheel { animation: spin .16s linear infinite; }
+    @keyframes jig { from { transform: translate3d(0,0,0) rotate(-1.2deg); } to { transform: translate3d(0,-4px,0) rotate(1.4deg); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .ci-puff { position: absolute; left: 0; top: 0; border-radius: 9999px; background: rgba(161,161,170,.5); will-change: transform, opacity; pointer-events: none; }
+    .ci-streak { position: absolute; left: 0; height: 2px; border-radius: 2px; background: currentColor; opacity: .28; will-change: transform; pointer-events: none; }
+
+    /* ===== Preloader ===== */
+    #preloader { display: none; position: fixed; inset: 0; z-index: 100; align-items: center; justify-content: center; background: #09090b; color: #fff; will-change: transform; }
+    html.preloading #preloader { display: flex; }
+    html.preloading .fade-up, html.preloading .word > span { animation-play-state: paused; }
+    .pl { display: flex; overflow: hidden; padding: .15em .1em; font-size: clamp(2rem, 9vw, 4.5rem); font-weight: 200; letter-spacing: .35em; margin-right: -.35em; }
+    .pl span { display: inline-block; transform: translate3d(0,115%,0); animation: wordUp .8s cubic-bezier(.2,.8,.2,1) forwards; }
+    #pre-line { position: absolute; left: 0; bottom: 0; height: 2px; width: 100%; background: #fff; transform: scaleX(0); transform-origin: 0 50%; animation: preBar 1.3s cubic-bezier(.4,0,.2,1) forwards; }
+    @keyframes preBar { to { transform: scaleX(1); } }
+    .word { padding-top: .12em; margin-top: -.12em; }
+
+    /* ===== Hero badge / footer / вгору ===== */
+    .spin-slow { animation: spin 18s linear infinite; }
+    .outline-text { color: transparent; -webkit-text-stroke: 1px rgba(128,128,128,.35); }
+    #to-top { position: fixed; right: 1rem; bottom: 1rem; z-index: 35; width: 3rem; height: 3rem; border-radius: 9999px; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transform: translate3d(0,12px,0); transition: opacity .3s, transform .3s; }
+    #to-top svg.ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+
+    /* ===== Картки ===== */
+    .fav-btn { display: flex; align-items: center; justify-content: center; border-radius: 9999px; background: rgba(255,255,255,.88); color: #18181b; transition: opacity .25s, transform .2s, background-color .2s; }
+    .dark .fav-btn { background: rgba(24,24,27,.75); color: #fff; }
+    .fav-btn:active { transform: scale(.9); }
+    @media (hover:hover) { .fav-btn:not(.fav-on) { opacity: 0; } article:hover .fav-btn { opacity: 1; } }
+    .fav-on .ic, .fav-top.fav-on .ic { fill: #ef4444; stroke: #ef4444; }
+    .heart-pop .ic { animation: heartPop .5s cubic-bezier(.2,.9,.3,1.5); }
+    @keyframes heartPop { 0% { transform: scale(.6); } 60% { transform: scale(1.45); } 100% { transform: scale(1); } }
+    .card-media { transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+    .card-sizes { position: absolute; left: 0; right: 0; bottom: 0; display: none; justify-content: center; gap: .9rem; padding: .7rem 0; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; transform: translate3d(0,101%,0); transition: transform .35s cubic-bezier(.2,.8,.2,1); background: rgba(255,255,255,.85); color: #000; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+    .dark .card-sizes { background: rgba(9,9,11,.75); color: #fff; }
+    @media (hover:hover) and (min-width: 768px) { .card-sizes { display: flex; } article:hover .card-sizes { transform: none; } article:hover .card-no { opacity: 0; } }
+    .card-no { transition: opacity .25s; }
+    #cursor-bubble { position: fixed; left: 0; top: 0; z-index: 60; width: 0; height: 0; pointer-events: none; mix-blend-mode: difference; will-change: transform; }
+    .cb-in { position: absolute; left: -42px; top: -42px; width: 84px; height: 84px; border-radius: 9999px; background: #fff; color: #000; display: flex; align-items: center; justify-content: center; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; transform: scale(0); transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+    .cb-in.show { transform: scale(1); }
+
+    /* ===== Сторінка товару ===== */
+    ::view-transition-group(pimg) { animation-duration: .6s; animation-timing-function: cubic-bezier(.2,.8,.2,1); }
+    ::view-transition-old(pimg), ::view-transition-new(pimg) { height: 100%; width: 100%; object-fit: cover; }
+    #product-modal { scroll-behavior: auto; }
+    .pm-in { animation: fadeIn .3s ease; }
+    .pm-bgtext { position: fixed; inset: 0; z-index: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; pointer-events: none; font-size: 24vw; font-weight: 200; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; color: transparent; -webkit-text-stroke: 1px rgba(128,128,128,.14); user-select: none; }
+    .pm-par { position: absolute; left: 0; right: 0; top: 0; bottom: 0; will-change: transform; }
+    @media (min-width: 1024px) { .pm-par { top: -6%; bottom: -6%; } }
+    @media (hover:hover) and (pointer:fine) and (min-width: 1024px) {
+      .pm-zoom { cursor: zoom-in; }
+      .pm-zoom img { transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+      .pm-zoom:hover img { transform: scale(1.9); }
+    }
+    .sz { position: relative; z-index: 1; min-width: 3.25rem; height: 3rem; padding: 0 .9rem; border: 1px solid #d4d4d8; font-size: 12px; font-weight: 500; text-transform: uppercase; transition: color .25s, border-color .25s, transform .2s; }
+    .dark .sz { border-color: #3f3f46; }
+    .sz:active { transform: scale(.95); }
+    .sz.active { color: #fff; border-color: transparent; }
+    .dark .sz.active { color: #000; }
+    .acc { border-top: 1px solid rgba(128,128,128,.2); }
+    .acc:last-child { border-bottom: 1px solid rgba(128,128,128,.2); }
+    .acc-b { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .4s cubic-bezier(.2,.8,.2,1); }
+    .acc.open .acc-b { grid-template-rows: 1fr; }
+    .acc-h .ic { transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+    .acc.open .acc-h .ic { transform: rotate(45deg); }
+    .pm-add { transition: transform .3s cubic-bezier(.2,.8,.2,1), background-color .3s, color .3s; }
+    .pm-add.added { background: #16a34a !important; color: #fff !important; }
+    #pm-gallery { scroll-behavior: smooth; }
   </style>
 </head>
 <body class="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans min-h-screen transition-colors duration-300">
@@ -111,6 +212,11 @@
       <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7"/></symbol>
       <symbol id="i-smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 14.5s1.5 2 4 2 4-2 4-2M9 9.5h.01M15 9.5h.01"/></symbol>
       <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+    
+      <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+      <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+      <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
     </defs>
   </svg>
 
@@ -122,7 +228,16 @@
   <!-- САЙТ -->
   <div id="client-site" class="flex flex-col min-h-screen">
     <header class="sticky top-0 z-40 glass bg-white/80 dark:bg-zinc-950/80 border-b border-zinc-100 dark:border-zinc-900 transition-colors duration-300">
-      <div class="max-w-7xl mx-auto px-4 sm:px-8 h-16 flex justify-between items-center">
+      <div class="relative max-w-7xl mx-auto px-4 sm:px-8 h-16 flex justify-between items-center">
+        <div id="cord" class="cord">
+          <div class="cord-sway">
+            <div id="cord-line" class="cord-line"></div>
+            <button id="cord-handle" type="button" class="cord-handle bg-black text-white dark:bg-white dark:text-black" aria-label="Змінити тему — потягніть шнурок">
+              <svg id="theme-icon" class="ic" aria-hidden="true"><use href="#i-sun"/></svg>
+            </button>
+            <span id="cord-hint" class="cord-hint">Потягни</span>
+          </div>
+        </div>
         <a href="#top" id="logo" class="flex items-center select-none">
           <img src="Минималистичный логотип ELVÉN.png" alt="ELVÉN" class="h-8 sm:h-10 w-auto object-contain dark:invert" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='block';">
           <span id="fallback-logo" class="text-lg font-bold tracking-mega uppercase hidden text-black dark:text-white">ELVÉN</span>
@@ -132,9 +247,6 @@
           <a href="#info" class="hover:text-black dark:hover:text-white transition">Доставка</a>
         </nav>
         <div class="flex items-center gap-2 sm:gap-4">
-          <button id="theme-toggle-btn" aria-label="Змінити тему" class="w-10 h-10 flex items-center justify-center text-sm text-zinc-500 hover:text-black dark:hover:text-white transition rounded-full">
-            <svg id="theme-icon" class="ic " aria-hidden="true"><use href="#i-sun"/></svg>
-          </button>
           <button id="cart-btn" aria-label="Відкрити кошик" class="relative bg-black dark:bg-white text-white dark:text-black h-10 px-4 text-[11px] font-semibold tracking-ultra uppercase flex items-center gap-2 hover:opacity-80 active:scale-95 transition">
             <svg class="ic text-xs" aria-hidden="true"><use href="#i-bag"/></svg>
             <span class="hidden sm:inline">Кошик</span>
@@ -149,6 +261,10 @@
       <section class="relative overflow-hidden border-b border-zinc-100 dark:border-zinc-900">
         <div class="hero-glow absolute inset-0 pointer-events-none"></div>
         <div class="orb orb-1"></div><div class="orb orb-2"></div>
+        <div class="hidden md:block absolute right-10 bottom-10 w-32 h-32 pointer-events-none text-zinc-400" aria-hidden="true">
+          <svg viewBox="0 0 120 120" class="w-full h-full spin-slow"><defs><path id="circ" d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0"/></defs><text font-size="8" fill="currentColor" textLength="272" lengthAdjust="spacing"><textPath href="#circ">ESSENTIAL OVERSIZE • COLLECTION 2026 • </textPath></text></svg>
+          <svg class="ic absolute inset-0 m-auto w-5 h-5"><use href="#i-arrow-down"/></svg>
+        </div>
         <div id="hero-content" class="relative max-w-7xl mx-auto px-4 sm:px-8 py-20 sm:py-32 text-center">
           <p class="fade-up text-[10px] font-medium uppercase tracking-mega text-zinc-400 mb-5">Collection 2026</p>
           <h1 class="text-3xl sm:text-6xl lg:text-7xl font-extralight uppercase tracking-ultra text-black dark:text-white mb-6 leading-tight" ><span class="word"><span style="animation-delay:.1s">Essential</span></span> <span class="word"><span style="animation-delay:.22s">Oversize</span></span></h1>
@@ -175,8 +291,8 @@
       <section id="catalog" class="max-w-7xl mx-auto px-4 sm:px-8 pt-14 pb-20 scroll-mt-16">
         <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5 mb-8 sm:mb-10">
           <div>
-            <h2 class="text-xs font-semibold uppercase tracking-mega text-zinc-400">Каталог</h2>
-            <p id="catalog-count" class="text-[11px] text-zinc-400/70 mt-1 tracking-wider"></p>
+            <h2 class="text-4xl sm:text-6xl font-extralight uppercase tracking-ultra text-black dark:text-white leading-none">Каталог</h2>
+            <p id="catalog-count" class="text-[11px] text-zinc-400 mt-3 tracking-widest uppercase"></p>
           </div>
           <div class="flex items-center gap-3 justify-between sm:justify-end">
             <div id="filters" class="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
@@ -184,6 +300,7 @@
               <button data-filter="NEW" class="chip">New</button>
               <button data-filter="SALE" class="chip">Sale</button>
               <button data-filter="TOP" class="chip">Top</button>
+              <button data-filter="FAV" class="chip inline-flex items-center gap-1.5"><svg class="ic" aria-hidden="true"><use href="#i-heart"/></svg>Обране</button>
             </div>
           </div>
         </div>
@@ -223,53 +340,120 @@
       </section>
     </main>
 
-    <footer class="border-t border-zinc-100 dark:border-zinc-900 py-8 text-center text-[10px] uppercase tracking-mega text-zinc-400">
-      &copy; 2026 ELVÉN. ALL RIGHTS RESERVED.
+    <footer class="border-t border-zinc-100 dark:border-zinc-900 overflow-hidden">
+      <div class="max-w-7xl mx-auto px-4 sm:px-8 pt-14">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 text-[11px] uppercase tracking-widest text-zinc-400">
+          <a href="#catalog" class="hover:text-black dark:hover:text-white transition">Каталог →</a>
+          <a href="#info" class="hover:text-black dark:hover:text-white transition">Доставка та оплата →</a>
+          <a href="#info" class="hover:text-black dark:hover:text-white transition">Обмін та повернення →</a>
+        </div>
+        <div class="reveal outline-text text-[24vw] sm:text-[20vw] font-extralight leading-[.85] tracking-mega text-center mt-10 -mb-[3vw] select-none whitespace-nowrap">ELVÉN</div>
+      </div>
+      <div class="relative border-t border-zinc-100 dark:border-zinc-900 py-6 text-center text-[10px] uppercase tracking-mega text-zinc-400 bg-white dark:bg-zinc-950">&copy; 2026 ELVÉN. ALL RIGHTS RESERVED.</div>
     </footer>
   </div>
 
-  <!-- МОДАЛКА ТОВАРУ -->
-  <div id="product-modal" class="fixed inset-0 z-50 hidden">
-    <div class="backdrop absolute inset-0 bg-black/75" data-close-product></div>
-    <div class="absolute inset-x-0 bottom-0 md:inset-0 md:flex md:items-center md:justify-center md:p-6 pointer-events-none">
-      <div class="sheet pointer-events-auto bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 w-full md:max-w-4xl max-h-[92dvh] md:max-h-[90dvh] overflow-y-auto rounded-t-2xl md:rounded-none relative grid grid-cols-1 md:grid-cols-2 shadow-2xl">
-        <button data-close-product type="button" aria-label="Закрити" class="absolute top-3 right-3 z-20 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 dark:bg-zinc-900/90 text-zinc-600 dark:text-zinc-300 text-xl shadow active:scale-95 transition">&times;</button>
-
-        <div class="p-0 md:p-8 md:pr-4 space-y-3">
-          <div id="gallery" class="aspect-[3/4] bg-zinc-100 dark:bg-zinc-900 overflow-hidden relative select-none">
-            <img id="modal-main-img" src="" alt="" class="w-full h-full object-cover">
-            <button id="g-prev" aria-label="Попереднє фото" class="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 dark:bg-black/60 text-black dark:text-white text-xs hidden items-center justify-center"><svg class="ic " aria-hidden="true"><use href="#i-chev-l"/></svg></button>
-            <button id="g-next" aria-label="Наступне фото" class="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 dark:bg-black/60 text-black dark:text-white text-xs hidden items-center justify-center"><svg class="ic " aria-hidden="true"><use href="#i-chev-r"/></svg></button>
-            <div id="g-dots" class="absolute bottom-3 inset-x-0 flex justify-center gap-1.5"></div>
-          </div>
-          <div id="modal-thumbs" class="hidden md:flex gap-2 overflow-x-auto no-scrollbar pb-1"></div>
-        </div>
-
-        <div class="p-5 sm:p-8 md:pl-4 flex flex-col justify-between gap-6">
-          <div class="space-y-5">
-            <div>
-              <div class="flex justify-between items-center mb-3 pr-10 md:pr-0">
-                <span id="modal-badge" class="inline-block px-2.5 py-0.5 text-[9px] uppercase tracking-widest font-bold"></span>
-                <span id="modal-sku" class="text-[10px] text-zinc-400 tracking-wider font-mono"></span>
-              </div>
-              <h2 id="modal-title" class="text-xl sm:text-2xl font-light uppercase tracking-wide text-black dark:text-white"></h2>
-              <div id="modal-price-box" class="flex items-center gap-3 mt-2"></div>
-            </div>
-            <div class="border-t border-zinc-100 dark:border-zinc-900 pt-4 space-y-2">
-              <p class="text-[11px] uppercase tracking-wider text-zinc-400 font-semibold">Опис</p>
-              <p id="modal-desc" class="text-xs text-zinc-600 dark:text-zinc-400 font-light leading-relaxed whitespace-pre-line"></p>
-            </div>
-            <div class="space-y-2">
-              <p class="text-[11px] uppercase tracking-wider text-zinc-400 font-semibold">Розмір</p>
-              <div id="modal-sizes" class="flex flex-wrap gap-2"></div>
-            </div>
-          </div>
-          <button id="modal-add-btn" class="btn-shine w-full bg-black dark:bg-white text-white dark:text-black font-semibold py-4 text-xs uppercase tracking-ultra hover:opacity-80 active:scale-[.99] transition safe-b">
-            Додати в кошик
+  <!-- ТОВАР -->
+  <div id="product-modal" class="fixed inset-0 z-50 hidden bg-white dark:bg-zinc-950 overflow-y-auto overscroll-contain" role="dialog" aria-modal="true" aria-label="Товар">
+    <div id="pm-bgtext" class="pm-bgtext" aria-hidden="true"></div>
+    <div class="relative z-10">
+      <header class="sticky top-0 z-30 glass bg-white/75 dark:bg-zinc-950/75 border-b border-zinc-100 dark:border-zinc-900">
+        <div class="max-w-[1500px] mx-auto px-3 sm:px-8 h-14 flex items-center justify-between">
+          <button type="button" data-close-product class="flex items-center gap-2 px-2 h-10 text-[11px] uppercase tracking-ultra text-zinc-500 hover:text-black dark:hover:text-white transition">
+            <svg class="ic" aria-hidden="true"><use href="#i-arrow-left"/></svg><span class="hidden sm:inline">Каталог</span>
           </button>
+          <div class="flex items-center gap-1 text-[10px] tracking-ultra uppercase text-zinc-400">
+            <button id="pm-prev" type="button" aria-label="Попередній товар" class="w-10 h-10 flex items-center justify-center hover:text-black dark:hover:text-white transition"><svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></button>
+            <span id="pm-counter" class="tabular-nums min-w-[4.5rem] text-center"></span>
+            <button id="pm-next" type="button" aria-label="Наступний товар" class="w-10 h-10 flex items-center justify-center hover:text-black dark:hover:text-white transition"><svg class="ic" aria-hidden="true"><use href="#i-chev-r"/></svg></button>
+          </div>
+          <div class="flex items-center">
+            <button id="pm-fav" type="button" data-fav="" aria-label="В обране" class="fav-top w-10 h-10 flex items-center justify-center text-zinc-500 hover:text-black dark:hover:text-white transition"><svg class="ic" aria-hidden="true"><use href="#i-heart"/></svg></button>
+            <button id="pm-cart" type="button" aria-label="Кошик" class="relative w-10 h-10 flex items-center justify-center text-zinc-500 hover:text-black dark:hover:text-white transition">
+              <svg class="ic" aria-hidden="true"><use href="#i-bag"/></svg>
+              <span id="pm-cart-count" class="absolute top-1 right-0 min-w-[1.1rem] h-[1.1rem] rounded-full bg-black dark:bg-white text-white dark:text-black text-[9px] font-semibold flex items-center justify-center">0</span>
+            </button>
+          </div>
         </div>
+      </header>
+
+      <div id="pm-body">
+        <div class="max-w-[1500px] mx-auto lg:px-8 lg:grid lg:grid-cols-12 lg:gap-14">
+          <div class="lg:col-span-7">
+            <div id="pm-gallery" class="flex overflow-x-auto snap-x snap-mandatory no-scrollbar lg:block lg:overflow-visible lg:space-y-4 lg:py-8"></div>
+            <div id="pm-dots" class="flex lg:hidden justify-center gap-1.5 pt-3"></div>
+          </div>
+          <aside class="lg:col-span-5">
+            <div id="pm-info" class="lg:sticky lg:top-20 px-5 sm:px-8 lg:px-0 py-6 lg:py-12 space-y-8">
+              <div class="pm-st flex items-center justify-between">
+                <span id="pm-badge" class="inline-block px-2.5 py-1 text-[9px] uppercase tracking-widest font-bold"></span>
+                <span id="pm-sku" class="text-[10px] text-zinc-400 tracking-wider font-mono"></span>
+              </div>
+              <h2 id="pm-title" class="pm-st text-4xl sm:text-5xl xl:text-6xl font-extralight uppercase leading-[1.08] tracking-wide text-black dark:text-white"></h2>
+              <div id="pm-price" class="pm-st flex items-baseline flex-wrap gap-3"></div>
+              <div class="pm-st">
+                <div class="flex items-center justify-between mb-3">
+                  <p class="text-[11px] uppercase tracking-wider text-zinc-400 font-semibold">Розмір</p>
+                  <p id="pm-size-cur" class="text-[11px] uppercase tracking-wider text-black dark:text-white font-semibold"></p>
+                </div>
+                <div id="pm-sizes" class="relative flex gap-2"></div>
+              </div>
+              <div class="pm-st hidden lg:block">
+                <button type="button" class="pm-add btn-shine w-full h-14 bg-black dark:bg-white text-white dark:text-black font-semibold text-xs uppercase tracking-ultra"><span class="lbl">Додати в кошик</span></button>
+              </div>
+              <div class="pm-st grid grid-cols-3 gap-3 text-center text-[9px] uppercase tracking-widest text-zinc-400">
+                <div class="space-y-2"><svg class="ic w-5 h-5 mx-auto" aria-hidden="true"><use href="#i-truck"/></svg><p>Нова Пошта<br>щодня</p></div>
+                <div class="space-y-2"><svg class="ic w-5 h-5 mx-auto" aria-hidden="true"><use href="#i-rotate"/></svg><p>Обмін<br>14 днів</p></div>
+                <div class="space-y-2"><svg class="ic w-5 h-5 mx-auto" aria-hidden="true"><use href="#i-box"/></svg><p>Огляд<br>на пошті</p></div>
+              </div>
+              <div class="pm-st">
+                <div class="acc open">
+                  <button type="button" class="acc-h w-full flex items-center justify-between py-4 text-[11px] uppercase tracking-ultra" aria-expanded="true">Опис<svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg></button>
+                  <div class="acc-b"><div class="overflow-hidden"><p id="pm-desc" class="pb-5 text-xs text-zinc-600 dark:text-zinc-400 font-light leading-relaxed whitespace-pre-line"></p></div></div>
+                </div>
+                <div class="acc">
+                  <button type="button" class="acc-h w-full flex items-center justify-between py-4 text-[11px] uppercase tracking-ultra" aria-expanded="false">Доставка та оплата<svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg></button>
+                  <div class="acc-b"><div class="overflow-hidden"><ul class="pb-5 text-xs text-zinc-600 dark:text-zinc-400 font-light leading-relaxed space-y-2">
+                    <li><strong class="font-medium">Нова Пошта:</strong> щодня. Накладений платіж без передоплати.</li>
+                    <li><strong class="font-medium">Укрпошта:</strong> Ср, Чт, Пт, Нд. 100% передоплата.</li>
+                    <li><strong class="font-medium">Міжнародна:</strong> Польща та Молдова.</li>
+                  </ul></div></div>
+                </div>
+                <div class="acc">
+                  <button type="button" class="acc-h w-full flex items-center justify-between py-4 text-[11px] uppercase tracking-ultra" aria-expanded="false">Обмін та повернення<svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg></button>
+                  <div class="acc-b"><div class="overflow-hidden"><div class="pb-5 text-xs text-zinc-600 dark:text-zinc-400 font-light leading-relaxed space-y-2">
+                    <p>Обмін протягом 14 днів при збереженні бірок, товарного вигляду та відсутності слідів носіння.</p>
+                    <p>Огляд та повернення здійснюються безпосередньо у відділенні пошти при отриманні.</p>
+                  </div></div></div>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <section id="pm-related" class="max-w-[1500px] mx-auto px-5 sm:px-8 py-12 border-t border-zinc-100 dark:border-zinc-900">
+          <h3 class="text-xs font-semibold uppercase tracking-mega text-zinc-400 mb-6">Вам також сподобається</h3>
+          <div id="pm-related-list" class="flex gap-4 overflow-x-auto snap-x no-scrollbar pb-2"></div>
+        </section>
+      </div>
+
+      <div id="pm-bar" class="lg:hidden sticky bottom-0 z-30 glass bg-white/90 dark:bg-zinc-950/90 border-t border-zinc-100 dark:border-zinc-900 flex items-center gap-4 px-4 pt-3 safe-b">
+        <div class="leading-tight shrink-0"><p class="text-[9px] uppercase tracking-widest text-zinc-400">Ціна</p><p id="pm-bar-price" class="text-sm font-medium tabular-nums"></p></div>
+        <button type="button" class="pm-add flex-grow h-12 bg-black dark:bg-white text-white dark:text-black font-semibold text-xs uppercase tracking-ultra"><span class="lbl" data-short="1">Додати</span></button>
       </div>
     </div>
+  </div>
+
+  <div id="cursor-bubble" aria-hidden="true"><div class="cb-in">Дивитись</div></div>
+
+  <button id="to-top" type="button" aria-label="Нагору" class="glass bg-white/80 dark:bg-zinc-900/80 text-black dark:text-white border border-zinc-200 dark:border-zinc-800 shadow-lg">
+    <svg class="ring" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" stroke-opacity=".12" stroke-width="2"/><circle id="to-top-ring" cx="24" cy="24" r="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="stroke-dasharray:131.95;stroke-dashoffset:131.95"/></svg>
+    <svg class="ic" aria-hidden="true"><use href="#i-arrow-up"/></svg>
+  </button>
+
+  <div id="preloader" aria-hidden="true">
+    <div class="pl"><span style="animation-delay:.05s">E</span><span style="animation-delay:.13s">L</span><span style="animation-delay:.21s">V</span><span style="animation-delay:.29s">É</span><span style="animation-delay:.37s">N</span></div>
+    <div id="pre-line"></div>
   </div>
 
   <!-- КОШИК -->
@@ -327,6 +511,31 @@
         <button type="submit" form="order-form" id="submit-btn" class="w-full bg-black dark:bg-white text-white dark:text-black font-semibold py-4 text-xs tracking-ultra uppercase hover:opacity-80 active:scale-[.99] transition disabled:opacity-40">Оформити замовлення</button>
       </div>
     </aside>
+  </div>
+
+  <!-- ТЕЛЕЖКА-ПЕРЕХІД -->
+  <div id="cart-intro" class="bg-white dark:bg-zinc-950 text-black dark:text-white" aria-hidden="true">
+    <div id="ci-mark" class="absolute inset-x-0 top-[14%] text-center font-extralight uppercase tracking-mega text-[20vw] leading-none opacity-[.05] select-none whitespace-nowrap">ELVÉN</div>
+    <div id="ci-lines" class="absolute inset-0 pointer-events-none"></div>
+    <div id="ci-ground"></div>
+    <div id="ci-dashwrap"><div id="ci-dash"></div></div>
+    <div id="ci-puffs" class="absolute inset-0 pointer-events-none"></div>
+    <div id="ci-wrap">
+      <svg id="ci-cart" viewBox="0 0 260 176" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+        <g class="it it1"><path d="M74 108V40Q74 24 90 24H108Q124 24 124 40V108Z" fill="#a1a1aa"/><path d="M90 24Q99 36 108 24M84 80H114" stroke-width="3"/></g>
+        <g class="it it2"><path d="M120 38L134 24L146 26Q154 38 162 26L176 24L190 38L178 46V108H130V46Z" fill="#f59e0b"/></g>
+        <g class="it it3"><path d="M188 108Q188 62 214 62Q240 62 240 108Z" fill="#ef4444"/><path d="M238 98Q252 98 258 106" stroke-width="4"/><circle cx="214" cy="62" r="3" fill="currentColor" stroke="none"/></g>
+        <path d="M48 50H236L214 128H70Z" fill="currentColor" fill-opacity=".07"/>
+        <path d="M92 50L97 128M136 50V128M180 50L177 128M58 89H226" stroke-width="3" opacity=".55"/>
+        <path d="M10 18H40L51.5 62"/>
+        <path d="M80 128L84 146M204 128L200 146"/>
+        <circle cx="84" cy="160" r="14" fill="currentColor" fill-opacity=".1"/>
+        <g class="wheel"><path d="M84 148V172M72 160H96M75.5 151.5L92.5 168.5M92.5 151.5L75.5 168.5" stroke-width="2.5"/></g>
+        <circle cx="200" cy="160" r="14" fill="currentColor" fill-opacity=".1"/>
+        <g class="wheel"><path d="M200 148V172M188 160H212M191.5 151.5L208.5 168.5M208.5 151.5L191.5 168.5" stroke-width="2.5"/></g>
+      </svg>
+    </div>
+    <p id="ci-label" class="absolute inset-x-0 bottom-[16%] text-center text-[11px] uppercase tracking-ultra text-zinc-400 px-6" style="opacity:0"></p>
   </div>
 
   <!-- УСПІХ -->
@@ -448,11 +657,80 @@
       document.querySelector('meta[name=theme-color]').content = dark ? '#09090b' : '#ffffff';
     }
     applyTheme((localStorage.getItem('elven_theme') || 'dark') === 'dark');
-    $('theme-toggle-btn').onclick = () => {
+    const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let introBusy = false;
+
+    // Зміна теми: коло розширюється від ручки шнурка
+    function toggleTheme(cx, cy) {
       const dark = !document.documentElement.classList.contains('dark');
       localStorage.setItem('elven_theme', dark ? 'dark' : 'light');
-      applyTheme(dark);
-    };
+      if (!document.startViewTransition || reduceMotion()) { applyTheme(dark); return; }
+      const root = document.documentElement;
+      root.classList.add('theme-vt');
+      const r = Math.hypot(Math.max(cx, innerWidth - cx), Math.max(cy, innerHeight - cy));
+      const t = document.startViewTransition(() => applyTheme(dark));
+      t.ready.then(() => {
+        root.animate(
+          { clipPath: [`circle(0px at ${cx}px ${cy}px)`, `circle(${r}px at ${cx}px ${cy}px)`] },
+          { duration: 750, easing: 'cubic-bezier(.4,0,.2,1)', pseudoElement: '::view-transition-new(root)' }
+        );
+      }).catch(() => {});
+      t.finished.finally(() => root.classList.remove('theme-vt'));
+    }
+
+    // Шнурок з фізикою пружини
+    (() => {
+      const cord = $('cord'), line = $('cord-line'), handle = $('cord-handle'), hint = $('cord-hint');
+      const L = 70, MAXP = 84, TH = 34;
+      let pull = 0, vel = 0, dragging = false, startY = 0, moved = 0, crossed = false, raf = 0, last = 0;
+      try { if (localStorage.getItem('elven_cord')) hint.style.display = 'none'; } catch (e) {}
+
+      const paint = () => {
+        line.style.transform = `scaleY(${(L + pull) / L})`;
+        handle.style.transform = `translate3d(0,${pull}px,0)`;
+      };
+      const tick = (t) => {
+        const dt = Math.min(.032, (t - last) / 1000 || .016); last = t;
+        const a = -220 * pull - 11 * vel;
+        vel += a * dt; pull += vel * dt; paint();
+        if (Math.abs(pull) < .1 && Math.abs(vel) < .5) { pull = 0; vel = 0; paint(); raf = 0; return; }
+        raf = requestAnimationFrame(tick);
+      };
+      const spring = () => { if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); } };
+      const fire = () => {
+        const r = handle.getBoundingClientRect();
+        toggleTheme(r.left + r.width / 2, r.top + r.height / 2);
+        hint.style.display = 'none';
+        try { localStorage.setItem('elven_cord', '1'); } catch (e) {}
+        if (navigator.vibrate) navigator.vibrate(18);
+      };
+
+      handle.addEventListener('pointerdown', (e) => {
+        dragging = true; moved = 0; crossed = false; startY = e.clientY;
+        cancelAnimationFrame(raf); raf = 0; vel = 0;
+        handle.setPointerCapture(e.pointerId); cord.classList.add('dragging');
+      });
+      handle.addEventListener('pointermove', (e) => {
+        if (!dragging) return;
+        const dy = Math.max(0, e.clientY - startY);
+        moved = Math.max(moved, Math.abs(e.clientY - startY));
+        pull = MAXP * (1 - Math.exp(-dy / MAXP));
+        if (!crossed && pull >= TH) { crossed = true; if (navigator.vibrate) navigator.vibrate(10); }
+        paint();
+      });
+      const end = () => {
+        if (!dragging) return;
+        dragging = false; cord.classList.remove('dragging');
+        if (crossed) fire();
+        else if (moved < 6) { vel = 420; fire(); }   // простий тап: шнурок «смикається» сам
+        spring();
+      };
+      handle.addEventListener('pointerup', end);
+      handle.addEventListener('pointercancel', end);
+      handle.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); vel = 420; fire(); spring(); }
+      });
+    })();
 
     /* ---------- Toast ---------- */
     function toast(msg, type = 'ok') {
@@ -497,17 +775,17 @@
 
     function renderProducts() {
       const grid = $('product-grid');
-      let list = products.filter(p => !activeFilter || p.badge === activeFilter);
+      let list = products.filter(p => !activeFilter || (activeFilter === 'FAV' ? favs.has(Number(p.id)) : p.badge === activeFilter));
       if (sortMode === 'asc') list.sort((a, b) => a.price - b.price);
       else if (sortMode === 'desc') list.sort((a, b) => b.price - a.price);
       else list.sort((a, b) => Number(b.id) - Number(a.id));
+      curList = list;
 
       $('catalog-count').textContent = loaded ? `${list.length} ${list.length === 1 ? 'товар' : 'товарів'}` : '';
-
       document.querySelectorAll('#filters .chip').forEach(c => c.classList.toggle('active', c.dataset.filter === activeFilter));
 
       if (!list.length) {
-        grid.innerHTML = `<div class="col-span-full text-center py-20 text-zinc-400 text-xs uppercase tracking-widest"><svg class="ic text-2xl mb-4 block" aria-hidden="true"><use href="#i-smile"/></svg>Тут поки порожньо</div>`;
+        grid.innerHTML = `<div class="col-span-full text-center py-20 text-zinc-400 text-xs uppercase tracking-widest"><svg class="ic text-3xl mb-4 block mx-auto" aria-hidden="true"><use href="#i-smile"/></svg>${activeFilter === 'FAV' ? 'Ви ще нічого не додали в обране' : 'Тут поки порожньо'}</div>`;
         return;
       }
 
@@ -520,13 +798,17 @@
         const priceHtml = sale
           ? `<div class="flex items-center gap-2 flex-wrap"><p class="text-red-500 font-medium text-xs">${fmt(p.price)}</p><p class="text-zinc-400 line-through text-[11px]">${fmt(p.oldPrice)}</p><span class="text-[9px] text-red-500 font-semibold">−${pct}%</span></div>`
           : `<p class="text-zinc-500 dark:text-zinc-400 font-light text-xs">${fmt(p.price)}</p>`;
+        const sizes = (p.sizes && p.sizes.length ? p.sizes : ['S', 'M', 'L']).map(esc).join('<span class="opacity-30">·</span>');
+        const fav = favs.has(Number(p.id));
         return `
         <article class="group cursor-pointer reveal" style="transition-delay:${Math.min(i, 8) * 50}ms" data-open="${p.id}">
-          <div class="relative overflow-hidden bg-zinc-100 dark:bg-zinc-900 mb-3 aspect-[3/4]">
+          <div class="card-media relative overflow-hidden bg-zinc-100 dark:bg-zinc-900 mb-3 aspect-[3/4]">
             ${badge}
-            <img src="${esc(imgs[0])}" alt="${esc(p.name)}" loading="lazy" class="absolute inset-0 w-full h-full object-cover transition duration-700 ease-out ${imgs[1] ? 'group-hover:opacity-0' : 'group-hover:scale-105'}">
-            ${imgs[1] ? `<img src="${esc(imgs[1])}" alt="" loading="lazy" class="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 group-hover:scale-105 transition duration-700 ease-out">` : ''}
-            <div class="hidden md:flex absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition duration-300 bg-black/80 text-white text-[10px] uppercase tracking-ultra justify-center py-3">Швидкий перегляд</div>
+            <img src="${esc(imgs[0])}" alt="${esc(p.name)}" loading="lazy" draggable="false" class="absolute inset-0 w-full h-full object-cover transition duration-700 ease-out ${imgs[1] ? 'group-hover:opacity-0' : 'group-hover:scale-105'}">
+            ${imgs[1] ? `<img src="${esc(imgs[1])}" alt="" loading="lazy" draggable="false" class="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 group-hover:scale-105 transition duration-700 ease-out">` : ''}
+            <button type="button" data-fav="${p.id}" aria-label="В обране" class="fav-btn ${fav ? 'fav-on' : ''} absolute top-2 right-2 z-10 w-9 h-9"><svg class="ic" aria-hidden="true"><use href="#i-heart"/></svg></button>
+            <span class="card-no absolute left-3 bottom-3 z-10 font-mono text-[10px] tracking-widest text-white mix-blend-difference">${pad2(i + 1)}</span>
+            <div class="card-sizes">${sizes}</div>
           </div>
           <div class="space-y-1">
             <div class="flex justify-between items-start gap-2">
@@ -550,6 +832,7 @@
     }
 
     $('product-grid').addEventListener('click', (e) => {
+      if (e.target.closest('[data-fav]')) return;
       const card = e.target.closest('[data-open]');
       if (card) openProductModal(Number(card.dataset.open));
     });
@@ -559,87 +842,316 @@
     });
     $('sort-select').onchange = (e) => { sortMode = e.target.value; vt(renderProducts); };
 
-    /* ---------- Модалка товару ---------- */
-    let curProduct = null, curImgs = [], curIdx = 0, curSize = null;
-
-    function setGallery(i) {
-      curIdx = (i + curImgs.length) % curImgs.length;
-      $('modal-main-img').src = curImgs[curIdx];
-      $('g-dots').innerHTML = curImgs.length > 1 ? curImgs.map((_, k) => `<span class="w-1.5 h-1.5 rounded-full ${k === curIdx ? 'bg-black dark:bg-white' : 'bg-black/30 dark:bg-white/30'}"></span>`).join('') : '';
-      document.querySelectorAll('#modal-thumbs > div').forEach((t, k) => {
-        t.classList.toggle('border-black', k === curIdx);
-        t.classList.toggle('dark:border-white', k === curIdx);
-      });
-    }
+    /* ---------- Товар: повноекранна сторінка ---------- */
+    const pad2 = (n) => String(n).padStart(2, '0');
+    const vtOK = () => !!document.startViewTransition && !reduceMotion();
+    let curProduct = null, curImgs = [], curSize = null, curList = [], pmPushed = false;
+    let favs = new Set();
+    try { favs = new Set(JSON.parse(localStorage.getItem('elven_fav') || '[]').map(Number)); } catch (e) {}
 
     function lockScroll(on) { document.body.style.overflow = on ? 'hidden' : ''; }
 
-    function openProductModal(id) {
-      const p = products.find(x => Number(x.id) === Number(id)); if (!p) return;
+    function toggleFav(id) {
+      id = Number(id);
+      const on = !favs.has(id);
+      on ? favs.add(id) : favs.delete(id);
+      try { localStorage.setItem('elven_fav', JSON.stringify([...favs])); } catch (e) {}
+      document.querySelectorAll(`[data-fav="${id}"]`).forEach(b => {
+        b.classList.toggle('fav-on', on); b.classList.remove('heart-pop'); void b.offsetWidth; if (on) b.classList.add('heart-pop');
+      });
+      toast(on ? 'Додано в обране' : 'Прибрано з обраного');
+      if (activeFilter === 'FAV' && $('product-modal').classList.contains('hidden')) renderProducts();
+    }
+    document.addEventListener('click', (e) => {
+      const f = e.target.closest('[data-fav]');
+      if (f && f.dataset.fav) { e.stopPropagation(); toggleFav(f.dataset.fav); }
+    });
+
+    function countUp(el, to, ms = 800) {
+      if (reduceMotion()) { el.textContent = fmt(to); return; }
+      const t0 = performance.now();
+      const step = (t) => {
+        const k = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - k, 3);
+        el.textContent = fmt(Math.round(to * e));
+        if (k < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+
+    function placeSizeInd(animate) {
+      const ind = $('pm-size-ind'), b = document.querySelector('#pm-sizes .sz.active');
+      if (!ind || !b) return;
+      ind.style.transition = animate ? 'transform .4s cubic-bezier(.2,.8,.2,1), width .4s cubic-bezier(.2,.8,.2,1)' : 'none';
+      ind.style.width = b.offsetWidth + 'px'; ind.style.height = b.offsetHeight + 'px';
+      ind.style.transform = `translate3d(${b.offsetLeft}px,0,0)`;
+    }
+
+    function updateAddLabels() {
+      document.querySelectorAll('.pm-add .lbl').forEach(l => { l.textContent = l.dataset.short ? `Додати · ${curSize}` : `Додати в кошик · ${curSize}`; });
+      $('pm-size-cur').textContent = curSize || '';
+    }
+
+    function renderProduct(p) {
       curProduct = p; curImgs = getImgs(p);
       const sizes = (p.sizes && p.sizes.length) ? p.sizes : ['S', 'M', 'L'];
       curSize = sizes[0];
+      if (!curList.length) curList = products.slice();
+      const idx = curList.findIndex(x => Number(x.id) === Number(p.id));
+      $('pm-counter').textContent = idx >= 0 ? `${pad2(idx + 1)} / ${pad2(curList.length)}` : '—';
+      $('pm-fav').dataset.fav = p.id;
+      $('pm-fav').classList.toggle('fav-on', favs.has(Number(p.id)));
+      $('pm-bgtext').textContent = (p.name || '').split(/\s+/)[0] || 'ELVÉN';
 
-      $('modal-title').textContent = p.name;
-      $('modal-sku').textContent = p.sku ? `SKU: ${p.sku}` : '';
-      $('modal-desc').textContent = p.desc || 'Преміальний оверсайз крій, щільна європейська бавовна.';
+      const n = curImgs.length;
+      $('pm-gallery').scrollLeft = 0;
+      $('pm-gallery').innerHTML = curImgs.map((src, k) => `
+        <div class="pm-slide shrink-0 w-full snap-center lg:w-auto">
+          <div class="pm-zoom relative overflow-hidden aspect-[3/4] bg-zinc-100 dark:bg-zinc-900">
+            <div class="pm-par"><img src="${esc(src)}" alt="${esc(p.name)}" draggable="false" ${k ? 'loading="lazy"' : ''} class="w-full h-full object-cover"></div>
+            <span class="absolute left-3 top-3 z-10 font-mono text-[10px] tracking-widest text-white mix-blend-difference">${pad2(k + 1)}/${pad2(n)}</span>
+          </div>
+        </div>`).join('');
+      $('pm-dots').innerHTML = n > 1 ? curImgs.map((_, k) => `<span class="h-1.5 rounded-full transition-all duration-300 ${k === 0 ? 'w-5 bg-black dark:bg-white' : 'w-1.5 bg-black/25 dark:bg-white/25'}"></span>`).join('') : '';
 
-      const badgeEl = $('modal-badge');
+      const badgeEl = $('pm-badge');
       if (p.badge) {
         badgeEl.textContent = p.badge;
-        badgeEl.className = 'inline-block px-2.5 py-0.5 text-[9px] uppercase tracking-widest font-bold ' + (p.badge === 'SALE' ? 'bg-red-600 text-white' : p.badge === 'TOP' ? 'bg-amber-500 text-black' : 'bg-black text-white dark:bg-white dark:text-black');
-        badgeEl.style.display = 'inline-block';
-      } else badgeEl.style.display = 'none';
+        badgeEl.className = 'inline-block px-2.5 py-1 text-[9px] uppercase tracking-widest font-bold ' + (p.badge === 'SALE' ? 'bg-red-600 text-white' : p.badge === 'TOP' ? 'bg-amber-500 text-black' : 'bg-black text-white dark:bg-white dark:text-black');
+        badgeEl.style.visibility = 'visible';
+      } else { badgeEl.textContent = '·'; badgeEl.style.visibility = 'hidden'; }
+      $('pm-sku').textContent = p.sku ? `SKU: ${p.sku}` : '';
+
+      $('pm-title').innerHTML = (p.name || '').split(/\s+/).filter(Boolean)
+        .map((w, i) => `<span class="word"><span style="animation-delay:${.05 + i * .07}s">${esc(w)}</span></span>`).join(' ');
 
       const sale = p.oldPrice && Number(p.oldPrice) > Number(p.price);
-      $('modal-price-box').innerHTML = sale
-        ? `<p class="text-red-500 font-medium text-lg">${fmt(p.price)}</p><p class="text-zinc-400 line-through text-sm">${fmt(p.oldPrice)}</p>`
-        : `<p class="text-black dark:text-white font-medium text-lg">${fmt(p.price)}</p>`;
+      const pct = sale ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
+      $('pm-price').innerHTML = `<span id="pm-price-now" class="text-2xl sm:text-3xl font-light tabular-nums ${sale ? 'text-red-500' : 'text-black dark:text-white'}">${fmt(p.price)}</span>`
+        + (sale ? `<span class="text-zinc-400 line-through text-base">${fmt(p.oldPrice)}</span><span class="text-[10px] font-bold bg-red-600 text-white px-2 py-1 tracking-widest">−${pct}%</span>` : '');
+      countUp($('pm-price-now'), Number(p.price));
+      $('pm-bar-price').textContent = fmt(p.price);
+      $('pm-desc').textContent = p.desc || 'Преміальний оверсайз крій, щільна європейська бавовна.';
 
-      $('modal-thumbs').innerHTML = curImgs.length > 1 ? curImgs.map((src, k) => `
-        <div data-thumb="${k}" class="w-16 h-20 shrink-0 bg-zinc-100 dark:bg-zinc-900 cursor-pointer overflow-hidden border border-zinc-300 dark:border-zinc-700 transition"><img src="${esc(src)}" class="w-full h-full object-cover"></div>`).join('') : '';
+      $('pm-sizes').innerHTML = `<span id="pm-size-ind" class="absolute left-0 top-0 bg-black dark:bg-white pointer-events-none" style="width:0;height:0"></span>`
+        + sizes.map(sz => `<button type="button" data-size="${esc(sz)}" class="sz ${sz === curSize ? 'active' : ''}">${esc(sz)}</button>`).join('');
+      updateAddLabels();
+      placeSizeInd(false);
 
-      const multi = curImgs.length > 1;
-      $('g-prev').style.display = multi ? 'flex' : 'none';
-      $('g-next').style.display = multi ? 'flex' : 'none';
-      setGallery(0);
+      const rel = products.filter(x => Number(x.id) !== Number(p.id)).slice(0, 10);
+      $('pm-related').style.display = rel.length ? 'block' : 'none';
+      $('pm-related-list').innerHTML = rel.map(x => `
+        <button type="button" data-rel="${x.id}" class="group shrink-0 w-36 sm:w-48 text-left snap-start">
+          <div class="aspect-[3/4] overflow-hidden bg-zinc-100 dark:bg-zinc-900 mb-2"><img src="${esc(getImgs(x)[0])}" alt="" loading="lazy" class="w-full h-full object-cover transition duration-700 group-hover:scale-105"></div>
+          <p class="text-[11px] uppercase tracking-wider truncate">${esc(x.name)}</p>
+          <p class="text-[11px] text-zinc-400">${fmt(x.price)}</p>
+        </button>`).join('');
 
-      $('modal-sizes').innerHTML = sizes.map(s => `<button type="button" data-size="${esc(s)}" class="size-btn ${s === curSize ? 'active' : ''}">${esc(s)}</button>`).join('');
-
-      $('product-modal').classList.remove('hidden');
-      lockScroll(true);
+      document.querySelectorAll('#pm-info .pm-st').forEach((el, i) => {
+        el.style.animation = 'none'; void el.offsetWidth;
+        el.style.animation = `fadeUp .7s cubic-bezier(.2,.7,.2,1) ${.1 + i * .07}s both`;
+      });
+      pmParallax();
     }
 
-    function closeProductModal() { $('product-modal').classList.add('hidden'); lockScroll(false); }
+    function setHash(id) {
+      try {
+        if (!pmPushed) { history.pushState({ pm: 1 }, '', '#p' + id); pmPushed = true; }
+        else history.replaceState({ pm: 1 }, '', '#p' + id);
+      } catch (e) {}
+    }
 
-    document.querySelectorAll('[data-close-product]').forEach(el => el.addEventListener('click', closeProductModal));
-    $('modal-thumbs').addEventListener('click', (e) => { const t = e.target.closest('[data-thumb]'); if (t) setGallery(Number(t.dataset.thumb)); });
-    $('g-prev').onclick = () => setGallery(curIdx - 1);
-    $('g-next').onclick = () => setGallery(curIdx + 1);
-    $('modal-sizes').addEventListener('click', (e) => {
-      const b = e.target.closest('[data-size]'); if (!b) return;
-      curSize = b.dataset.size;
-      document.querySelectorAll('#modal-sizes .size-btn').forEach(x => x.classList.toggle('active', x === b));
+    function openProductModal(id) {
+      const p = products.find(x => Number(x.id) === Number(id)); if (!p) return;
+      const m = $('product-modal');
+      if (!curList.length) curList = products.slice();
+      const card = document.querySelector(`[data-open="${p.id}"] .card-media`);
+      if (card) card.style.transform = '';
+      const show = () => {
+        m.classList.remove('hidden');
+        renderProduct(p);
+        m.scrollTop = 0;
+        lockScroll(true);
+        const first = m.querySelector('.pm-zoom');
+        if (card) card.style.viewTransitionName = '';
+        if (first && vtOK() && card) first.style.viewTransitionName = 'pimg';
+      };
+      if (vtOK() && card) {
+        card.style.viewTransitionName = 'pimg';
+        const t = document.startViewTransition(show);
+        t.finished.finally(() => { const f = m.querySelector('.pm-zoom'); if (f) f.style.viewTransitionName = ''; });
+      } else { show(); m.classList.add('pm-in'); setTimeout(() => m.classList.remove('pm-in'), 400); }
+      setHash(p.id);
+    }
+
+    function closeProductModal(instant, fromPop) {
+      const m = $('product-modal');
+      if (m.classList.contains('hidden')) return;
+      const finish = () => { m.classList.add('hidden'); lockScroll(false); };
+      const card = curProduct && document.querySelector(`[data-open="${curProduct.id}"] .card-media`);
+      const first = m.querySelector('.pm-zoom');
+      let morph = false;
+      if (!instant && vtOK() && card && first && m.scrollTop < 250) {
+        const cr = card.getBoundingClientRect();
+        morph = cr.bottom > 0 && cr.top < innerHeight;
+      }
+      if (morph) {
+        first.style.viewTransitionName = 'pimg';
+        const t = document.startViewTransition(() => { finish(); first.style.viewTransitionName = ''; card.style.viewTransitionName = 'pimg'; });
+        t.finished.finally(() => { card.style.viewTransitionName = ''; });
+      } else finish();
+      if (pmPushed && !fromPop) { pmPushed = false; try { history.back(); } catch (e) {} }
+    }
+    window.addEventListener('popstate', () => { pmPushed = false; closeProductModal(false, true); });
+
+    function swapProduct(p, dir = 1) {
+      const area = $('pm-body'), m = $('product-modal');
+      setHash(p.id);
+      if (reduceMotion()) { renderProduct(p); m.scrollTop = 0; return; }
+      area.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `translate3d(${-dir * 50}px,0,0)` }],
+        { duration: 170, easing: 'ease-in', fill: 'forwards' }).finished.then(() => {
+        renderProduct(p); m.scrollTop = 0;
+        area.getAnimations().forEach(a => a.cancel());
+        area.animate([{ opacity: 0, transform: `translate3d(${dir * 50}px,0,0)` }, { opacity: 1, transform: 'none' }],
+          { duration: 380, easing: 'cubic-bezier(.2,.8,.2,1)' });
+      }).catch(() => {});
+    }
+    function navProduct(dir) {
+      if (!curList.length || !curProduct) return;
+      const i = curList.findIndex(x => Number(x.id) === Number(curProduct.id));
+      const n = curList[(i + dir + curList.length) % curList.length];
+      if (n && Number(n.id) !== Number(curProduct.id)) swapProduct(n, dir);
+    }
+
+    function openFromHash() {
+      const m = /^#p(\d+)$/.exec(location.hash);
+      if (m && products.some(p => Number(p.id) === Number(m[1]))) openProductModal(Number(m[1]));
+    }
+
+    // події модалки
+    document.querySelectorAll('[data-close-product]').forEach(el => el.addEventListener('click', () => closeProductModal()));
+    $('pm-prev').onclick = () => navProduct(-1);
+    $('pm-next').onclick = () => navProduct(1);
+    $('pm-cart').onclick = () => { closeProductModal(true); playCartIntro(); };
+    addEventListener('keydown', (e) => {
+      if ($('product-modal').classList.contains('hidden')) return;
+      if (e.key === 'ArrowRight') navProduct(1);
+      if (e.key === 'ArrowLeft') navProduct(-1);
     });
-    // свайп галереї
-    (() => {
-      let sx = 0;
-      const g = $('gallery');
-      g.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive: true });
-      g.addEventListener('touchend', e => {
-        const dx = e.changedTouches[0].clientX - sx;
-        if (Math.abs(dx) > 40 && curImgs.length > 1) setGallery(curIdx + (dx < 0 ? 1 : -1));
-      });
-    })();
 
-    $('modal-add-btn').onclick = () => {
+    $('product-modal').addEventListener('click', (e) => {
+      const sz = e.target.closest('#pm-sizes .sz');
+      if (sz) {
+        curSize = sz.dataset.size;
+        document.querySelectorAll('#pm-sizes .sz').forEach(x => x.classList.toggle('active', x === sz));
+        placeSizeInd(true); updateAddLabels(); return;
+      }
+      const acc = e.target.closest('.acc-h');
+      if (acc) { const a = acc.parentElement; const o = a.classList.toggle('open'); acc.setAttribute('aria-expanded', o); return; }
+      const rel = e.target.closest('[data-rel]');
+      if (rel) { const p = products.find(x => Number(x.id) === Number(rel.dataset.rel)); if (p) swapProduct(p, 1); return; }
+      const add = e.target.closest('.pm-add');
+      if (add) addCurrentToCart(add);
+    });
+
+    function addCurrentToCart(btn) {
       if (!curProduct) return;
       const found = cart.find(i => Number(i.id) === Number(curProduct.id) && i.size === curSize);
       if (found) found.qty++;
       else cart.push({ id: curProduct.id, name: curProduct.name, sku: curProduct.sku || '', price: Number(curProduct.price), img: curImgs[0], size: curSize, qty: 1 });
-      flyToCart(); saveCart(); updateCartUI(); closeProductModal(); bumpCart();
-      toast('Додано в кошик');
-    };
+      saveCart(); updateCartUI(); flyToCart(btn); bumpCart();
+      document.querySelectorAll('.pm-add').forEach(b => { b.classList.add('added'); const l = b.querySelector('.lbl'); if (l) l.textContent = 'Додано ✓'; });
+      clearTimeout(addCurrentToCart.t);
+      addCurrentToCart.t = setTimeout(() => { document.querySelectorAll('.pm-add').forEach(b => b.classList.remove('added')); updateAddLabels(); }, 1400);
+    }
+
+    // магнітна кнопка (ноутбук)
+    if (matchMedia('(hover:hover) and (pointer:fine)').matches && !reduceMotion()) {
+      $('pm-info').addEventListener('pointermove', (e) => {
+        const b = e.target.closest('.pm-add'); if (!b) return;
+        const r = b.getBoundingClientRect();
+        b.style.transform = `translate3d(${(e.clientX - r.left - r.width / 2) * .08}px,${(e.clientY - r.top - r.height / 2) * .25}px,0)`;
+      });
+      $('pm-info').addEventListener('pointerout', (e) => { const b = e.target.closest('.pm-add'); if (b) b.style.transform = ''; });
+    }
+
+    // зум за курсором
+    $('pm-gallery').addEventListener('pointermove', (e) => {
+      const z = e.target.closest('.pm-zoom'); if (!z) return;
+      const r = z.getBoundingClientRect(), img = z.querySelector('img');
+      if (img) img.style.transformOrigin = `${(e.clientX - r.left) / r.width * 100}% ${(e.clientY - r.top) / r.height * 100}%`;
+    });
+
+    // точки каруселі на телефоні
+    $('pm-gallery').addEventListener('scroll', () => {
+      const g = $('pm-gallery'); const k = Math.round(g.scrollLeft / Math.max(1, g.clientWidth));
+      document.querySelectorAll('#pm-dots span').forEach((d, i) => {
+        d.className = 'h-1.5 rounded-full transition-all duration-300 ' + (i === k ? 'w-5 bg-black dark:bg-white' : 'w-1.5 bg-black/25 dark:bg-white/25');
+      });
+    }, { passive: true });
+
+    // паралакс у галереї (ноутбук)
+    function pmParallax() {
+      if (!matchMedia('(min-width:1024px)').matches || reduceMotion()) return;
+      const vh = innerHeight;
+      document.querySelectorAll('#pm-gallery .pm-zoom').forEach(z => {
+        const r = z.getBoundingClientRect(); if (r.bottom < -100 || r.top > vh + 100) return;
+        const t = Math.max(-1, Math.min(1, ((r.top + r.height / 2) - vh / 2) / vh));
+        z.firstElementChild.style.transform = `translate3d(0,${-t * r.height * .05}px,0)`;
+      });
+    }
+    (() => {
+      let tk = false;
+      $('product-modal').addEventListener('scroll', () => { if (!tk) { tk = true; requestAnimationFrame(() => { tk = false; pmParallax(); }); } }, { passive: true });
+    })();
+
+    // курсор-«бульбашка» на картках (ноутбук)
+    if (matchMedia('(hover:hover) and (pointer:fine)').matches) {
+      const cb = $('cursor-bubble'), inner = cb.firstElementChild, grid = $('product-grid');
+      let tx = -200, ty = -200, x = -200, y = -200, on = false, raf = 0;
+      const loop = () => {
+        x += (tx - x) * .22; y += (ty - y) * .22;
+        cb.style.transform = `translate3d(${x}px,${y}px,0)`;
+        raf = (on || Math.abs(tx - x) > .5 || Math.abs(ty - y) > .5) ? requestAnimationFrame(loop) : 0;
+      };
+      const hide = () => { on = false; inner.classList.remove('show'); };
+      grid.addEventListener('pointermove', (e) => { tx = e.clientX; ty = e.clientY; if (!raf) raf = requestAnimationFrame(loop); });
+      grid.addEventListener('pointerover', (e) => {
+        if (e.target.closest('[data-fav]')) { hide(); return; }
+        if (e.target.closest('article')) { if (!on) { on = true; inner.classList.add('show'); if (!raf) raf = requestAnimationFrame(loop); } }
+        else hide();
+      });
+      grid.addEventListener('pointerleave', hide);
+    }
+
+    // кнопка «нагору» з кільцем прогресу
+    (() => {
+      const b = $('to-top'), ring = $('to-top-ring'), C = 131.95; let tk = false;
+      const upd = () => {
+        tk = false;
+        const y = scrollY, max = document.documentElement.scrollHeight - innerHeight, show = y > 500;
+        ring.style.strokeDashoffset = C * (1 - (max > 0 ? y / max : 0));
+        b.style.opacity = show ? 1 : 0; b.style.pointerEvents = show ? 'auto' : 'none'; b.style.transform = show ? 'none' : 'translate3d(0,12px,0)';
+      };
+      addEventListener('scroll', () => { if (!tk) { tk = true; requestAnimationFrame(upd); } }, { passive: true });
+      b.onclick = () => scrollTo({ top: 0, behavior: 'smooth' });
+      upd();
+    })();
+
+    // прелоадер
+    (() => {
+      const root = document.documentElement; if (!root.classList.contains('preloading')) return;
+      const pre = $('preloader');
+      const done = () => { root.classList.remove('preloading'); try { sessionStorage.setItem('elven_pre', '1'); } catch (e) {} };
+      setTimeout(() => { pre.style.display = 'none'; done(); }, 4500);
+      setTimeout(() => {
+        if (reduceMotion()) { pre.style.display = 'none'; done(); return; }
+        pre.style.display = 'flex';
+        const a = pre.animate([{ transform: 'translate3d(0,0,0)' }, { transform: 'translate3d(0,-100%,0)' }],
+          { duration: 750, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'forwards' });
+        done();
+        a.onfinish = () => { pre.style.display = 'none'; };
+      }, 1400);
+    })();
 
     /* ---------- Кошик ---------- */
     function saveCart() {
@@ -648,7 +1160,7 @@
 
     function updateCartUI() {
       const count = cart.reduce((s, i) => s + i.qty, 0);
-      $('cart-count').textContent = count;
+      $('cart-count').textContent = count; $('pm-cart-count').textContent = count;
       const box = $('cart-items');
       if (!cart.length) {
         box.innerHTML = `<div class="text-center py-10 text-zinc-400"><svg class="ic text-3xl mb-4 block opacity-40" aria-hidden="true"><use href="#i-bag"/></svg><p class="text-xs tracking-ultra uppercase">Кошик порожній</p></div>`;
@@ -688,7 +1200,7 @@
 
     function openCart() { $('cart-modal').classList.remove('hidden'); lockScroll(true); }
     function closeCart() { $('cart-modal').classList.add('hidden'); lockScroll(false); }
-    $('cart-btn').onclick = openCart;
+    $('cart-btn').onclick = playCartIntro;
     $('close-cart').onclick = closeCart;
     $('cart-backdrop').onclick = closeCart;
 
@@ -765,7 +1277,7 @@
     // Вхід: Ctrl/Cmd+Shift+A, адреса #admin, або 5 швидких тапів по логотипу (для телефону)
     window.addEventListener('keydown', (e) => {
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && ['a', 'A', 'ф', 'Ф'].includes(e.key)) { e.preventDefault(); openAdmin(); }
-      if (e.key === 'Escape') { closeProductModal(); closeCart(); }
+      if (e.key === 'Escape') { if (introBusy) { $('cart-intro').click(); return; } closeProductModal(); closeCart(); }
     });
     if (location.hash === '#admin') openAdmin();
     window.addEventListener('hashchange', () => { if (location.hash === '#admin') openAdmin(); });
@@ -920,29 +1432,141 @@
     $('cancel-edit-btn').onclick = resetAdminForm;
 
     
+    /* ---------- Тележка: повноекранний перехід до кошика ---------- */
+    function playCartIntro() {
+      if (introBusy) return;
+      if (reduceMotion()) { openCart(); return; }
+      introBusy = true;
+
+      const ov = $('cart-intro'), wrap = $('ci-wrap'), svg = $('ci-cart'), label = $('ci-label');
+      const lines = $('ci-lines'), puffs = $('ci-puffs'), mark = $('ci-mark'), dash = $('ci-dash');
+      const W = innerWidth, H = innerHeight;
+      const b = $('cart-btn').getBoundingClientRect();
+      const cx = b.left + b.width / 2, cy = b.top + b.height / 2;
+      const R = Math.hypot(Math.max(cx, W - cx), Math.max(cy, H - cy));
+      const count = cart.reduce((sum, i) => sum + i.qty, 0);
+      label.textContent = count ? `У кошику: ${count}` : 'Кошик порожній — час за покупками';
+
+      let cancelled = false, opened = false;
+      const anims = [], timers = [];
+      const A = (el, kf, o) => { const a = el.animate(kf, o); anims.push(a); return a.finished.catch(() => {}); };
+      const sleep = (ms) => new Promise(r => timers.push(setTimeout(r, ms)));
+
+      const finish = () => {
+        if (cancelled) return; cancelled = true;
+        timers.forEach(clearTimeout); anims.forEach(a => a.cancel());
+        lines.innerHTML = ''; puffs.innerHTML = '';
+        ov.style.display = 'none'; ov.className = 'bg-white dark:bg-zinc-950 text-black dark:text-white';
+        ov.onclick = null; wrap.style.transform = '';
+        if (!opened) { opened = true; openCart(); }
+        introBusy = false;
+      };
+      ov.onclick = finish;
+
+      const spawnPuff = () => {
+        const r = wrap.getBoundingClientRect();
+        const size = 26 + Math.random() * 28;
+        const el = document.createElement('div');
+        el.className = 'ci-puff';
+        el.style.cssText = `width:${size}px;height:${size}px;left:${r.left + r.width * .1}px;top:${r.bottom - 14 - size / 2}px`;
+        puffs.appendChild(el);
+        const a = el.animate([
+          { transform: 'translate3d(0,0,0) scale(.4)', opacity: .55 },
+          { transform: `translate3d(${-(60 + Math.random() * 90)}px,${-(20 + Math.random() * 60)}px,0) scale(2.4)`, opacity: 0 }
+        ], { duration: 700, easing: 'ease-out', fill: 'forwards' });
+        a.onfinish = () => el.remove();
+      };
+
+      const spawnStreak = () => {
+        const w = 80 + Math.random() * 260;
+        const el = document.createElement('div');
+        el.className = 'ci-streak';
+        el.style.cssText = `width:${w}px;top:${H * (.22 + Math.random() * .5)}px`;
+        lines.appendChild(el);
+        const a = el.animate([{ transform: `translate3d(${W}px,0,0)` }, { transform: `translate3d(${-w}px,0,0)` }],
+          { duration: 380 + Math.random() * 200, easing: 'linear', fill: 'forwards' });
+        a.onfinish = () => el.remove();
+      };
+
+      (async () => {
+        const x0 = W * .06;
+        ov.style.display = 'block';
+        wrap.style.transform = `translate3d(${x0}px,0,0)`;
+
+        // 1. коло розкривається від кнопки, тележка виїжджає
+        A(ov, [{ clipPath: `circle(0px at ${cx}px ${cy}px)` }, { clipPath: `circle(${R}px at ${cx}px ${cy}px)` }],
+          { duration: 520, easing: 'cubic-bezier(.5,0,.2,1)', fill: 'forwards' });
+        A(wrap, [{ transform: `translate3d(${-W * .5}px,0,0)` }, { transform: `translate3d(${x0}px,0,0)` }],
+          { duration: 620, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'forwards' });
+        A(label, [{ opacity: 0, transform: 'translate3d(0,10px,0)' }, { opacity: 1, transform: 'none' }],
+          { duration: 500, delay: 300, fill: 'forwards' });
+        await sleep(640); if (cancelled) return;
+
+        // 2. газує: тремтіння, дим, речі підстрибують
+        ov.classList.add('ci-rev');
+        A(svg, [
+          { transform: 'translate3d(0,0,0)' },
+          { transform: 'translate3d(-2px,1px,0) rotate(-.4deg)' },
+          { transform: 'translate3d(2px,-1px,0) rotate(.5deg)' },
+          { transform: 'translate3d(0,0,0)' }
+        ], { duration: 90, iterations: 8 });
+        const t0 = performance.now();
+        while (performance.now() - t0 < 600 && !cancelled) { spawnPuff(); await sleep(55); }
+        if (cancelled) return;
+
+        // 3. відкат назад і старт
+        await A(svg, [{ transform: 'translate3d(0,0,0) rotate(0deg)' }, { transform: 'translate3d(-22px,0,0) rotate(1.5deg)' }],
+          { duration: 180, easing: 'ease-out', fill: 'forwards' });
+        if (cancelled) return;
+        ov.classList.remove('ci-rev'); ov.classList.add('ci-go');
+        const wrapW = wrap.offsetWidth;
+        A(wrap, [{ transform: `translate3d(${x0}px,0,0)` }, { transform: `translate3d(${W + wrapW}px,0,0)` }],
+          { duration: 820, easing: 'cubic-bezier(.55,0,.95,.45)', fill: 'forwards' });
+        A(svg, [
+          { transform: 'translate3d(-22px,0,0) rotate(1.5deg)' },
+          { transform: 'translate3d(0,0,0) rotate(-7deg)', offset: .25 },
+          { transform: 'translate3d(0,0,0) rotate(-4deg)' }
+        ], { duration: 820, fill: 'forwards' });
+        A(dash, [{ transform: 'translate3d(0,0,0)' }, { transform: 'translate3d(-90px,0,0)' }], { duration: 180, iterations: Infinity });
+        A(mark, [{ transform: 'translate3d(0,0,0)' }, { transform: `translate3d(${-W * .15}px,0,0)` }], { duration: 1000, easing: 'ease-in', fill: 'forwards' });
+        A(label, [{ opacity: 1 }, { opacity: 0 }], { duration: 250, fill: 'forwards' });
+        for (let i = 0; i < 14; i++) timers.push(setTimeout(() => { if (!cancelled) spawnStreak(); }, i * 38));
+
+        // 4. кошик відкривається під оверлеєм, оверлей «зтирається» слідом за тележкою
+        await sleep(300); if (cancelled) return;
+        opened = true; openCart();
+        await sleep(50); if (cancelled) return;
+        await A(ov, [{ clipPath: 'inset(0 0 0 0)' }, { clipPath: 'inset(0 0 0 100%)' }],
+          { duration: 640, easing: 'cubic-bezier(.55,0,.95,.45)', fill: 'forwards' });
+        finish();
+      })();
+    }
+
     /* ---------- Анімації (rAF, passive, тільки transform/opacity) ---------- */
     function vt(fn) { if (document.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches) document.startViewTransition(fn); else fn(); }
 
     function bumpCart() {
-      const c = $('cart-count'); c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump');
+      ['cart-count', 'pm-cart-count'].forEach(id => { const c = $(id); c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump'); });
     }
 
-    function flyToCart() {
-      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      const src = $('modal-main-img').getBoundingClientRect();
-      const dst = $('cart-btn').getBoundingClientRect();
+    function flyToCart(fromEl) {
+      if (reduceMotion()) return;
+      const modalOpen = !$('product-modal').classList.contains('hidden');
+      const from = (fromEl && fromEl.offsetParent) ? fromEl : $('cart-btn');
+      const src = from.getBoundingClientRect();
+      const dst = (modalOpen ? $('pm-cart') : $('cart-btn')).getBoundingClientRect();
       if (!src.width || !dst.width) return;
       const img = document.createElement('img');
-      img.src = $('modal-main-img').src; img.className = 'fly';
-      const w = Math.min(src.width, 180), h = w * 4 / 3;
+      img.src = (curImgs && curImgs[0]) || ''; img.className = 'fly';
+      const w = 64, h = 84;
       const x0 = src.left + src.width / 2 - w / 2, y0 = src.top + src.height / 2 - h / 2;
       Object.assign(img.style, { left: x0 + 'px', top: y0 + 'px', width: w + 'px', height: h + 'px' });
       document.body.appendChild(img);
       const dx = dst.left + dst.width / 2 - (x0 + w / 2), dy = dst.top + dst.height / 2 - (y0 + h / 2);
       const a = img.animate([
         { transform: 'translate3d(0,0,0) scale(1)', opacity: 1 },
-        { transform: `translate3d(${dx * .5}px,${dy * .5 - 60}px,0) scale(.55)`, opacity: .9, offset: .55 },
-        { transform: `translate3d(${dx}px,${dy}px,0) scale(.08)`, opacity: .2 }
+        { transform: `translate3d(${dx * .5}px,${dy * .5 - 80}px,0) scale(.7)`, opacity: .95, offset: .5 },
+        { transform: `translate3d(${dx}px,${dy}px,0) scale(.1)`, opacity: .2 }
       ], { duration: 750, easing: 'cubic-bezier(.5,0,.2,1)' });
       a.onfinish = () => img.remove();
     }
@@ -969,7 +1593,7 @@
     if (matchMedia('(hover:hover) and (pointer:fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
       let raf = 0;
       $('product-grid').addEventListener('pointermove', (e) => {
-        const box = e.target.closest('article .relative'); if (!box) return;
+        const box = e.target.closest('article .card-media'); if (!box) return;
         cancelAnimationFrame(raf);
         raf = requestAnimationFrame(() => {
           const r = box.getBoundingClientRect();
@@ -978,10 +1602,10 @@
         });
       });
       $('product-grid').addEventListener('pointerout', (e) => {
-        const box = e.target.closest('article .relative'); if (box) box.style.transform = '';
+        const box = e.target.closest('article .card-media'); if (box) box.style.transform = '';
       });
       const st = document.createElement('style');
-      st.textContent = '#product-grid article .relative { transition: transform .35s cubic-bezier(.2,.8,.2,1); will-change: transform; }';
+      st.textContent = '#product-grid article .card-media { transition: transform .35s cubic-bezier(.2,.8,.2,1); will-change: transform; }';
       document.head.appendChild(st);
     }
 
@@ -989,7 +1613,7 @@
     renderSkeleton();
     updateCartUI();
     observeReveal();
-    loadProductsFromCloud();
+    loadProductsFromCloud().then(openFromHash);
   </script>
 </body>
 </html>
