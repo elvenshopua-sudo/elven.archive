@@ -96,8 +96,8 @@
     @media (prefers-reduced-motion: reduce) { .orb, .marquee-track { animation: none !important; } .word > span { transform: none; } }
 
     /* ===== Шнурок теми ===== */
-    .cord { position: absolute; top: 0; right: 6.5rem; width: 0; height: 0; z-index: 5; }
-    @media (min-width: 640px) { .cord { right: 11rem; } }
+    .cord { position: absolute; top: 0; right: 10rem; width: 0; height: 0; z-index: 5; }
+    @media (min-width: 640px) { .cord { right: 15rem; } }
     .cord-sway { position: absolute; left: 0; top: 0; transform-origin: 0 0; animation: sway 5.5s ease-in-out infinite; }
     .cord.dragging .cord-sway { animation-play-state: paused; }
     @keyframes sway { 0%,100% { transform: rotate(-1.8deg); } 50% { transform: rotate(1.8deg); } }
@@ -194,6 +194,26 @@
     .pm-add { transition: transform .3s cubic-bezier(.2,.8,.2,1), background-color .3s, color .3s; }
     .pm-add.added { background: #16a34a !important; color: #fff !important; }
     #pm-gallery { scroll-behavior: smooth; }
+
+    /* ===== Відстеження замовлення ===== */
+    .trk { position: relative; padding: 2.8rem 2rem 2.6rem; }
+    .trk-road { position: relative; height: 4px; background: rgba(128,128,128,.25); border-radius: 4px; }
+    .trk-fill { position: absolute; inset: 0; border-radius: 4px; background: #16a34a; transform-origin: 0 50%; transition: transform 1.2s cubic-bezier(.4,0,.2,1); will-change: transform; }
+    .trk-stop { position: absolute; top: 50%; transform: translate(-50%,-50%); }
+    .trk-stop i { display: block; width: 12px; height: 12px; border-radius: 9999px; background: #fff; border: 2px solid rgba(128,128,128,.5); transition: background-color .4s, border-color .4s; }
+    .dark .trk-stop i { background: #09090b; }
+    .trk-stop.done i { background: #16a34a; border-color: #16a34a; }
+    .trk-stop em { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); font-style: normal; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; color: #a1a1aa; }
+    .trk-stop.done em { color: inherit; }
+    .trk-veh { position: absolute; bottom: 7px; width: 64px; margin-left: -32px; transition: left 1.2s cubic-bezier(.4,0,.2,1); will-change: left; }
+    .trk-veh svg { display: block; width: 100%; height: auto; }
+    .trk-flag { position: absolute; bottom: 4px; margin-left: -2px; color: #a1a1aa; }
+    .trk-flag svg { display: block; width: 14px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .whl { transform-box: fill-box; transform-origin: center; }
+    .trk.moving .whl, .trk.live .whl { animation: spin .35s linear infinite; }
+    .trk.moving .trk-veh svg, .trk.live .trk-veh svg { animation: bob .45s ease-in-out infinite alternate; }
+    @keyframes bob { to { transform: translate3d(0,-1.5px,0); } }
+    #acc-btn.has-ava { border-color: rgba(128,128,128,.4); }
   </style>
 </head>
 <body class="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans min-h-screen transition-colors duration-300">
@@ -217,6 +237,12 @@
       <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
       <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
       <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+    
+      <symbol id="i-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+      <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
+      <symbol id="i-camera" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+      <symbol id="i-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
     </defs>
   </svg>
 
@@ -247,6 +273,12 @@
           <a href="#info" class="hover:text-black dark:hover:text-white transition">Доставка</a>
         </nav>
         <div class="flex items-center gap-2 sm:gap-4">
+          <button id="acc-btn" type="button" aria-label="Увійти" class="relative w-10 h-10 rounded-full flex items-center justify-center text-zinc-500 hover:text-black dark:hover:text-white transition border border-transparent">
+            <svg id="acc-ico" class="ic text-base" aria-hidden="true"><use href="#i-user"/></svg>
+            <img id="acc-img" class="hidden absolute inset-0 w-full h-full object-cover rounded-full" alt="">
+            <span id="acc-init" class="hidden text-[12px] font-semibold uppercase"></span>
+            <span id="acc-dot" class="hidden absolute top-0.5 right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-zinc-950"></span>
+          </button>
           <button id="cart-btn" aria-label="Відкрити кошик" class="relative bg-black dark:bg-white text-white dark:text-black h-10 px-4 text-[11px] font-semibold tracking-ultra uppercase flex items-center gap-2 hover:opacity-80 active:scale-95 transition">
             <svg class="ic text-xs" aria-hidden="true"><use href="#i-bag"/></svg>
             <span class="hidden sm:inline">Кошик</span>
@@ -468,6 +500,7 @@
       <div class="flex-grow overflow-y-auto px-5 sm:px-8 py-6 space-y-8">
         <div id="cart-items" class="space-y-4"></div>
 
+        <div id="cart-auth-note"></div>
         <form id="order-form" class="space-y-4">
           <p class="text-[10px] uppercase tracking-widest text-zinc-400 font-semibold">Дані для доставки</p>
           <div>
@@ -544,79 +577,94 @@
       <div class="check-pop w-14 h-14 mx-auto rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center text-xl"><svg class="ic " aria-hidden="true"><use href="#i-check"/></svg></div>
       <h3 class="text-sm font-semibold uppercase tracking-ultra">Дякуємо!</h3>
       <p class="text-xs text-zinc-500 dark:text-zinc-400 font-light leading-relaxed">Замовлення прийнято. Ми зв'яжемося з вами найближчим часом для підтвердження.</p>
+      <p id="success-order" class="hidden font-mono text-xs tracking-widest"></p>
+      <button id="success-orders-btn" class="hidden w-full border border-zinc-300 dark:border-zinc-700 py-3 text-xs uppercase tracking-ultra hover:opacity-80">Відстежити замовлення</button>
       <button id="success-close" class="w-full bg-black dark:bg-white text-white dark:text-black font-semibold py-3 text-xs uppercase tracking-ultra">Чудово</button>
     </div>
   </div>
 
-  <!-- АДМІН -->
-  <div id="admin-panel" class="fixed inset-0 bg-white dark:bg-zinc-950 z-[60] hidden flex-col overflow-y-auto">
-    <header class="sticky top-0 z-10 border-b border-zinc-200 dark:border-zinc-800 px-4 sm:px-6 py-3 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900">
-      <div class="flex items-center gap-3">
-        <span class="bg-black dark:bg-white text-white dark:text-black text-[10px] font-bold px-2.5 py-1 tracking-widest uppercase">ADMIN</span>
-        <h1 class="hidden sm:block text-sm font-semibold tracking-ultra uppercase">ELVÉN Management</h1>
+  <!-- ВХІД / РЕЄСТРАЦІЯ -->
+  <div id="auth-modal" class="fixed inset-0 z-[65] hidden items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+    <div class="sheet relative bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 w-full max-w-md p-6 sm:p-8 max-h-[92dvh] overflow-y-auto">
+      <button id="auth-close" type="button" aria-label="Закрити" class="absolute top-3 right-3 w-10 h-10 text-2xl text-zinc-400 hover:text-black dark:hover:text-white">&times;</button>
+      <p class="text-[10px] uppercase tracking-mega text-zinc-400 mb-2">ELVÉN</p>
+      <h3 id="auth-title" class="text-xl font-light uppercase tracking-ultra mb-6">Вхід</h3>
+      <div id="auth-tabs" class="flex gap-2 mb-6">
+        <button type="button" data-auth-tab="login" class="chip">Вхід</button>
+        <button type="button" data-auth-tab="signup" class="chip">Реєстрація</button>
       </div>
-      <button id="exit-admin" class="text-xs uppercase tracking-widest bg-zinc-200 dark:bg-zinc-800 px-4 py-2 hover:bg-zinc-300 dark:hover:bg-zinc-700 transition">На сайт &times;</button>
-    </header>
-
-    <div id="admin-login-screen" class="flex-grow flex items-center justify-center p-4">
-      <form id="admin-login-form" class="w-full max-w-sm space-y-6 text-center border border-zinc-200 dark:border-zinc-800 p-8">
-        <h3 class="text-xs font-semibold uppercase tracking-ultra text-zinc-400">Пароль адміністратора</h3>
-        <input type="password" id="admin-pass-input" placeholder="Пароль" class="field text-center">
-        <button type="submit" class="w-full bg-black dark:bg-white text-white dark:text-black font-semibold py-3 text-xs uppercase tracking-ultra">Увійти</button>
+      <form id="auth-form" class="space-y-4" novalidate>
+        <div id="au-name-wrap" class="hidden">
+          <label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Ім’я</label>
+          <input id="au-name" type="text" autocomplete="name" placeholder="Іван" class="field">
+        </div>
+        <div id="au-email-wrap">
+          <label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Пошта</label>
+          <input id="au-email" type="email" autocomplete="email" placeholder="you@mail.com" class="field">
+        </div>
+        <div id="au-pass-wrap" class="relative">
+          <label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Пароль</label>
+          <input id="au-pass" type="password" autocomplete="current-password" placeholder="Щонайменше 8 символів" class="field pr-10">
+          <button id="au-eye" type="button" aria-label="Показати пароль" class="absolute right-0 bottom-1.5 w-8 h-8 text-zinc-400 hover:text-black dark:hover:text-white"><svg class="ic" aria-hidden="true"><use href="#i-eye"/></svg></button>
+        </div>
+        <button id="auth-forgot" type="button" class="text-[11px] text-zinc-400 hover:text-black dark:hover:text-white underline">Забули пароль?</button>
+        <button id="auth-back" type="button" class="hidden text-[11px] text-zinc-400 hover:text-black dark:hover:text-white underline">← Назад до входу</button>
+        <p id="auth-msg" class="hidden text-[11px] leading-relaxed"></p>
+        <button id="auth-submit" type="submit" class="w-full bg-black dark:bg-white text-white dark:text-black font-semibold py-4 text-xs uppercase tracking-ultra hover:opacity-80 disabled:opacity-40 transition">Увійти</button>
       </form>
+      <div id="auth-google-wrap" class="hidden mt-4">
+        <button id="auth-google" type="button" class="w-full border border-zinc-300 dark:border-zinc-700 py-3 text-xs uppercase tracking-ultra hover:opacity-80">Продовжити з Google</button>
+      </div>
     </div>
+  </div>
 
-    <div id="admin-dashboard" class="hidden max-w-7xl mx-auto w-full p-4 sm:p-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div class="lg:col-span-1 border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6 space-y-5 h-fit bg-zinc-50/50 dark:bg-zinc-900/30">
-        <h3 id="form-title" class="text-xs font-semibold uppercase tracking-ultra border-b border-zinc-200 dark:border-zinc-800 pb-3">Додати новий товар</h3>
-        <form id="admin-product-form" class="space-y-4">
-          <input type="hidden" id="edit-product-id">
-          <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Назва товару</label><input type="text" id="ap-name" required class="field"></div>
-          <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Артикул (SKU)</label><input type="text" id="ap-sku" placeholder="напр. ELV-001" class="field"></div>
-          <div class="grid grid-cols-2 gap-4">
-            <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Ціна (UAH)</label><input type="number" id="ap-price" required min="0" inputmode="numeric" class="field"></div>
-            <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Стара ціна</label><input type="number" id="ap-old-price" min="0" inputmode="numeric" placeholder="Необов'язково" class="field"></div>
-          </div>
-          <div>
-            <label class="block text-[10px] text-zinc-400 uppercase mb-1">Статус</label>
-            <select id="ap-badge" class="field">
-              <option value="" class="dark:bg-zinc-900">Звичайний</option>
-              <option value="NEW" class="dark:bg-zinc-900">Новинка (NEW)</option>
-              <option value="SALE" class="dark:bg-zinc-900">Розпродаж (SALE)</option>
-              <option value="TOP" class="dark:bg-zinc-900">Топ продажів (TOP)</option>
-            </select>
-          </div>
-          <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Опис</label><textarea id="ap-desc" rows="3" placeholder="Матеріал, крій тощо..." class="w-full bg-transparent border border-zinc-300 dark:border-zinc-700 p-2 focus:outline-none focus:border-black dark:focus:border-white"></textarea></div>
-          <div>
-            <label class="block text-[10px] text-zinc-400 uppercase mb-1">Фотографії (можна кілька)</label>
-            <input type="file" id="ap-files" accept="image/*" multiple class="w-full text-xs text-zinc-500 file:mr-4 file:py-2 file:px-3 file:border-0 file:text-xs file:font-semibold file:bg-zinc-200 dark:file:bg-zinc-800 file:text-zinc-800 dark:file:text-zinc-200">
-            <p class="text-[10px] text-zinc-400 mt-1">Фото автоматично стискаються до 1200px.</p>
-          </div>
-          <div>
-            <label class="block text-[10px] text-zinc-400 uppercase mb-1">Або URL картинки</label>
-            <div class="flex gap-2"><input type="text" id="ap-img" placeholder="https://..." class="field"><button type="button" id="ap-add-url" class="px-3 text-xs bg-zinc-200 dark:bg-zinc-800 uppercase">+</button></div>
-          </div>
-          <div id="ap-preview" class="flex gap-2 flex-wrap"></div>
-          <div>
-            <label class="block text-[10px] text-zinc-400 uppercase mb-2">Розміри</label>
-            <div class="flex flex-wrap gap-4 text-xs">
-              <label class="flex items-center gap-1.5"><input type="checkbox" name="ap-size" value="S" checked> S</label>
-              <label class="flex items-center gap-1.5"><input type="checkbox" name="ap-size" value="M" checked> M</label>
-              <label class="flex items-center gap-1.5"><input type="checkbox" name="ap-size" value="L" checked> L</label>
-              <label class="flex items-center gap-1.5"><input type="checkbox" name="ap-size" value="XL" checked> XL</label>
-              <label class="flex items-center gap-1.5"><input type="checkbox" name="ap-size" value="XXL"> XXL</label>
-            </div>
-          </div>
-          <div class="flex gap-2 pt-2">
-            <button type="submit" id="save-btn" class="flex-grow bg-black dark:bg-white text-white dark:text-black font-semibold py-3 text-xs uppercase tracking-ultra disabled:opacity-40">Зберегти товар</button>
-            <button type="button" id="cancel-edit-btn" class="hidden bg-zinc-300 dark:bg-zinc-800 px-4 text-xs uppercase">Скасувати</button>
-          </div>
+  <!-- АКАУНТ -->
+  <div id="account-modal" class="fixed inset-0 z-[55] hidden bg-white dark:bg-zinc-950 overflow-y-auto overscroll-contain" role="dialog" aria-modal="true" aria-label="Мій акаунт">
+    <header class="sticky top-0 z-20 glass bg-white/80 dark:bg-zinc-950/80 border-b border-zinc-100 dark:border-zinc-900">
+      <div class="max-w-3xl mx-auto px-3 sm:px-8 h-14 flex items-center justify-between">
+        <button type="button" data-close-account class="flex items-center gap-2 px-2 h-10 text-[11px] uppercase tracking-ultra text-zinc-500 hover:text-black dark:hover:text-white transition"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"/></svg>Назад</button>
+        <p class="text-[10px] uppercase tracking-mega text-zinc-400">Мій акаунт</p>
+        <button id="acc-logout" type="button" class="flex items-center gap-2 px-2 h-10 text-[11px] uppercase tracking-ultra text-zinc-500 hover:text-red-500 transition"><span class="hidden sm:inline">Вийти</span><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg></button>
+      </div>
+    </header>
+    <div class="max-w-3xl mx-auto px-4 sm:px-8 py-8">
+      <div class="flex items-center gap-5 mb-8">
+        <div class="relative shrink-0">
+          <label for="pf-file" class="relative w-24 h-24 rounded-full overflow-hidden bg-zinc-100 dark:bg-zinc-900 cursor-pointer flex items-center justify-center">
+            <img id="acc-avatar-img" class="hidden absolute inset-0 w-full h-full object-cover" alt="">
+            <span id="acc-avatar-init" class="text-3xl font-extralight uppercase"></span>
+          </label>
+          <span class="pointer-events-none absolute bottom-0 right-0 w-8 h-8 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center shadow-lg"><svg class="ic text-sm" aria-hidden="true"><use href="#i-camera"/></svg></span>
+          <input id="pf-file" type="file" accept="image/*" class="hidden">
+        </div>
+        <div class="min-w-0 space-y-1">
+          <p id="acc-name" class="text-xl font-light uppercase tracking-wide truncate"></p>
+          <button id="acc-id" type="button" title="Скопіювати ID" class="font-mono text-xs tracking-widest text-zinc-400 hover:text-black dark:hover:text-white"></button>
+          <p id="acc-email" class="text-[11px] text-zinc-400 truncate"></p>
+        </div>
+      </div>
+
+      <div id="acc-tabs" class="flex gap-2 mb-8">
+        <button type="button" data-acc-tab="profile" class="chip">Профіль</button>
+        <button type="button" data-acc-tab="orders" class="chip">Мої замовлення</button>
+      </div>
+
+      <section id="acc-profile">
+        <form id="pf-form" class="space-y-5 max-w-md">
+          <div><label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Ім’я</label><input id="pf-name" type="text" autocomplete="name" class="field"></div>
+          <div><label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Телефон</label><input id="pf-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+380 (97) 000-00-00" class="field"></div>
+          <div><label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Пошта</label><input id="pf-email" type="email" disabled class="field opacity-60"></div>
+          <button id="pf-save" type="submit" class="bg-black dark:bg-white text-white dark:text-black font-semibold px-8 py-3.5 text-xs uppercase tracking-ultra hover:opacity-80 disabled:opacity-40 transition">Зберегти</button>
         </form>
-      </div>
-      <div class="lg:col-span-2 space-y-4">
-        <h3 class="text-xs font-semibold uppercase tracking-ultra border-b border-zinc-200 dark:border-zinc-800 pb-3">Товари в каталозі</h3>
-        <div id="admin-products-list" class="space-y-3"></div>
-      </div>
+      </section>
+
+      <section id="acc-orders" class="hidden"><div id="acc-orders-list" class="space-y-5"></div></section>
+
+      <section id="acc-admin" class="hidden border border-zinc-200 dark:border-zinc-800 p-6 space-y-4 max-w-md">
+        <p class="text-xs uppercase tracking-ultra">Ви увійшли як адміністратор</p>
+        <p class="text-xs text-zinc-500 leading-relaxed">Замовлення, статуси доставки та товари — в окремій панелі.</p>
+        <a href="admin.html" class="inline-block bg-black dark:bg-white text-white dark:text-black px-6 py-3 text-xs uppercase tracking-ultra hover:opacity-80">Відкрити адмін-панель →</a>
+      </section>
     </div>
   </div>
 
@@ -641,7 +689,6 @@
     // ⚠️ УВАГА: ці ключі видно кожному відвідувачу сайту. Див. пояснення в чаті.
     const TELEGRAM_BOT_TOKEN = '9041628328:AAFZiTfZSwnVw51YARVIyKJvxt_o7Kaeyus';
     const TELEGRAM_CHAT_ID = '-1003781227185';
-    const ADMIN_PASSWORD = 'elven2026';
     const SUPABASE_URL = 'https://tbkrdfspdozxdiptcmgi.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_7-9ZVZfZehf8pr59oYztUQ_3G6EYLfI';
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -764,7 +811,6 @@
       }
       loaded = true;
       renderProducts();
-      renderAdminProductsList();
     }
 
     /* ---------- Каталог ---------- */
@@ -1198,7 +1244,7 @@
       saveCart(); updateCartUI();
     });
 
-    function openCart() { $('cart-modal').classList.remove('hidden'); lockScroll(true); }
+    function openCart() { prefillOrder(); $('cart-modal').classList.remove('hidden'); lockScroll(true); }
     function closeCart() { $('cart-modal').classList.add('hidden'); lockScroll(false); }
     $('cart-btn').onclick = playCartIntro;
     $('close-cart').onclick = closeCart;
@@ -1220,6 +1266,15 @@
     });
 
     /* ---------- Замовлення ---------- */
+    function orderError(msg) {
+      if (/PRODUCT_NOT_FOUND/.test(msg)) return 'Один із товарів більше недоступний — оновіть сторінку';
+      if (/BAD_PHONE/.test(msg)) return 'Перевірте номер телефону';
+      if (/BAD_NAME/.test(msg)) return 'Перевірте ім’я';
+      if (/BAD_ADDRESS/.test(msg)) return 'Перевірте адресу доставки';
+      if (/EMPTY_CART/.test(msg)) return 'Кошик порожній';
+      return 'Не вдалося оформити замовлення. Спробуйте ще раз';
+    }
+
     $('order-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!cart.length) return toast('Кошик порожній', 'err');
@@ -1231,207 +1286,416 @@
       const insta = $('cust-insta').value.trim().replace('@', '');
       const delivery = $('cust-delivery').value;
       const address = $('cust-address').value.trim();
-      const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
-
-      const itemsText = cart.map(i =>
-        `• ${esc(i.name)} [${i.sku ? 'Артикул: ' + esc(i.sku) : 'Без артикула'}] — Розмір: <b>${esc(i.size)}</b> × ${i.qty} — ${i.price * i.qty} UAH`).join('\n');
-
-      const message = `🛍 <b>НОВЕ ЗАМОВЛЕННЯ [ELVÉN]</b>\n\n👤 <b>Клієнт:</b> ${esc(name)}\n📞 <b>Тел:</b> <a href="tel:+${rawPhone}">${esc(phoneInput.value)}</a>\n💬 <b>Telegram:</b> ${tg ? `<a href="https://t.me/${encodeURIComponent(tg)}">@${esc(tg)}</a>` : 'не вказано'}\n📷 <b>Instagram:</b> ${insta ? `<a href="https://instagram.com/${encodeURIComponent(insta)}">@${esc(insta)}</a>` : 'не вказано'}\n\n📦 <b>Товари:</b>\n${itemsText}\n\n💰 <b>Загалом:</b> ${total} UAH\n\n🚚 <b>Служба:</b> ${esc(delivery)}\n📍 <b>Адреса:</b> ${esc(address)}`;
+      let total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+      let orderNo = null, saved = false;
 
       const btn = $('submit-btn');
       btn.disabled = true; btn.textContent = 'Відправляємо...';
+      const restore = () => { btn.textContent = 'Оформити замовлення'; btn.disabled = !cart.length; };
+
+      // 1) зберігаємо замовлення в базі (ціни рахує сервер)
+      try {
+        const { data, error } = await db.rpc('place_order', {
+          p_items: cart.map(i => ({ id: i.id, size: i.size, qty: i.qty })),
+          p_name: name, p_phone: phoneInput.value, p_telegram: tg, p_instagram: insta, p_delivery: delivery, p_address: address
+        });
+        if (error) throw error;
+        const row = Array.isArray(data) ? data[0] : data;
+        orderNo = row.o_no; total = Number(row.o_total); saved = true;
+      } catch (err) {
+        const msg = (err && err.message) || '';
+        const missing = err && (err.code === 'PGRST202' || (/place_order/i.test(msg) && /could not find|does not exist/i.test(msg)));
+        if (!missing) { toast(orderError(msg), 'err'); restore(); return; }
+        // SQL-скрипт ще не виконано — працюємо як раніше (лише Telegram)
+      }
+
+      // 2) повідомлення в Telegram
+      const itemsText = cart.map(i =>
+        `• ${esc(i.name)} [${i.sku ? 'Артикул: ' + esc(i.sku) : 'Без артикула'}] — Розмір: <b>${esc(i.size)}</b> × ${i.qty} — ${i.price * i.qty} UAH`).join('\n');
+      const message = `🛍 <b>НОВЕ ЗАМОВЛЕННЯ [ELVÉN]</b>${orderNo ? '\n🧾 <b>№ ' + esc(orderNo) + '</b>' : ''}${profile && profile.public_id ? '\n🆔 <b>Акаунт:</b> ' + esc(profile.public_id) : ''}\n\n👤 <b>Клієнт:</b> ${esc(name)}\n📞 <b>Тел:</b> <a href="tel:+${rawPhone}">${esc(phoneInput.value)}</a>\n💬 <b>Telegram:</b> ${tg ? `<a href="https://t.me/${encodeURIComponent(tg)}">@${esc(tg)}</a>` : 'не вказано'}\n📷 <b>Instagram:</b> ${insta ? `<a href="https://instagram.com/${encodeURIComponent(insta)}">@${esc(insta)}</a>` : 'не вказано'}\n\n📦 <b>Товари:</b>\n${itemsText}\n\n💰 <b>Загалом:</b> ${total} UAH\n\n🚚 <b>Служба:</b> ${esc(delivery)}\n📍 <b>Адреса:</b> ${esc(address)}`;
+      let tgOk = false;
       try {
         const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: 'HTML', disable_web_page_preview: true })
         });
-        if (!res.ok) throw new Error('tg');
-        cart = []; saveCart(); updateCartUI(); closeCart(); $('order-form').reset();
-        $('success-modal').classList.remove('hidden'); $('success-modal').classList.add('flex');
-      } catch (err) {
-        toast('Не вдалося відправити. Спробуйте ще раз', 'err');
-      } finally {
-        btn.textContent = 'Оформити замовлення'; btn.disabled = !cart.length;
-      }
+        tgOk = res.ok;
+      } catch (err) {}
+
+      if (!saved && !tgOk) { toast('Не вдалося відправити. Спробуйте ще раз', 'err'); restore(); return; }
+
+      // 3) успіх
+      cart = []; saveCart(); updateCartUI(); closeCart(); $('order-form').reset(); restore();
+      const so = $('success-order'); so.textContent = orderNo ? 'Замовлення № ' + orderNo : ''; so.classList.toggle('hidden', !orderNo);
+      const canTrack = saved && session && profile && !profile.is_admin;
+      $('success-orders-btn').classList.toggle('hidden', !canTrack);
+      $('success-modal').classList.remove('hidden'); $('success-modal').classList.add('flex');
+      if (canTrack) loadMyOrders().then(updateAccountUI);
     });
+    $('success-orders-btn').onclick = () => { $('success-close').click(); openAccount('orders'); };
     $('success-close').onclick = () => { $('success-modal').classList.add('hidden'); $('success-modal').classList.remove('flex'); lockScroll(false); };
 
-    /* ---------- Адмін ---------- */
-    const adminPanel = $('admin-panel');
-    let adminImages = [];
+    /* ---------- Акаунт, профіль, замовлення ---------- */
+    const ENABLE_GOOGLE = false;   // true — якщо підключили вхід через Google в Supabase
+    let session = null, profile = null, myOrders = [], ordersChannel = null, lastP = {};
+    let authMode = 'login', currentAccTab = 'profile';
 
-    function openAdmin() {
-      $('client-site').classList.add('hidden');
-      adminPanel.classList.remove('hidden'); adminPanel.classList.add('flex');
-      $('admin-login-screen').classList.remove('hidden');
-      $('admin-dashboard').classList.add('hidden');
-      closeCart(); closeProductModal();
-    }
-    function exitAdmin() {
-      adminPanel.classList.add('hidden'); adminPanel.classList.remove('flex');
-      $('client-site').classList.remove('hidden');
-      $('admin-pass-input').value = '';
-      if (location.hash === '#admin') history.replaceState(null, '', location.pathname);
-      loadProductsFromCloud();
-    }
-    // Вхід: Ctrl/Cmd+Shift+A, адреса #admin, або 5 швидких тапів по логотипу (для телефону)
-    window.addEventListener('keydown', (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.shiftKey && ['a', 'A', 'ф', 'Ф'].includes(e.key)) { e.preventDefault(); openAdmin(); }
-      if (e.key === 'Escape') { if (introBusy) { $('cart-intro').click(); return; } closeProductModal(); closeCart(); }
-    });
-    if (location.hash === '#admin') openAdmin();
-    window.addEventListener('hashchange', () => { if (location.hash === '#admin') openAdmin(); });
-    (() => {
-      let taps = 0, timer;
-      $('logo').addEventListener('click', (e) => {
-        taps++; clearTimeout(timer); timer = setTimeout(() => taps = 0, 1500);
-        if (taps >= 5) { taps = 0; e.preventDefault(); openAdmin(); }
-      });
-    })();
-    $('exit-admin').onclick = exitAdmin;
+    const STATUS = {
+      confirmed:   { label: 'Підтверджено', p: .04, step: 0, cls: 'bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200' },
+      in_transit:  { label: 'В дорозі',     p: .45, step: 1, cls: 'bg-amber-500 text-black' },
+      at_branch:   { label: 'У відділенні', p: .82, step: 2, cls: 'bg-emerald-500 text-black' },
+      at_postomat: { label: 'У поштоматі',  p: .82, step: 2, cls: 'bg-emerald-500 text-black' },
+      received:    { label: 'Отримано',     p: 1,   step: 3, cls: 'bg-green-600 text-white' },
+      cancelled:   { label: 'Скасовано',    p: 0,   step: -1, cls: 'bg-red-600 text-white' }
+    };
+    const CARRIER = { np: 'Нова Пошта', up: 'Укрпошта', intl: 'Міжнародна доставка' };
+    const B_LABEL = { login: 'Увійти', signup: 'Створити акаунт', forgot: 'Надіслати лист', recovery: 'Зберегти пароль' };
 
-    $('admin-login-form').addEventListener('submit', (e) => {
+    function maskPhone(v) {
+      let x = v.replace(/\D/g, '');
+      if (!x.startsWith('380')) x = '380' + x.replace(/^3?8?0?/, '');
+      x = x.substring(0, 12);
+      let f = '+380';
+      if (x.length > 3) f += ' (' + x.substring(3, 5);
+      if (x.length >= 5) f += ') ' + x.substring(5, 8);
+      if (x.length >= 8) f += '-' + x.substring(8, 10);
+      if (x.length >= 10) f += '-' + x.substring(10, 12);
+      return f;
+    }
+    $('pf-phone').addEventListener('input', (e) => { e.target.value = maskPhone(e.target.value); });
+
+    const overlayOpen = () => ['auth-modal', 'account-modal', 'cart-modal', 'product-modal', 'success-modal'].some(id => !$(id).classList.contains('hidden'));
+
+    /* ----- вхід / реєстрація ----- */
+    function setAuthMsg(t, ok) {
+      const m = $('auth-msg'); m.textContent = t || '';
+      m.className = 'text-[11px] leading-relaxed ' + (ok ? 'text-emerald-500' : 'text-red-500') + (t ? '' : ' hidden');
+    }
+    function setAuthMode(mode) {
+      authMode = mode;
+      const T = { login: 'Вхід', signup: 'Реєстрація', forgot: 'Відновлення пароля', recovery: 'Новий пароль' };
+      $('auth-title').textContent = T[mode]; $('auth-submit').textContent = B_LABEL[mode];
+      $('auth-tabs').classList.toggle('hidden', mode === 'forgot' || mode === 'recovery');
+      document.querySelectorAll('[data-auth-tab]').forEach(b => b.classList.toggle('active', b.dataset.authTab === mode));
+      $('au-name-wrap').classList.toggle('hidden', mode !== 'signup');
+      $('au-email-wrap').classList.toggle('hidden', mode === 'recovery');
+      $('au-pass-wrap').classList.toggle('hidden', mode === 'forgot');
+      $('auth-forgot').classList.toggle('hidden', mode !== 'login');
+      $('auth-back').classList.toggle('hidden', mode !== 'forgot');
+      $('auth-google-wrap').classList.toggle('hidden', !(ENABLE_GOOGLE && (mode === 'login' || mode === 'signup')));
+      $('au-pass').autocomplete = mode === 'login' ? 'current-password' : 'new-password';
+      setAuthMsg('');
+    }
+    function openAuth(mode = 'login') {
+      setAuthMode(mode);
+      const m = $('auth-modal'); m.classList.remove('hidden'); m.classList.add('flex'); lockScroll(true);
+      setTimeout(() => { const f = mode === 'signup' ? $('au-name') : mode === 'recovery' ? $('au-pass') : $('au-email'); if (f) f.focus(); }, 80);
+    }
+    function closeAuth() {
+      const m = $('auth-modal'); m.classList.add('hidden'); m.classList.remove('flex');
+      if (!overlayOpen()) lockScroll(false);
+    }
+    function authError(err) {
+      const m = (err && err.message) || '';
+      if (/Invalid login credentials/i.test(m)) return 'Невірна пошта або пароль';
+      if (/already registered|already been registered/i.test(m)) return 'Така пошта вже зареєстрована';
+      if (/Email not confirmed/i.test(m)) return 'Підтвердіть пошту — ми надсилали вам лист';
+      if (/rate limit|too many/i.test(m)) return 'Забагато спроб. Спробуйте трохи пізніше';
+      if (/valid email|invalid.*email/i.test(m)) return 'Некоректна пошта';
+      if (/same password|different from the old/i.test(m)) return 'Новий пароль має відрізнятись від старого';
+      if (/password/i.test(m) && /(at least|short|weak)/i.test(m)) return 'Пароль занадто простий або короткий';
+      return 'Помилка: ' + m;
+    }
+    document.querySelectorAll('[data-auth-tab]').forEach(b => b.addEventListener('click', () => setAuthMode(b.dataset.authTab)));
+    $('auth-forgot').onclick = () => setAuthMode('forgot');
+    $('auth-back').onclick = () => setAuthMode('login');
+    $('auth-close').onclick = closeAuth;
+    $('auth-modal').addEventListener('click', (e) => { if (e.target === $('auth-modal')) closeAuth(); });
+    $('au-eye').onclick = () => { const i = $('au-pass'); i.type = i.type === 'password' ? 'text' : 'password'; };
+    $('auth-google').onclick = async () => {
+      const { error } = await db.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname } });
+      if (error) setAuthMsg(authError(error));
+    };
+
+    $('auth-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      if ($('admin-pass-input').value === ADMIN_PASSWORD) {
-        $('admin-login-screen').classList.add('hidden');
-        $('admin-dashboard').classList.remove('hidden');
-        renderAdminProductsList();
-      } else toast('Невірний пароль', 'err');
-      $('admin-pass-input').value = '';
+      const email = $('au-email').value.trim(), pass = $('au-pass').value, name = $('au-name').value.trim();
+      const btn = $('auth-submit'); setAuthMsg('');
+      if (authMode !== 'recovery' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setAuthMsg('Введіть коректну пошту');
+      if (authMode !== 'forgot' && pass.length < 8) return setAuthMsg('Пароль — щонайменше 8 символів');
+      if (authMode === 'signup' && name.length < 2) return setAuthMsg('Вкажіть ім’я');
+      btn.disabled = true; btn.textContent = '...';
+      try {
+        if (authMode === 'login') {
+          const { error } = await db.auth.signInWithPassword({ email, password: pass });
+          if (error) throw error;
+          closeAuth(); toast('З поверненням!');
+        } else if (authMode === 'signup') {
+          const { data, error } = await db.auth.signUp({ email, password: pass, options: { data: { name }, emailRedirectTo: location.origin + location.pathname } });
+          if (error) throw error;
+          if (data.user && data.user.identities && data.user.identities.length === 0) throw new Error('already registered');
+          if (data.session) { closeAuth(); toast('Акаунт створено!'); }
+          else { setAuthMode('login'); setAuthMsg('Ми надіслали лист на ' + email + '. Підтвердіть пошту та увійдіть.', true); }
+        } else if (authMode === 'forgot') {
+          const { error } = await db.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
+          if (error) throw error;
+          setAuthMsg('Якщо така пошта зареєстрована — ми надіслали лист із посиланням.', true);
+        } else if (authMode === 'recovery') {
+          const { error } = await db.auth.updateUser({ password: pass });
+          if (error) throw error;
+          closeAuth(); toast('Пароль змінено');
+        }
+      } catch (err) { setAuthMsg(authError(err)); }
+      finally { btn.disabled = false; btn.textContent = B_LABEL[authMode]; }
     });
 
-    function renderAdminProductsList() {
-      const el = $('admin-products-list'); if (!el) return;
-      if (!products.length) { el.innerHTML = '<p class="text-xs text-zinc-400">Товарів ще немає</p>'; return; }
-      el.innerHTML = products.map(p => `
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-zinc-200 dark:border-zinc-800 p-3 bg-white dark:bg-zinc-900">
-          <div class="flex items-center gap-3 min-w-0">
-            <img src="${esc(getImgs(p)[0])}" class="w-10 h-12 object-cover bg-zinc-200 dark:bg-zinc-800">
-            <div class="min-w-0">
-              <p class="text-xs font-semibold truncate">${esc(p.name)} <span class="text-[10px] text-zinc-400 font-mono">[${esc(p.sku || 'без SKU')}]</span></p>
-              <p class="text-[10px] text-zinc-400">${fmt(p.price)} ${p.badge ? `| [${esc(p.badge)}]` : ''}</p>
-            </div>
-          </div>
-          <div class="flex gap-2 shrink-0">
-            <button data-edit="${p.id}" class="flex-1 text-xs bg-zinc-200 dark:bg-zinc-800 px-3 py-2 uppercase">Редагувати</button>
-            <button data-del="${p.id}" class="flex-1 text-xs bg-red-600 text-white px-3 py-2 uppercase">Видалити</button>
-          </div>
-        </div>`).join('');
+    /* ----- стан акаунта ----- */
+    function displayName() {
+      return (profile && (profile.display_name || '')) || (session && session.user.user_metadata && session.user.user_metadata.name) || (session && session.user.email) || '';
+    }
+    function updateAccountUI() {
+      const img = $('acc-img'), ico = $('acc-ico'), ini = $('acc-init'), dot = $('acc-dot'), btn = $('acc-btn');
+      img.classList.add('hidden'); ini.classList.add('hidden'); ico.classList.remove('hidden');
+      if (session) {
+        if (profile && profile.avatar_url) { img.src = profile.avatar_url; img.classList.remove('hidden'); ico.classList.add('hidden'); }
+        else { ini.textContent = (displayName() || '?').trim().charAt(0); ini.classList.remove('hidden'); ico.classList.add('hidden'); }
+      }
+      const active = myOrders.some(o => ['confirmed', 'in_transit', 'at_branch', 'at_postomat'].includes(o.status));
+      dot.classList.toggle('hidden', !(session && active));
+      btn.classList.toggle('has-ava', !!session);
+      btn.setAttribute('aria-label', session ? 'Мій акаунт' : 'Увійти');
+    }
+    function updateCartNote() {
+      const n = $('cart-auth-note'); if (!n) return;
+      if (!session) n.innerHTML = `<button type="button" data-open-auth class="w-full text-left mb-6 border border-zinc-200 dark:border-zinc-800 p-4 text-[11px] leading-relaxed text-zinc-500 hover:border-black dark:hover:border-white transition">Увійдіть або створіть акаунт — і ви зможете відстежувати доставку. <span class="underline text-black dark:text-white">Увійти →</span></button>`;
+      else if (profile && profile.is_admin) n.innerHTML = '';
+      else n.innerHTML = `<p class="mb-6 text-[11px] leading-relaxed text-zinc-500">Замовлення буде прив’язане до акаунту <b class="font-mono text-black dark:text-white">${esc((profile && profile.public_id) || '')}</b></p>`;
+    }
+    $('cart-auth-note').addEventListener('click', (e) => { if (e.target.closest('[data-open-auth]')) openAuth('login'); });
+    function prefillOrder() {
+      if (!profile) return;
+      if (!$('cust-name').value && profile.display_name) $('cust-name').value = profile.display_name;
+      if (!$('cust-phone').value && profile.phone) $('cust-phone').value = profile.phone;
     }
 
-    function renderAdminPreview() {
-      $('ap-preview').innerHTML = adminImages.map((src, i) => `
-        <div class="relative w-16 h-20 bg-zinc-200 dark:bg-zinc-800"><img src="${esc(src)}" class="w-full h-full object-cover">
-        <button type="button" data-rmimg="${i}" class="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 text-white text-xs leading-none">&times;</button></div>`).join('');
+    async function loadMyOrders() {
+      const { data, error } = await db.from('orders').select('*, order_events(*)').order('created_at', { ascending: false });
+      if (!error) myOrders = data || [];
+      return !error;
     }
-    $('ap-preview').addEventListener('click', (e) => {
-      const b = e.target.closest('[data-rmimg]'); if (!b) return;
-      adminImages.splice(Number(b.dataset.rmimg), 1); renderAdminPreview();
+    function unsubscribeOrders() { if (ordersChannel) { db.removeChannel(ordersChannel); ordersChannel = null; } }
+    function subscribeOrders() {
+      if (ordersChannel || !session) return;
+      ordersChannel = db.channel('my-orders-' + session.user.id)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter: `user_id=eq.${session.user.id}` }, async (p) => {
+          const prev = p.new && myOrders.find(o => o.id === p.new.id);
+          await loadMyOrders(); updateAccountUI();
+          if (p.eventType === 'UPDATE' && prev && p.new.status !== prev.status) toast(`${p.new.order_no}: ${(STATUS[p.new.status] || {}).label || ''}`);
+          if (!$('account-modal').classList.contains('hidden') && currentAccTab === 'orders') renderOrders();
+        }).subscribe();
+    }
+
+    async function refreshAccount() {
+      if (session && session.user) {
+        const { data } = await db.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
+        profile = data || { id: session.user.id, email: session.user.email, display_name: (session.user.user_metadata || {}).name || '', public_id: '', is_admin: false };
+        if (!profile.is_admin) { await loadMyOrders(); subscribeOrders(); } else { myOrders = []; unsubscribeOrders(); }
+      } else { profile = null; myOrders = []; unsubscribeOrders(); }
+      updateAccountUI(); updateCartNote();
+      if (!$('account-modal').classList.contains('hidden')) { if (!session) closeAccount(); else renderAccount(null, true); }
+    }
+    db.auth.onAuthStateChange((evt, sess) => {
+      session = sess;
+      if (evt === 'PASSWORD_RECOVERY') setTimeout(() => openAuth('recovery'), 0);
+      setTimeout(refreshAccount, 0);
     });
 
-    function compressImage(file, max = 1200, q = .82) {
+    /* ----- сторінка акаунта ----- */
+    function openAccount(tab) {
+      if (!session) { openAuth('login'); return; }
+      $('account-modal').classList.remove('hidden'); lockScroll(true);
+      $('account-modal').scrollTop = 0;
+      if (tab === 'orders' && !(profile && profile.is_admin)) showOrdersTab(); else renderAccount(tab || 'profile');
+    }
+    function closeAccount() { $('account-modal').classList.add('hidden'); if (!overlayOpen()) lockScroll(false); }
+
+    function renderAccount(tab, keepOrdersAsIs) {
+      if (tab) currentAccTab = tab;
+      const isAdmin = !!(profile && profile.is_admin);
+      const name = displayName();
+      $('acc-name').textContent = (profile && profile.display_name) || 'Користувач';
+      $('acc-id').textContent = (profile && profile.public_id) || '';
+      $('acc-email').textContent = (session && session.user.email) || '';
+      const im = $('acc-avatar-img'), ini = $('acc-avatar-init');
+      if (profile && profile.avatar_url) { im.src = profile.avatar_url; im.classList.remove('hidden'); ini.textContent = ''; }
+      else { im.classList.add('hidden'); ini.textContent = (name || '?').trim().charAt(0); }
+      $('acc-tabs').classList.toggle('hidden', isAdmin);
+      document.querySelectorAll('[data-acc-tab]').forEach(b => b.classList.toggle('active', b.dataset.accTab === currentAccTab));
+      $('acc-admin').classList.toggle('hidden', !isAdmin);
+      $('acc-profile').classList.toggle('hidden', isAdmin || currentAccTab !== 'profile');
+      $('acc-orders').classList.toggle('hidden', isAdmin || currentAccTab !== 'orders');
+      if (!isAdmin && currentAccTab === 'profile') {
+        $('pf-name').value = (profile && profile.display_name) || '';
+        $('pf-phone').value = (profile && profile.phone) || '';
+        $('pf-email').value = (session && session.user.email) || '';
+      }
+      if (!isAdmin && currentAccTab === 'orders' && !keepOrdersAsIs) renderOrders();
+    }
+    async function showOrdersTab() {
+      lastP = {}; currentAccTab = 'orders';
+      $('acc-orders-list').innerHTML = '<div class="skeleton h-40"></div><div class="skeleton h-40"></div>';
+      renderAccount('orders', true);
+      await loadMyOrders(); updateAccountUI(); renderOrders();
+    }
+    document.querySelectorAll('[data-close-account]').forEach(b => b.addEventListener('click', closeAccount));
+    document.querySelectorAll('[data-acc-tab]').forEach(b => b.addEventListener('click', () => {
+      if (b.dataset.accTab === 'orders') showOrdersTab(); else renderAccount('profile');
+    }));
+    $('acc-btn').onclick = () => (session ? openAccount() : openAuth('login'));
+    $('acc-logout').onclick = async () => { await db.auth.signOut(); closeAccount(); toast('Ви вийшли з акаунта'); };
+    $('acc-id').onclick = () => { const t = $('acc-id').textContent; if (t && navigator.clipboard) navigator.clipboard.writeText(t).then(() => toast('ID скопійовано')); };
+
+    $('pf-form').addEventListener('submit', async (e) => {
+      e.preventDefault(); if (!session) return;
+      const name = $('pf-name').value.trim().slice(0, 60);
+      const digits = $('pf-phone').value.replace(/\D/g, '');
+      const phone = digits.length > 3 ? $('pf-phone').value : null;
+      if (name.length < 2) return toast('Вкажіть ім’я', 'err');
+      const btn = $('pf-save'); btn.disabled = true;
+      const { data, error } = await db.from('profiles').update({ display_name: name, phone }).eq('id', session.user.id).select().maybeSingle();
+      btn.disabled = false;
+      if (error) return toast('Не вдалося зберегти', 'err');
+      profile = data || { ...profile, display_name: name, phone };
+      updateAccountUI(); renderAccount(); toast('Профіль збережено');
+    });
+
+    function squareAvatar(file, size = 400) {
       return new Promise((resolve, reject) => {
-        const fr = new FileReader();
-        fr.onerror = reject;
+        const fr = new FileReader(); fr.onerror = reject;
         fr.onload = () => {
-          const img = new Image();
-          img.onerror = reject;
+          const img = new Image(); img.onerror = reject;
           img.onload = () => {
-            const k = Math.min(1, max / Math.max(img.width, img.height));
-            const c = document.createElement('canvas');
-            c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
-            c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-            resolve(c.toDataURL('image/jpeg', q));
+            const m = Math.min(img.width, img.height), sx = (img.width - m) / 2, sy = (img.height - m) / 2;
+            const c = document.createElement('canvas'); c.width = c.height = size;
+            c.getContext('2d').drawImage(img, sx, sy, m, m, 0, 0, size, size);
+            c.toBlob(b => b ? resolve(b) : reject(new Error('blob')), 'image/jpeg', .86);
           };
           img.src = fr.result;
         };
         fr.readAsDataURL(file);
       });
     }
-
-    $('ap-files').addEventListener('change', async (e) => {
-      const files = Array.from(e.target.files);
-      if (!files.length) return;
-      toast('Обробка фото...');
-      for (const f of files) { try { adminImages.push(await compressImage(f)); } catch (err) { toast('Не вдалося обробити фото', 'err'); } }
-      e.target.value = ''; renderAdminPreview();
-    });
-    $('ap-add-url').onclick = () => {
-      const u = $('ap-img').value.trim(); if (!u) return;
-      adminImages.push(u); $('ap-img').value = ''; renderAdminPreview();
-    };
-
-    function resetAdminForm() {
-      $('admin-product-form').reset();
-      $('edit-product-id').value = ''; adminImages = []; renderAdminPreview();
-      $('form-title').textContent = 'Додати новий товар';
-      $('save-btn').textContent = 'Зберегти товар';
-      $('cancel-edit-btn').classList.add('hidden');
-    }
-
-    $('admin-product-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const editId = $('edit-product-id').value;
-      const pending = $('ap-img').value.trim();
-      const images = pending ? [...adminImages, pending] : [...adminImages];
-      const sizes = Array.from(document.querySelectorAll('input[name="ap-size"]:checked')).map(cb => cb.value);
-      const oldP = $('ap-old-price').value;
-      const payload = {
-        name: $('ap-name').value.trim(),
-        sku: $('ap-sku').value.trim(),
-        price: Number($('ap-price').value),
-        oldPrice: oldP ? Number(oldP) : null,
-        badge: $('ap-badge').value,
-        desc: $('ap-desc').value,
-        images,
-        sizes: sizes.length ? sizes : ['S', 'M', 'L']
-      };
-      const btn = $('save-btn'); btn.disabled = true; btn.textContent = 'Збереження...';
+    $('pf-file').addEventListener('change', async (e) => {
+      const f = e.target.files[0]; e.target.value = '';
+      if (!f || !session) return;
+      if (!/^image\//.test(f.type)) return toast('Оберіть зображення', 'err');
+      toast('Завантаження фото...');
       try {
-        if (editId) {
-          const { error } = await db.from('products').update(payload).eq('id', editId);
-          if (error) throw error;
-        } else {
-          payload.id = Date.now();
-          const { error } = await db.from('products').insert([payload]);
-          if (error) throw error;
-        }
-        resetAdminForm();
-        await loadProductsFromCloud();
-        toast('Збережено');
-      } catch (err) {
-        toast('Помилка: ' + err.message, 'err');
-      } finally { btn.disabled = false; btn.textContent = $('edit-product-id').value ? 'Оновити товар' : 'Зберегти товар'; }
+        const blob = await squareAvatar(f);
+        const path = `${session.user.id}/avatar.jpg`;
+        const up = await db.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg', cacheControl: '60' });
+        if (up.error) throw up.error;
+        const url = db.storage.from('avatars').getPublicUrl(path).data.publicUrl + '?v=' + Date.now();
+        const r = await db.from('profiles').update({ avatar_url: url }).eq('id', session.user.id);
+        if (r.error) throw r.error;
+        profile = { ...profile, avatar_url: url }; updateAccountUI(); renderAccount(); toast('Аватарку оновлено');
+      } catch (err) { console.error(err); toast('Не вдалося завантажити фото', 'err'); }
     });
 
-    $('admin-products-list').addEventListener('click', async (e) => {
-      const ed = e.target.closest('[data-edit]'), del = e.target.closest('[data-del]');
-      if (ed) {
-        const p = products.find(x => Number(x.id) === Number(ed.dataset.edit)); if (!p) return;
-        $('edit-product-id').value = p.id;
-        $('ap-name').value = p.name; $('ap-sku').value = p.sku || '';
-        $('ap-price').value = p.price; $('ap-old-price').value = p.oldPrice || '';
-        $('ap-badge').value = p.badge || ''; $('ap-desc').value = p.desc || '';
-        $('ap-img').value = '';
-        adminImages = (p.images && p.images.length) ? [...p.images] : (p.img ? [p.img] : []);
-        renderAdminPreview();
-        document.querySelectorAll('input[name="ap-size"]').forEach(cb => cb.checked = (p.sizes || ['S', 'M', 'L']).includes(cb.value));
-        $('form-title').textContent = 'Редагувати товар';
-        $('save-btn').textContent = 'Оновити товар';
-        $('cancel-edit-btn').classList.remove('hidden');
-        adminPanel.scrollTo({ top: 0, behavior: 'smooth' });
+    /* ----- «Мої замовлення»: шкала з машинкою ----- */
+    function vehicleSvg(c) {
+      const wheel = (cx, cy, r) => `<g class="whl"><circle cx="${cx}" cy="${cy}" r="${r}" fill="#27272a"/><circle cx="${cx}" cy="${cy}" r="${r * .38}" fill="#d4d4d8"/><path d="M${cx} ${cy - r * .8}V${cy + r * .8}M${cx - r * .8} ${cy}H${cx + r * .8}" stroke="#d4d4d8" stroke-width="1.2"/></g>`;
+      if (c === 'up') {
+        return `<svg viewBox="0 0 84 40" aria-hidden="true">
+          <path d="M5 29V20Q5 14 11 13L20 11Q24 6 32 6H52Q58 6 62 11L72 17Q79 18 79 25V29Z" fill="#facc15"/>
+          <path d="M23 11Q26 8 32 8H38V17H18Z M42 8H52Q55 8 58 12L61 17H42Z" fill="#bfdbfe"/>
+          <rect x="5" y="22" width="74" height="3" fill="#2563eb"/>
+          ${wheel(22, 31, 7)}${wheel(62, 31, 7)}</svg>`;
       }
-      if (del && confirm('Видалити цей товар?')) {
-        try {
-          const { error } = await db.from('products').delete().eq('id', del.dataset.del);
-          if (error) throw error;
-          await loadProductsFromCloud(); toast('Видалено');
-        } catch (err) { toast('Помилка видалення: ' + err.message, 'err'); }
+      const body = c === 'intl' ? '#52525b' : '#dc2626', cab = c === 'intl' ? '#3f3f46' : '#b91c1c';
+      return `<svg viewBox="0 0 92 44" aria-hidden="true">
+        <rect x="2" y="5" width="56" height="29" rx="3" fill="${body}"/>
+        <rect x="2" y="16" width="56" height="4" fill="#fff" fill-opacity=".85"/>
+        <path d="M60 13H76L88 24V34H60Z" fill="${cab}"/>
+        <path d="M64 16H75L82 24H64Z" fill="#fecaca" fill-opacity=".9"/>
+        ${wheel(18, 35, 6.5)}${wheel(72, 35, 6.5)}</svg>`;
+    }
+    function trackHtml(o) {
+      const st = STATUS[o.status] || STATUS.confirmed;
+      if (o.status === 'cancelled') return '<p class="py-3 text-xs uppercase tracking-ultra text-red-500">Замовлення скасовано</p>';
+      const stops = [
+        { p: .04, label: 'Підтверджено' }, { p: .45, label: 'В дорозі' },
+        { p: .82, label: o.status === 'at_postomat' ? 'У поштоматі' : 'У відділенні' }, { p: 1, label: 'Отримано' }
+      ];
+      const from = lastP[o.id] !== undefined ? lastP[o.id] : 0;
+      return `<div class="trk ${o.status === 'in_transit' ? 'live' : ''}" data-oid="${o.id}" data-p="${st.p}" data-from="${from}">
+        <div class="trk-road">
+          <div class="trk-fill" style="transform:scaleX(${from})"></div>
+          ${stops.map((s, i) => `<span class="trk-stop ${i <= st.step ? 'done' : ''}" style="left:${s.p * 100}%"><i></i><em>${s.label}</em></span>`).join('')}
+          <span class="trk-flag" style="left:100%"><svg viewBox="0 0 16 20" aria-hidden="true"><path d="M3 2v16"/><path d="M3 3h10l-2.5 3.5L13 10H3" fill="currentColor"/></svg></span>
+          <div class="trk-veh" style="left:${from * 100}%">${vehicleSvg(o.carrier)}</div>
+        </div></div>`;
+    }
+    function animateTracks(root) {
+      root.querySelectorAll('.trk').forEach(t => {
+        const p = Number(t.dataset.p), from = Number(t.dataset.from), id = t.dataset.oid;
+        const veh = t.querySelector('.trk-veh'), fill = t.querySelector('.trk-fill');
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          veh.style.left = (p * 100) + '%'; fill.style.transform = `scaleX(${p})`;
+          if (Math.abs(p - from) > .001) { t.classList.add('moving'); setTimeout(() => t.classList.remove('moving'), 1300); }
+          lastP[id] = p;
+        }));
+      });
+    }
+    function orderCard(o) {
+      const st = STATUS[o.status] || STATUS.confirmed;
+      const date = new Date(o.created_at).toLocaleString('uk-UA', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+      const items = (o.items || []).map(it => {
+        const pr = products.find(x => Number(x.id) === Number(it.id));
+        const im = pr ? getImgs(pr)[0] : '';
+        return `<div class="flex items-center gap-3"><div class="w-10 h-[52px] shrink-0 bg-zinc-100 dark:bg-zinc-900 overflow-hidden">${im ? `<img src="${esc(im)}" alt="" class="w-full h-full object-cover">` : ''}</div><div class="min-w-0 flex-grow"><p class="text-[11px] uppercase tracking-wider truncate">${esc(it.name)}</p><p class="text-[10px] text-zinc-400 uppercase tracking-widest">${esc(it.size)} × ${it.qty}</p></div><p class="text-xs tabular-nums shrink-0">${fmt(it.price * it.qty)}</p></div>`;
+      }).join('');
+      const ev = (o.order_events || []).slice().sort((a, b) => new Date(a.created_at) - new Date(b.created_at)).map(e =>
+        `<li class="flex justify-between gap-3"><span>${esc((STATUS[e.status] || {}).label || e.status)}</span><span class="text-zinc-400">${new Date(e.created_at).toLocaleString('uk-UA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span></li>`).join('');
+      const ttn = o.tracking_number
+        ? `<button type="button" data-copy="${esc(o.tracking_number)}" class="inline-flex items-center gap-2 font-mono text-xs normal-case tracking-normal text-black dark:text-white hover:opacity-70">${esc(o.tracking_number)}<svg class="ic text-[11px]" aria-hidden="true"><use href="#i-copy"/></svg></button>`
+        : '<span class="normal-case tracking-normal">з’явиться після відправки</span>';
+      return `<article class="border border-zinc-200 dark:border-zinc-800 p-4 sm:p-6 space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div><p class="font-mono text-xs font-semibold">${esc(o.order_no)}</p><p class="text-[11px] text-zinc-400">${date} · ${esc(CARRIER[o.carrier] || '')}</p></div>
+          <span class="px-2.5 py-1 text-[9px] uppercase tracking-widest font-bold ${st.cls}">${st.label}</span>
+        </div>
+        ${trackHtml(o)}
+        <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] uppercase tracking-widest text-zinc-400"><span>ТТН</span>${ttn}</div>
+        <div class="space-y-3 border-t border-zinc-100 dark:border-zinc-900 pt-4">${items}</div>
+        <div class="flex justify-between items-center border-t border-zinc-100 dark:border-zinc-900 pt-4 text-xs uppercase tracking-ultra"><span>Разом</span><span class="tabular-nums">${fmt(o.total)}</span></div>
+        <p class="text-[11px] text-zinc-500 leading-relaxed">${esc(o.delivery)} · ${esc(o.address)}</p>
+        ${ev ? `<details class="text-[11px]"><summary class="cursor-pointer uppercase tracking-widest text-zinc-400">Історія статусів</summary><ul class="mt-3 space-y-2">${ev}</ul></details>` : ''}
+      </article>`;
+    }
+    function renderOrders() {
+      const box = $('acc-orders-list');
+      if (!myOrders.length) {
+        box.innerHTML = `<div class="text-center py-16 text-zinc-400"><svg class="ic text-4xl mb-4 block mx-auto opacity-50" aria-hidden="true"><use href="#i-box"/></svg><p class="text-xs uppercase tracking-ultra mb-6">У вас ще немає замовлень</p><button type="button" data-close-account class="bg-black dark:bg-white text-white dark:text-black px-8 py-3 text-xs uppercase tracking-ultra">До каталогу</button></div>`;
+        box.querySelector('[data-close-account]').addEventListener('click', closeAccount);
+        return;
       }
+      box.innerHTML = myOrders.map(orderCard).join('');
+      animateTracks(box);
+    }
+    $('acc-orders-list').addEventListener('click', (e) => {
+      const c = e.target.closest('[data-copy]');
+      if (c && navigator.clipboard) navigator.clipboard.writeText(c.dataset.copy).then(() => toast('ТТН скопійовано'));
     });
-    $('cancel-edit-btn').onclick = resetAdminForm;
 
-    
+    addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      if (introBusy) { $('cart-intro').click(); return; }
+      if (!$('auth-modal').classList.contains('hidden')) { closeAuth(); return; }
+      if (!$('account-modal').classList.contains('hidden')) { closeAccount(); return; }
+      closeProductModal(); closeCart();
+    });
+
     /* ---------- Тележка: повноекранний перехід до кошика ---------- */
     function playCartIntro() {
       if (introBusy) return;
