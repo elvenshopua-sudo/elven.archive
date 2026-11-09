@@ -214,6 +214,13 @@
     .trk.moving .trk-veh svg, .trk.live .trk-veh svg { animation: bob .45s ease-in-out infinite alternate; }
     @keyframes bob { to { transform: translate3d(0,-1.5px,0); } }
     #acc-btn.has-ava { border-color: rgba(128,128,128,.4); }
+
+    /* ===== Колесо фортуни ===== */
+    .wheel-mini { position: relative; width: 64px; height: 64px; border-radius: 9999px; border: 3px solid #eab308;
+      background: repeating-conic-gradient(#eab308 0 30deg, #27272a 0 60deg); animation: spin 10s linear infinite; }
+    .wheel-mini::after { content: ""; position: absolute; inset: 24px; border-radius: 9999px; background: #fff; }
+    #wheel-rot { transform-origin: 160px 164px; will-change: transform; }
+    .wh-conf { position: fixed; z-index: 90; width: 8px; height: 12px; pointer-events: none; border-radius: 2px; }
   </style>
 </head>
 <body class="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans min-h-screen transition-colors duration-300">
@@ -318,6 +325,19 @@
         <span>Essential Oversize</span><span>Premium Cotton</span><span>Collection 2026</span><span>Чисті лінії</span><span>Строгий силует</span><span>Нова Пошта щодня</span>
         <span>Essential Oversize</span><span>Premium Cotton</span><span>Collection 2026</span><span>Чисті лінії</span><span>Строгий силует</span><span>Нова Пошта щодня</span>
       </div></div>
+
+      <!-- КОЛЕСО ФОРТУНИ -->
+      <section class="max-w-7xl mx-auto px-4 sm:px-8 pt-10">
+        <button id="wheel-promo" type="button" class="group w-full text-left bg-black text-white dark:bg-zinc-900 border border-zinc-800 p-5 sm:p-7 flex items-center gap-5 sm:gap-8 hover:border-yellow-500 transition">
+          <span class="wheel-mini shrink-0" aria-hidden="true"></span>
+          <span class="min-w-0 flex-grow">
+            <span class="block text-[10px] uppercase tracking-mega text-yellow-500 mb-1">Колесо фортуни</span>
+            <span class="block text-lg sm:text-2xl font-light uppercase tracking-wide leading-tight">Знижки до 50% та безкоштовна доставка</span>
+            <span class="block text-[11px] text-zinc-400 mt-2">Маєте квиток? Крутіть колесо у своєму акаунті.</span>
+          </span>
+          <span class="text-xl shrink-0 transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
+        </button>
+      </section>
 
       <!-- КАТАЛОГ -->
       <section id="catalog" class="max-w-7xl mx-auto px-4 sm:px-8 pt-14 pb-20 scroll-mt-16">
@@ -534,10 +554,16 @@
             <label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Місто та Відділення *</label>
             <input type="text" id="cust-address" required autocomplete="street-address" placeholder="м. Київ, №15" class="field">
           </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Призовий код з колеса (за наявності)</label>
+            <input type="text" id="cust-promo" autocomplete="off" autocapitalize="characters" placeholder="ELV-XXXX" class="field font-mono uppercase">
+            <p id="promo-hint" class="hidden text-[10px] mt-1"></p>
+          </div>
         </form>
       </div>
 
       <div class="shrink-0 border-t border-zinc-100 dark:border-zinc-900 px-5 sm:px-8 pt-4 safe-b bg-white dark:bg-zinc-950">
+        <div id="cart-disc-row" class="hidden justify-between text-[11px] tracking-widest uppercase text-emerald-500 mb-2"><span id="cart-disc-label">Знижка</span><span id="cart-disc"></span></div>
         <div class="flex justify-between text-xs tracking-ultra uppercase font-medium mb-3">
           <span>Сума</span><span id="cart-total">0 UAH</span>
         </div>
@@ -647,18 +673,36 @@
       <div id="acc-tabs" class="flex gap-2 mb-8">
         <button type="button" data-acc-tab="profile" class="chip">Профіль</button>
         <button type="button" data-acc-tab="orders" class="chip">Мої замовлення</button>
+        <button type="button" data-acc-tab="wheel" class="chip">Колесо</button>
       </div>
 
       <section id="acc-profile">
         <form id="pf-form" class="space-y-5 max-w-md">
           <div><label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Ім’я</label><input id="pf-name" type="text" autocomplete="name" class="field"></div>
           <div><label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Телефон</label><input id="pf-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+380 (97) 000-00-00" class="field"></div>
+          <div><label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Instagram (щоб ми знайшли вас у Direct)</label><input id="pf-insta" type="text" autocapitalize="none" placeholder="@nickname" class="field"></div>
           <div><label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Пошта</label><input id="pf-email" type="email" disabled class="field opacity-60"></div>
           <button id="pf-save" type="submit" class="bg-black dark:bg-white text-white dark:text-black font-semibold px-8 py-3.5 text-xs uppercase tracking-ultra hover:opacity-80 disabled:opacity-40 transition">Зберегти</button>
         </form>
       </section>
 
       <section id="acc-orders" class="hidden"><div id="acc-orders-list" class="space-y-5"></div></section>
+
+      <section id="acc-wheel" class="hidden space-y-8">
+        <div class="max-w-sm mx-auto">
+          <div id="wheel-box" class="relative"></div>
+          <div id="wheel-controls" class="space-y-3 mt-4">
+            <input id="wheel-ticket" type="text" autocapitalize="characters" autocomplete="off" placeholder="Код квитка: SPIN-XXXXXX" class="field text-center font-mono uppercase">
+            <button id="wheel-spin" type="button" class="w-full bg-black dark:bg-white text-white dark:text-black font-semibold py-4 text-xs uppercase tracking-ultra hover:opacity-80 disabled:opacity-40 transition">Крутити колесо</button>
+            <p class="text-[10px] text-zinc-400 text-center leading-relaxed">Один квиток — одне кручення. Квиток можна отримати в Instagram ELVÉN або в посилці.</p>
+          </div>
+          <div id="wheel-result" class="hidden mt-6 border border-yellow-500 p-5 text-center space-y-3"></div>
+        </div>
+        <div>
+          <p class="text-[10px] uppercase tracking-widest text-zinc-400 mb-3">Мої призи</p>
+          <div id="wheel-prizes" class="space-y-3"></div>
+        </div>
+      </section>
 
       <section id="acc-admin" class="hidden border border-zinc-200 dark:border-zinc-800 p-6 space-y-4 max-w-md">
         <p class="text-xs uppercase tracking-ultra">Ви увійшли як адміністратор</p>
@@ -1231,9 +1275,35 @@
             </div>
           </div>`).join('');
       }
-      $('cart-total').textContent = fmt(cart.reduce((s, i) => s + i.price * i.qty, 0));
+      updateCartTotals();
       $('submit-btn').disabled = !cart.length;
     }
+
+    function promoInfo(sub) {
+      const raw = $('cust-promo').value.trim().toUpperCase();
+      const none = { disc: 0, free: false, msg: '', ok: null };
+      if (!raw) return none;
+      if (!session) return { ...none, ok: false, msg: 'Увійдіть в акаунт, щоб використати код' };
+      const p = (myPrizes || []).find(x => x.prize_code === raw);
+      if (!p) return { ...none, ok: false, msg: 'Код не знайдено у вашому акаунті' };
+      if (p.status === 'used') return { ...none, ok: false, msg: 'Цей код уже використано' };
+      if (new Date(p.expires_at) < new Date()) return { ...none, ok: false, msg: 'Термін дії коду минув' };
+      if (p.kind === 'percent') return { disc: Math.round(sub * p.value / 100), free: false, ok: true, msg: `Знижка ${p.value}% застосована` };
+      return { disc: 0, free: true, ok: true, msg: 'Безкоштовна доставка застосована' };
+    }
+    function updateCartTotals() {
+      const sub = cart.reduce((s, i) => s + i.price * i.qty, 0);
+      let info = { disc: 0, free: false, msg: '', ok: null };
+      try { info = promoInfo(sub); } catch (e) {}
+      $('cart-total').textContent = fmt(Math.max(0, sub - info.disc));
+      const row = $('cart-disc-row'), show = info.ok === true;
+      row.classList.toggle('hidden', !show); row.classList.toggle('flex', show);
+      $('cart-disc-label').textContent = info.free ? 'Безкоштовна доставка' : 'Знижка';
+      $('cart-disc').textContent = info.free ? '🎁' : '−' + fmt(info.disc);
+      const h = $('promo-hint'); h.textContent = info.msg;
+      h.className = 'text-[10px] mt-1 ' + (info.ok === true ? 'text-emerald-500' : 'text-red-500') + (info.msg ? '' : ' hidden');
+    }
+    $('cust-promo').addEventListener('input', (e) => { e.target.value = e.target.value.toUpperCase(); updateCartTotals(); });
 
     $('cart-items').addEventListener('click', (e) => {
       const rm = e.target.closest('[data-remove]'), inc = e.target.closest('[data-inc]'), dec = e.target.closest('[data-dec]');
@@ -1272,6 +1342,10 @@
       if (/BAD_NAME/.test(msg)) return 'Перевірте ім’я';
       if (/BAD_ADDRESS/.test(msg)) return 'Перевірте адресу доставки';
       if (/EMPTY_CART/.test(msg)) return 'Кошик порожній';
+      if (/PROMO_LOGIN/.test(msg)) return 'Увійдіть в акаунт, щоб використати код';
+      if (/PROMO_USED/.test(msg)) return 'Цей призовий код уже використано';
+      if (/PROMO_EXPIRED/.test(msg)) return 'Термін дії призового коду минув';
+      if (/PROMO_INVALID/.test(msg)) return 'Призовий код не знайдено або він належить іншому акаунту';
       return 'Не вдалося оформити замовлення. Спробуйте ще раз';
     }
 
@@ -1287,7 +1361,8 @@
       const delivery = $('cust-delivery').value;
       const address = $('cust-address').value.trim();
       let total = cart.reduce((s, i) => s + i.price * i.qty, 0);
-      let orderNo = null, saved = false;
+      let orderNo = null, saved = false, discount = 0, freeShip = false;
+      const promo = $('cust-promo').value.trim().toUpperCase();
 
       const btn = $('submit-btn');
       btn.disabled = true; btn.textContent = 'Відправляємо...';
@@ -1297,22 +1372,23 @@
       try {
         const { data, error } = await db.rpc('place_order', {
           p_items: cart.map(i => ({ id: i.id, size: i.size, qty: i.qty })),
-          p_name: name, p_phone: phoneInput.value, p_telegram: tg, p_instagram: insta, p_delivery: delivery, p_address: address
+          p_name: name, p_phone: phoneInput.value, p_telegram: tg, p_instagram: insta, p_delivery: delivery, p_address: address, p_promo: promo || null
         });
         if (error) throw error;
         const row = Array.isArray(data) ? data[0] : data;
-        orderNo = row.o_no; total = Number(row.o_total); saved = true;
+        orderNo = row.o_no; total = Number(row.o_total); discount = Number(row.o_discount || 0); freeShip = !!row.o_free_ship; saved = true;
       } catch (err) {
         const msg = (err && err.message) || '';
         const missing = err && (err.code === 'PGRST202' || (/place_order/i.test(msg) && /could not find|does not exist/i.test(msg)));
-        if (!missing) { toast(orderError(msg), 'err'); restore(); return; }
+        if (!missing || promo) { toast(orderError(msg), 'err'); restore(); return; }
         // SQL-скрипт ще не виконано — працюємо як раніше (лише Telegram)
       }
 
       // 2) повідомлення в Telegram
       const itemsText = cart.map(i =>
         `• ${esc(i.name)} [${i.sku ? 'Артикул: ' + esc(i.sku) : 'Без артикула'}] — Розмір: <b>${esc(i.size)}</b> × ${i.qty} — ${i.price * i.qty} UAH`).join('\n');
-      const message = `🛍 <b>НОВЕ ЗАМОВЛЕННЯ [ELVÉN]</b>${orderNo ? '\n🧾 <b>№ ' + esc(orderNo) + '</b>' : ''}${profile && profile.public_id ? '\n🆔 <b>Акаунт:</b> ' + esc(profile.public_id) : ''}\n\n👤 <b>Клієнт:</b> ${esc(name)}\n📞 <b>Тел:</b> <a href="tel:+${rawPhone}">${esc(phoneInput.value)}</a>\n💬 <b>Telegram:</b> ${tg ? `<a href="https://t.me/${encodeURIComponent(tg)}">@${esc(tg)}</a>` : 'не вказано'}\n📷 <b>Instagram:</b> ${insta ? `<a href="https://instagram.com/${encodeURIComponent(insta)}">@${esc(insta)}</a>` : 'не вказано'}\n\n📦 <b>Товари:</b>\n${itemsText}\n\n💰 <b>Загалом:</b> ${total} UAH\n\n🚚 <b>Служба:</b> ${esc(delivery)}\n📍 <b>Адреса:</b> ${esc(address)}`;
+      const message = `🛍 <b>НОВЕ ЗАМОВЛЕННЯ [ELVÉN]</b>${orderNo ? '\n🧾 <b>№ ' + esc(orderNo) + '</b>' : ''}${profile && profile.public_id ? '\n🆔 <b>Акаунт:</b> ' + esc(profile.public_id) : ''}\n\n👤 <b>Клієнт:</b> ${esc(name)}\n📞 <b>Тел:</b> <a href="tel:+${rawPhone}">${esc(phoneInput.value)}</a>\n💬 <b>Telegram:</b> ${tg ? `<a href="https://t.me/${encodeURIComponent(tg)}">@${esc(tg)}</a>` : 'не вказано'}\n📷 <b>Instagram:</b> ${insta ? `<a href="https://instagram.com/${encodeURIComponent(insta)}">@${esc(insta)}</a>` : 'не вказано'}\n\n📦 <b>Товари:</b>\n${itemsText}${promoLine}\n\n💰 <b>Загалом:</b> ${total} UAH\n\n🚚 <b>Служба:</b> ${esc(delivery)}\n📍 <b>Адреса:</b> ${esc(address)}`;
+      const promoLine = saved && promo ? `\n🎁 <b>Промокод:</b> ${esc(promo)}${discount > 0 ? ' (знижка −' + discount + ' UAH)' : ''}${freeShip ? ' — БЕЗКОШТОВНА ДОСТАВКА (оплачуємо ми)' : ''}` : '';
       let tgOk = false;
       try {
         const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
@@ -1325,12 +1401,13 @@
       if (!saved && !tgOk) { toast('Не вдалося відправити. Спробуйте ще раз', 'err'); restore(); return; }
 
       // 3) успіх
-      cart = []; saveCart(); updateCartUI(); closeCart(); $('order-form').reset(); restore();
-      const so = $('success-order'); so.textContent = orderNo ? 'Замовлення № ' + orderNo : ''; so.classList.toggle('hidden', !orderNo);
+      cart = []; saveCart(); updateCartUI(); closeCart(); $('order-form').reset(); updateCartTotals(); restore();
+      const so = $('success-order'); so.textContent = orderNo ? 'Замовлення № ' + orderNo + (discount > 0 ? ' · знижка −' + discount + ' UAH' : '') + (freeShip ? ' · безкоштовна доставка' : '') : ''; so.classList.toggle('hidden', !orderNo);
       const canTrack = saved && session && profile && !profile.is_admin;
       $('success-orders-btn').classList.toggle('hidden', !canTrack);
       $('success-modal').classList.remove('hidden'); $('success-modal').classList.add('flex');
-      if (canTrack) loadMyOrders().then(updateAccountUI);
+      if (canTrack) { loadMyOrders().then(updateAccountUI); }
+      if (promo && saved) loadMyPrizes();
     });
     $('success-orders-btn').onclick = () => { $('success-close').click(); openAccount('orders'); };
     $('success-close').onclick = () => { $('success-modal').classList.add('hidden'); $('success-modal').classList.remove('flex'); lockScroll(false); };
@@ -1476,6 +1553,7 @@
       if (!profile) return;
       if (!$('cust-name').value && profile.display_name) $('cust-name').value = profile.display_name;
       if (!$('cust-phone').value && profile.phone) $('cust-phone').value = profile.phone;
+      if (!$('cust-insta').value && profile.instagram) $('cust-insta').value = profile.instagram;
     }
 
     async function loadMyOrders() {
@@ -1499,9 +1577,9 @@
       if (session && session.user) {
         const { data } = await db.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
         profile = data || { id: session.user.id, email: session.user.email, display_name: (session.user.user_metadata || {}).name || '', public_id: '', is_admin: false };
-        if (!profile.is_admin) { await loadMyOrders(); subscribeOrders(); } else { myOrders = []; unsubscribeOrders(); }
-      } else { profile = null; myOrders = []; unsubscribeOrders(); }
-      updateAccountUI(); updateCartNote();
+        if (!profile.is_admin) { await loadMyOrders(); await loadMyPrizes(); subscribeOrders(); } else { myOrders = []; myPrizes = []; unsubscribeOrders(); }
+      } else { profile = null; myOrders = []; myPrizes = []; unsubscribeOrders(); }
+      updateAccountUI(); updateCartNote(); updateCartTotals();
       if (!$('account-modal').classList.contains('hidden')) { if (!session) closeAccount(); else renderAccount(null, true); }
     }
     db.auth.onAuthStateChange((evt, sess) => {
@@ -1534,12 +1612,15 @@
       $('acc-admin').classList.toggle('hidden', !isAdmin);
       $('acc-profile').classList.toggle('hidden', isAdmin || currentAccTab !== 'profile');
       $('acc-orders').classList.toggle('hidden', isAdmin || currentAccTab !== 'orders');
+      $('acc-wheel').classList.toggle('hidden', isAdmin || currentAccTab !== 'wheel');
       if (!isAdmin && currentAccTab === 'profile') {
         $('pf-name').value = (profile && profile.display_name) || '';
         $('pf-phone').value = (profile && profile.phone) || '';
+        $('pf-insta').value = (profile && profile.instagram) || '';
         $('pf-email').value = (session && session.user.email) || '';
       }
       if (!isAdmin && currentAccTab === 'orders' && !keepOrdersAsIs) renderOrders();
+      if (!isAdmin && currentAccTab === 'wheel') renderWheelTab();
     }
     async function showOrdersTab() {
       lastP = {}; currentAccTab = 'orders';
@@ -1549,7 +1630,7 @@
     }
     document.querySelectorAll('[data-close-account]').forEach(b => b.addEventListener('click', closeAccount));
     document.querySelectorAll('[data-acc-tab]').forEach(b => b.addEventListener('click', () => {
-      if (b.dataset.accTab === 'orders') showOrdersTab(); else renderAccount('profile');
+      if (b.dataset.accTab === 'orders') showOrdersTab(); else renderAccount(b.dataset.accTab);
     }));
     $('acc-btn').onclick = () => (session ? openAccount() : openAuth('login'));
     $('acc-logout').onclick = async () => { await db.auth.signOut(); closeAccount(); toast('Ви вийшли з акаунта'); };
@@ -1562,10 +1643,11 @@
       const phone = digits.length > 3 ? $('pf-phone').value : null;
       if (name.length < 2) return toast('Вкажіть ім’я', 'err');
       const btn = $('pf-save'); btn.disabled = true;
-      const { data, error } = await db.from('profiles').update({ display_name: name, phone }).eq('id', session.user.id).select().maybeSingle();
+      const insta = $('pf-insta').value.trim().replace(/^@/, '').slice(0, 40) || null;
+      const { data, error } = await db.from('profiles').update({ display_name: name, phone, instagram: insta }).eq('id', session.user.id).select().maybeSingle();
       btn.disabled = false;
       if (error) return toast('Не вдалося зберегти', 'err');
-      profile = data || { ...profile, display_name: name, phone };
+      profile = data || { ...profile, display_name: name, phone, instagram: insta };
       updateAccountUI(); renderAccount(); toast('Профіль збережено');
     });
 
@@ -1668,6 +1750,7 @@
         ${trackHtml(o)}
         <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] uppercase tracking-widest text-zinc-400"><span>ТТН</span>${ttn}</div>
         <div class="space-y-3 border-t border-zinc-100 dark:border-zinc-900 pt-4">${items}</div>
+        ${(o.discount > 0 || o.free_shipping) ? `<p class="text-[11px] text-emerald-500 uppercase tracking-widest">🎁 ${esc(o.promo_code || '')} ${o.discount > 0 ? '· знижка −' + fmt(o.discount) : '· безкоштовна доставка'}</p>` : ''}
         <div class="flex justify-between items-center border-t border-zinc-100 dark:border-zinc-900 pt-4 text-xs uppercase tracking-ultra"><span>Разом</span><span class="tabular-nums">${fmt(o.total)}</span></div>
         <p class="text-[11px] text-zinc-500 leading-relaxed">${esc(o.delivery)} · ${esc(o.address)}</p>
         ${ev ? `<details class="text-[11px]"><summary class="cursor-pointer uppercase tracking-widest text-zinc-400">Історія статусів</summary><ul class="mt-3 space-y-2">${ev}</ul></details>` : ''}
@@ -1687,6 +1770,138 @@
       const c = e.target.closest('[data-copy]');
       if (c && navigator.clipboard) navigator.clipboard.writeText(c.dataset.copy).then(() => toast('ТТН скопійовано'));
     });
+
+    /* ---------- Колесо фортуни ---------- */
+    var myPrizes = [];
+    let wheelMap = null, wheelBuilt = false, wheelRot = 0, spinning = false;
+    const WHEEL_LAYOUT = ['d10', 'd20', 'd10', 'd30', 'd10', 'd40', 'd10', 'd50', 'd10', 'ship', 'd10', 'd10'];
+
+    async function loadMyPrizes() {
+      if (!session || (profile && profile.is_admin)) { myPrizes = []; return; }
+      const { data, error } = await db.from('wheel_spins').select('*').order('created_at', { ascending: false });
+      myPrizes = error ? [] : (data || []);
+      updateCartTotals();
+    }
+    function buildWheel() {
+      const cx = 160, cy = 164, R = 140, n = WHEEL_LAYOUT.length, step = 360 / n;
+      const pt = (a, r) => { const t = (a - 90) * Math.PI / 180; return [cx + r * Math.cos(t), cy + r * Math.sin(t)]; };
+      const tens = ['#18181b', '#3f3f46', '#27272a'];
+      let seg = '';
+      WHEEL_LAYOUT.forEach((id, i) => {
+        const s = wheelMap[id]; if (!s) return;
+        const [x0, y0] = pt(i * step, R), [x1, y1] = pt((i + 1) * step, R);
+        const hi = id !== 'd10';
+        const fill = id === 'ship' ? '#10b981' : hi ? '#eab308' : tens[i % 3];
+        const label = s.kind === 'percent' ? s.value + '%' : 'ДОСТАВКА';
+        seg += `<path d="M${cx} ${cy}L${x0.toFixed(2)} ${y0.toFixed(2)}A${R} ${R} 0 0 1 ${x1.toFixed(2)} ${y1.toFixed(2)}Z" fill="${fill}" stroke="#09090b" stroke-width="1.5"/>` +
+          `<text transform="rotate(${i * step + step / 2 - 90} ${cx} ${cy})" x="${cx + R - 14}" y="${cy + 5}" text-anchor="end" font-size="${s.kind === 'percent' ? 18 : 10.5}" font-weight="700" font-family="Inter,system-ui,sans-serif" fill="${hi ? '#111' : '#fff'}">${label}</text>`;
+      });
+      return `<svg viewBox="0 0 320 328" class="w-full h-auto" role="img" aria-label="Колесо фортуни">
+        <g id="wheel-rot">${seg}<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#eab308" stroke-width="5"/></g>
+        <circle cx="${cx}" cy="${cy}" r="24" fill="#fff" stroke="#18181b" stroke-width="4"/>
+        <path d="M146 2h28l-14 34z" fill="#ef4444" stroke="#fff" stroke-width="2"/></svg>`;
+    }
+    async function renderWheelTab() {
+      await loadMyPrizes();
+      if (!wheelMap) {
+        try {
+          const { data, error } = await db.rpc('wheel_segments');
+          if (!error && data && data.length) { wheelMap = {}; data.forEach(x => { wheelMap[x.id] = x; }); }
+        } catch (e) {}
+      }
+      const box = $('wheel-box');
+      if (!wheelMap) {
+        box.innerHTML = '<p class="text-xs text-zinc-400 text-center py-10 uppercase tracking-widest">Колесо ще налаштовується</p>';
+        $('wheel-controls').classList.add('hidden'); wheelBuilt = false; renderPrizes(); return;
+      }
+      if (!wheelBuilt) { box.innerHTML = buildWheel(); wheelBuilt = true; wheelRot = 0; }
+      $('wheel-controls').classList.remove('hidden');
+      renderPrizes();
+    }
+    function spinError(m) {
+      if (/BAD_TICKET/.test(m)) return 'Квиток не знайдено. Перевірте код';
+      if (/TICKET_USED/.test(m)) return 'Цей квиток уже використано';
+      if (/LOGIN_REQUIRED/.test(m)) return 'Увійдіть в акаунт';
+      return 'Не вдалося закрутити колесо. Спробуйте ще раз';
+    }
+    function confetti(fromEl) {
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const r = fromEl.getBoundingClientRect(), cols = ['#eab308', '#10b981', '#ef4444', '#3b82f6', '#fff'];
+      for (let i = 0; i < 36; i++) {
+        const d = document.createElement('i'); d.className = 'wh-conf';
+        d.style.left = (r.left + r.width / 2) + 'px'; d.style.top = (r.top + r.height / 2) + 'px'; d.style.background = cols[i % cols.length];
+        document.body.appendChild(d);
+        const a = Math.random() * Math.PI * 2, v = 120 + Math.random() * 200;
+        d.animate([{ transform: 'translate3d(0,0,0) rotate(0)', opacity: 1 },
+          { transform: `translate3d(${Math.cos(a) * v}px, ${Math.sin(a) * v + 140}px, 0) rotate(${Math.random() * 720}deg)`, opacity: 0 }],
+          { duration: 1100 + Math.random() * 500, easing: 'cubic-bezier(.2,.7,.3,1)' }).onfinish = () => d.remove();
+      }
+    }
+    function showWheelResult(r) {
+      const res = $('wheel-result');
+      const exp = new Date(r.expires_at).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' });
+      res.innerHTML = `<p class="text-[10px] uppercase tracking-mega text-yellow-500">Ваш виграш</p>
+        <p class="text-3xl font-light uppercase tracking-wide">${esc(r.label)}</p>
+        <button type="button" data-copy="${esc(r.prize_code)}" class="font-mono text-xl tracking-widest inline-flex items-center gap-2">${esc(r.prize_code)}<svg class="ic text-sm" aria-hidden="true"><use href="#i-copy"/></svg></button>
+        <p class="text-[11px] text-zinc-400">Діє до ${exp}. Введіть код у кошику або назвіть його в Instagram.</p>
+        <button type="button" data-use-prize="${esc(r.prize_code)}" class="w-full bg-black dark:bg-white text-white dark:text-black py-3 text-xs uppercase tracking-ultra">Використати зараз</button>`;
+      res.classList.remove('hidden'); confetti($('wheel-box'));
+    }
+    async function doSpin() {
+      if (spinning) return;
+      const ticket = $('wheel-ticket').value.trim();
+      if (!ticket) return toast('Введіть код квитка', 'err');
+      if (!wheelMap || !$('wheel-rot')) return toast('Колесо ще налаштовується', 'err');
+      spinning = true; $('wheel-spin').disabled = true; $('wheel-result').classList.add('hidden');
+      const unlock = () => { spinning = false; $('wheel-spin').disabled = false; };
+      const { data, error } = await db.rpc('spin_wheel', { p_ticket: ticket });
+      if (error) { unlock(); return toast(spinError(error.message || ''), 'err'); }
+      const r = Array.isArray(data) ? data[0] : data;
+      const idxs = WHEEL_LAYOUT.map((id, i) => id === r.prize_id ? i : -1).filter(i => i >= 0);
+      const idx = idxs[Math.floor(Math.random() * idxs.length)];
+      const c = idx * 30 + 15 + (Math.random() - .5) * 16;
+      const target = wheelRot + 360 * 6 + ((((-c - wheelRot) % 360) + 360) % 360);
+      const g = $('wheel-rot');
+      const done = () => {
+        wheelRot = target; g.style.transform = `rotate(${target}deg)`; unlock(); $('wheel-ticket').value = '';
+        showWheelResult(r); loadMyPrizes().then(renderPrizes);
+      };
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) { done(); return; }
+      const a = g.animate([{ transform: `rotate(${wheelRot}deg)` }, { transform: `rotate(${target}deg)` }],
+        { duration: 5200, easing: 'cubic-bezier(.1,.7,.1,1)', fill: 'forwards' });
+      a.onfinish = () => { done(); a.cancel(); };
+    }
+    function prizeState(p) {
+      if (p.status === 'used') return { t: 'Використано', cls: 'bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400', active: false };
+      if (new Date(p.expires_at) < new Date()) return { t: 'Прострочено', cls: 'bg-red-600/15 text-red-500', active: false };
+      return { t: 'Активний', cls: 'bg-emerald-500 text-black', active: true };
+    }
+    function renderPrizes() {
+      const box = $('wheel-prizes');
+      if (!myPrizes.length) { box.innerHTML = '<p class="text-xs text-zinc-400 py-4">Поки що призів немає. Крутіть колесо!</p>'; return; }
+      box.innerHTML = myPrizes.map(p => {
+        const st = prizeState(p);
+        const exp = new Date(p.expires_at).toLocaleDateString('uk-UA', { day: 'numeric', month: 'short' });
+        return `<div class="border border-zinc-200 dark:border-zinc-800 p-4 flex flex-wrap items-center gap-3 ${st.active ? '' : 'opacity-60'}">
+          <div class="min-w-0 flex-grow">
+            <p class="text-sm uppercase tracking-wide">${esc(p.prize_label)}</p>
+            <button type="button" data-copy="${esc(p.prize_code)}" class="font-mono text-xs tracking-widest text-zinc-400 hover:text-black dark:hover:text-white inline-flex items-center gap-2">${esc(p.prize_code)}<svg class="ic text-[11px]" aria-hidden="true"><use href="#i-copy"/></svg></button>
+            <p class="text-[10px] text-zinc-400 uppercase tracking-widest mt-1">${st.active ? 'до ' + exp : (p.status === 'used' ? (p.used_channel === 'instagram' ? 'через Instagram' : 'на сайті') : 'діяв до ' + exp)}</p>
+          </div>
+          <span class="px-2.5 py-1 text-[9px] uppercase tracking-widest font-bold ${st.cls}">${st.t}</span>
+          ${st.active ? `<button type="button" data-use-prize="${esc(p.prize_code)}" class="w-full sm:w-auto border border-zinc-300 dark:border-zinc-700 px-4 py-2 text-[10px] uppercase tracking-widest hover:opacity-70">Використати</button>` : ''}
+        </div>`;
+      }).join('');
+    }
+    $('acc-wheel').addEventListener('click', (e) => {
+      const c = e.target.closest('[data-copy]');
+      if (c && navigator.clipboard) { navigator.clipboard.writeText(c.dataset.copy).then(() => toast('Скопійовано')); return; }
+      const u = e.target.closest('[data-use-prize]');
+      if (u) { closeAccount(); $('cust-promo').value = u.dataset.usePrize; openCart(); updateCartTotals(); }
+    });
+    $('wheel-spin').onclick = doSpin;
+    $('wheel-ticket').addEventListener('keydown', (e) => { if (e.key === 'Enter') doSpin(); });
+    $('wheel-promo').onclick = () => { if (session) openAccount('wheel'); else { toast('Увійдіть, щоб крутити колесо'); openAuth('login'); } };
 
     addEventListener('keydown', (e) => {
       if (e.key !== 'Escape') return;
