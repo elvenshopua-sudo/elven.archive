@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="uk" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#09090b">
+  <title>ELVÉN · Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class', theme: { extend: {
+      fontFamily: { sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'] },
+      letterSpacing: { ultra: '0.25em', mega: '0.35em' } } } }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-feature-settings: "cv02","cv03","cv04","cv11"; }
+    input, select, textarea { font-size: 16px; }
+    @media (min-width: 640px) { input, select, textarea { font-size: 13px; } }
+    .field { width: 100%; background: transparent; border: 0; border-bottom: 1px solid #d4d4d8; padding: .6rem 0; outline: none; transition: border-color .2s; }
+    .dark .field { border-bottom-color: #3f3f46; }
+    .field:focus { border-bottom-color: #000; }
+    .dark .field:focus { border-bottom-color: #fff; }
+    .no-scrollbar::-webkit-scrollbar { display: none; } .no-scrollbar { scrollbar-width: none; }
+    .glass { backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+    .chip { flex-shrink: 0; padding: .5rem .9rem; font-size: 10px; text-transform: uppercase; letter-spacing: .15em; border: 1px solid #e4e4e7; color: #71717a; transition: all .2s; }
+    .dark .chip { border-color: #27272a; }
+    .chip.active { background: #000; color: #fff; border-color: #000; }
+    .dark .chip.active { background: #fff; color: #000; border-color: #fff; }
+    .st-btn { padding: .6rem .8rem; font-size: 10px; text-transform: uppercase; letter-spacing: .12em; border: 1px solid #d4d4d8; transition: all .2s; }
+    .dark .st-btn { border-color: #3f3f46; }
+    .st-btn:hover { border-color: #000; } .dark .st-btn:hover { border-color: #fff; }
+    .st-btn.on { background: #000; color: #fff; border-color: #000; }
+    .dark .st-btn.on { background: #fff; color: #000; border-color: #fff; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .toast-in { animation: fadeUp .3s ease both; }
+    .ord { animation: fadeUp .4s ease both; }
+    .ord-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .35s cubic-bezier(.2,.8,.2,1); }
+    .ord.open .ord-body { grid-template-rows: 1fr; }
+    .pulse-dot { animation: pulse 1.6s ease-in-out infinite; }
+    @keyframes pulse { 50% { opacity: .35; transform: scale(.8); } }
+  </style>
+</head>
+<body class="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans min-h-screen">
+
+  <div id="toasts" class="fixed top-4 inset-x-0 z-[80] flex flex-col items-center gap-2 pointer-events-none px-4"></div>
+
+  <!-- ВХІД -->
+  <div id="login" class="min-h-screen flex items-center justify-center p-4">
+    <form id="login-form" class="w-full max-w-sm space-y-6 border border-zinc-200 dark:border-zinc-800 p-8">
+      <div class="text-center space-y-2">
+        <span class="inline-block bg-black dark:bg-white text-white dark:text-black text-[10px] font-bold px-2.5 py-1 tracking-widest uppercase">ADMIN</span>
+        <h1 class="text-sm font-semibold tracking-ultra uppercase">ELVÉN Management</h1>
+      </div>
+      <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Пошта</label><input id="l-email" type="email" required autocomplete="username" class="field"></div>
+      <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Пароль</label><input id="l-pass" type="password" required autocomplete="current-password" class="field"></div>
+      <p id="l-err" class="text-[11px] text-red-500 hidden"></p>
+      <button id="l-btn" type="submit" class="w-full bg-black dark:bg-white text-white dark:text-black font-semibold py-3 text-xs uppercase tracking-ultra disabled:opacity-40">Увійти</button>
+      <a href="index.html" class="block text-center text-[10px] uppercase tracking-widest text-zinc-400 hover:text-black dark:hover:text-white">← На сайт</a>
+    </form>
+  </div>
+
+  <!-- НЕМАЄ ДОСТУПУ -->
+  <div id="denied" class="hidden min-h-screen flex items-center justify-center p-4 text-center">
+    <div class="space-y-5 max-w-sm">
+      <p class="text-xs uppercase tracking-ultra text-red-500">Немає доступу</p>
+      <p class="text-xs text-zinc-500 leading-relaxed">Цей акаунт не має прав адміністратора. Увійдіть під акаунтом адміністратора.</p>
+      <button id="d-out" class="bg-black dark:bg-white text-white dark:text-black px-6 py-3 text-xs uppercase tracking-ultra">Вийти</button>
+    </div>
+  </div>
+
+  <!-- ПАНЕЛЬ -->
+  <div id="app" class="hidden min-h-screen">
+    <header class="sticky top-0 z-30 glass bg-white/80 dark:bg-zinc-950/80 border-b border-zinc-200 dark:border-zinc-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-8 h-14 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <span class="bg-black dark:bg-white text-white dark:text-black text-[10px] font-bold px-2.5 py-1 tracking-widest uppercase">ADMIN</span>
+          <nav class="flex gap-1">
+            <button data-tab="orders" class="tab-btn relative px-3 h-9 text-[11px] uppercase tracking-widest">Замовлення<span id="new-badge" class="hidden ml-1.5 bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded-full align-middle"></span></button>
+            <button data-tab="products" class="tab-btn px-3 h-9 text-[11px] uppercase tracking-widest">Товари</button>
+          </nav>
+        </div>
+        <div class="flex items-center gap-2 text-[11px] uppercase tracking-widest">
+          <span id="who" class="hidden md:inline text-zinc-400 normal-case tracking-normal"></span>
+          <button id="theme-btn" class="w-9 h-9 text-zinc-500 hover:text-black dark:hover:text-white" aria-label="Тема">◐</button>
+          <a href="index.html" class="px-3 h-9 flex items-center bg-zinc-100 dark:bg-zinc-900 hover:opacity-80">Сайт</a>
+          <button id="out-btn" class="px-3 h-9 bg-zinc-100 dark:bg-zinc-900 hover:opacity-80">Вийти</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-8 py-8">
+
+      <!-- ЗАМОВЛЕННЯ -->
+      <section id="tab-orders" class="space-y-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="border border-zinc-200 dark:border-zinc-800 p-4"><p class="text-[10px] uppercase tracking-widest text-zinc-400">Нові</p><p id="st-new" class="text-2xl font-light mt-1">0</p></div>
+          <div class="border border-zinc-200 dark:border-zinc-800 p-4"><p class="text-[10px] uppercase tracking-widest text-zinc-400">В роботі</p><p id="st-work" class="text-2xl font-light mt-1">0</p></div>
+          <div class="border border-zinc-200 dark:border-zinc-800 p-4"><p class="text-[10px] uppercase tracking-widest text-zinc-400">Сьогодні</p><p id="st-today" class="text-2xl font-light mt-1">0</p></div>
+          <div class="border border-zinc-200 dark:border-zinc-800 p-4"><p class="text-[10px] uppercase tracking-widest text-zinc-400">Виручка (без скасованих)</p><p id="st-sum" class="text-2xl font-light mt-1">0</p></div>
+        </div>
+        <div class="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+          <div id="o-filters" class="flex gap-2 overflow-x-auto no-scrollbar">
+            <button data-f="" class="chip active">Усі</button>
+            <button data-f="confirmed" class="chip">Підтверджено</button>
+            <button data-f="in_transit" class="chip">В дорозі</button>
+            <button data-f="at_branch" class="chip">У відділенні</button>
+            <button data-f="at_postomat" class="chip">У поштоматі</button>
+            <button data-f="received" class="chip">Отримано</button>
+            <button data-f="cancelled" class="chip">Скасовано</button>
+          </div>
+          <input id="o-search" type="search" placeholder="Пошук: №, ім'я, телефон, ТТН" class="field md:max-w-xs">
+        </div>
+        <div id="orders-list" class="space-y-3"></div>
+      </section>
+
+      <!-- ТОВАРИ -->
+      <section id="tab-products" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-1 border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6 space-y-5 h-fit bg-zinc-50/50 dark:bg-zinc-900/30">
+          <h3 id="form-title" class="text-xs font-semibold uppercase tracking-ultra border-b border-zinc-200 dark:border-zinc-800 pb-3">Додати новий товар</h3>
+          <form id="p-form" class="space-y-4">
+            <input type="hidden" id="p-id">
+            <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Назва товару</label><input type="text" id="p-name" required class="field"></div>
+            <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Артикул (SKU)</label><input type="text" id="p-sku" placeholder="напр. ELV-001" class="field"></div>
+            <div class="grid grid-cols-2 gap-4">
+              <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Ціна (UAH)</label><input type="number" id="p-price" required min="0" inputmode="numeric" class="field"></div>
+              <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Стара ціна</label><input type="number" id="p-old" min="0" inputmode="numeric" placeholder="Необов'язково" class="field"></div>
+            </div>
+            <div>
+              <label class="block text-[10px] text-zinc-400 uppercase mb-1">Статус</label>
+              <select id="p-badge" class="field">
+                <option value="" class="dark:bg-zinc-900">Звичайний</option>
+                <option value="NEW" class="dark:bg-zinc-900">Новинка (NEW)</option>
+                <option value="SALE" class="dark:bg-zinc-900">Розпродаж (SALE)</option>
+                <option value="TOP" class="dark:bg-zinc-900">Топ продажів (TOP)</option>
+              </select>
+            </div>
+            <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Опис</label><textarea id="p-desc" rows="3" class="w-full bg-transparent border border-zinc-300 dark:border-zinc-700 p-2 focus:outline-none focus:border-black dark:focus:border-white"></textarea></div>
+            <div>
+              <label class="block text-[10px] text-zinc-400 uppercase mb-1">Фотографії (завантажуються у сховище)</label>
+              <input type="file" id="p-files" accept="image/*" multiple class="w-full text-xs text-zinc-500 file:mr-4 file:py-2 file:px-3 file:border-0 file:text-xs file:font-semibold file:bg-zinc-200 dark:file:bg-zinc-800 file:text-zinc-800 dark:file:text-zinc-200">
+            </div>
+            <div>
+              <label class="block text-[10px] text-zinc-400 uppercase mb-1">Або URL картинки</label>
+              <div class="flex gap-2"><input type="text" id="p-url" placeholder="https://..." class="field"><button type="button" id="p-add-url" class="px-3 text-xs bg-zinc-200 dark:bg-zinc-800">+</button></div>
+            </div>
+            <div id="p-preview" class="flex gap-2 flex-wrap"></div>
+            <div>
+              <label class="block text-[10px] text-zinc-400 uppercase mb-2">Розміри</label>
+              <div class="flex flex-wrap gap-4 text-xs">
+                <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="S" checked> S</label>
+                <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="M" checked> M</label>
+                <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="L" checked> L</label>
+                <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="XL" checked> XL</label>
+                <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="XXL"> XXL</label>
+              </div>
+            </div>
+            <div class="flex gap-2 pt-2">
+              <button type="submit" id="p-save" class="flex-grow bg-black dark:bg-white text-white dark:text-black font-semibold py-3 text-xs uppercase tracking-ultra disabled:opacity-40">Зберегти товар</button>
+              <button type="button" id="p-cancel" class="hidden bg-zinc-300 dark:bg-zinc-800 px-4 text-xs uppercase">Скасувати</button>
+            </div>
+          </form>
+        </div>
+        <div class="lg:col-span-2 space-y-4">
+          <h3 class="text-xs font-semibold uppercase tracking-ultra border-b border-zinc-200 dark:border-zinc-800 pb-3">Товари в каталозі</h3>
+          <div id="p-list" class="space-y-3"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://tbkrdfspdozxdiptcmgi.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_7-9ZVZfZehf8pr59oYztUQ_3G6EYLfI';
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const fmt = (n) => Number(n).toLocaleString('uk-UA') + ' UAH';
+    const getImgs = (p) => (p.images && p.images.length) ? p.images : (p.img ? [p.img] : []);
+
+    const STATUS = {
+      confirmed:   { label: 'Підтверджено', cls: 'bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200' },
+      in_transit:  { label: 'В дорозі',     cls: 'bg-amber-500 text-black' },
+      at_branch:   { label: 'У відділенні', cls: 'bg-emerald-500 text-black' },
+      at_postomat: { label: 'У поштоматі',  cls: 'bg-emerald-500 text-black' },
+      received:    { label: 'Отримано',     cls: 'bg-green-600 text-white' },
+      cancelled:   { label: 'Скасовано',    cls: 'bg-red-600 text-white' }
+    };
+    const CARRIER = { np: 'Нова Пошта', up: 'Укрпошта', intl: 'Міжнародна' };
+
+    function toast(msg, type = 'ok') {
+      const el = document.createElement('div');
+      el.className = 'toast-in pointer-events-auto glass px-4 py-3 text-[11px] uppercase tracking-widest shadow-xl ' +
+        (type === 'err' ? 'bg-red-600 text-white' : 'bg-black/90 dark:bg-white/95 text-white dark:text-black');
+      el.textContent = msg; $('toasts').appendChild(el);
+      setTimeout(() => { el.style.transition = 'opacity .3s'; el.style.opacity = 0; setTimeout(() => el.remove(), 300); }, 2600);
+    }
+
+    // тема
+    (() => {
+      const set = (d) => { document.documentElement.classList.toggle('dark', d); localStorage.setItem('elven_theme', d ? 'dark' : 'light'); };
+      set((localStorage.getItem('elven_theme') || 'dark') === 'dark');
+      $('theme-btn').onclick = () => set(!document.documentElement.classList.contains('dark'));
+    })();
+
+    /* ---------- Авторизація ---------- */
+    let me = null, orders = [], products = [], filter = '', query = '', openIds = new Set(), channel = null;
+
+    async function checkAdmin(session) {
+      if (!session) { show('login'); return; }
+      const { data, error } = await db.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
+      if (error || !data || !data.is_admin) { show('denied'); return; }
+      me = data; $('who').textContent = data.email || ''; show('app');
+      await Promise.all([loadOrders(), loadProducts()]);
+      subscribe();
+    }
+    function show(which) {
+      ['login', 'denied', 'app'].forEach(id => $(id).classList.toggle('hidden', id !== which));
+    }
+    $('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = $('l-btn'), err = $('l-err'); err.classList.add('hidden');
+      btn.disabled = true; btn.textContent = 'Вхід...';
+      const { data, error } = await db.auth.signInWithPassword({ email: $('l-email').value.trim(), password: $('l-pass').value });
+      btn.disabled = false; btn.textContent = 'Увійти';
+      if (error) { err.textContent = 'Невірна пошта або пароль'; err.classList.remove('hidden'); return; }
+      $('l-pass').value = '';
+      checkAdmin(data.session);
+    });
+    async function signOut() {
+      if (channel) { db.removeChannel(channel); channel = null; }
+      await db.auth.signOut(); me = null; show('login');
+    }
+    $('out-btn').onclick = signOut; $('d-out').onclick = signOut;
+    db.auth.getSession().then(({ data }) => checkAdmin(data.session));
+
+    /* ---------- Вкладки ---------- */
+    function setTab(t) {
+      $('tab-orders').classList.toggle('hidden', t !== 'orders');
+      $('tab-products').classList.toggle('hidden', t !== 'products');
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        const on = b.dataset.tab === t;
+        b.classList.toggle('bg-black', on); b.classList.toggle('text-white', on);
+        b.classList.toggle('dark:bg-white', on); b.classList.toggle('dark:text-black', on);
+      });
+    }
+    document.querySelectorAll('.tab-btn').forEach(b => b.onclick = () => setTab(b.dataset.tab));
+    setTab('orders');
+
+    /* ---------- Замовлення ---------- */
+    async function loadOrders() {
+      const { data, error } = await db.from('orders').select('*').order('created_at', { ascending: false }).limit(300);
+      if (error) { toast('Не вдалося завантажити замовлення', 'err'); console.error(error); return; }
+      orders = data || []; renderOrders();
+    }
+
+    function renderStats() {
+      const nw = orders.filter(o => !o.is_seen).length;
+      const work = orders.filter(o => ['confirmed', 'in_transit', 'at_branch', 'at_postomat'].includes(o.status)).length;
+      const today = orders.filter(o => new Date(o.created_at).toDateString() === new Date().toDateString()).length;
+      const sum = orders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + Number(o.total), 0);
+      $('st-new').textContent = nw; $('st-work').textContent = work; $('st-today').textContent = today; $('st-sum').textContent = fmt(sum);
+      const b = $('new-badge'); b.textContent = nw; b.classList.toggle('hidden', !nw);
+      document.title = nw ? `(${nw}) ELVÉN · Admin` : 'ELVÉN · Admin';
+    }
+
+    function renderOrders() {
+      renderStats();
+      const q = query.trim().toLowerCase();
+      const list = orders.filter(o => (!filter || o.status === filter) && (!q ||
+        [o.order_no, o.customer_name, o.phone, o.tracking_number].some(v => String(v || '').toLowerCase().includes(q))));
+      if (!list.length) { $('orders-list').innerHTML = '<p class="text-xs text-zinc-400 py-10 text-center uppercase tracking-widest">Замовлень немає</p>'; return; }
+
+      $('orders-list').innerHTML = list.map(o => {
+        const st = STATUS[o.status] || STATUS.confirmed;
+        const open = openIds.has(o.id);
+        const tg = o.telegram ? `<a class="underline" target="_blank" rel="noopener" href="https://t.me/${encodeURIComponent(o.telegram)}">@${esc(o.telegram)}</a>` : '—';
+        const ig = o.instagram ? `<a class="underline" target="_blank" rel="noopener" href="https://instagram.com/${encodeURIComponent(o.instagram)}">@${esc(o.instagram)}</a>` : '—';
+        const items = (o.items || []).map(i => `<li class="flex justify-between gap-3"><span>${esc(i.name)} ${i.sku ? `<span class="text-zinc-400 font-mono text-[10px]">${esc(i.sku)}</span>` : ''} · ${esc(i.size)} × ${i.qty}</span><span class="tabular-nums">${fmt(i.price * i.qty)}</span></li>`).join('');
+        const btns = Object.entries(STATUS).map(([k, v]) => `<button data-st="${k}" data-id="${o.id}" class="st-btn ${o.status === k ? 'on' : ''}">${v.label}</button>`).join('');
+        return `
+        <article class="ord border border-zinc-200 dark:border-zinc-800 ${open ? 'open' : ''}" data-oid="${o.id}">
+          <button type="button" data-toggle="${o.id}" class="w-full text-left p-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+            ${!o.is_seen ? '<span class="pulse-dot w-2 h-2 rounded-full bg-red-500"></span>' : ''}
+            <span class="font-mono text-xs font-semibold">${esc(o.order_no)}</span>
+            <span class="text-[11px] text-zinc-400">${new Date(o.created_at).toLocaleString('uk-UA', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+            <span class="text-xs">${esc(o.customer_name)}</span>
+            <span class="text-[10px] uppercase tracking-widest text-zinc-400">${CARRIER[o.carrier] || ''}</span>
+            <span class="ml-auto flex items-center gap-3"><span class="text-xs tabular-nums">${fmt(o.total)}</span><span class="px-2.5 py-1 text-[9px] uppercase tracking-widest font-bold ${st.cls}">${st.label}</span></span>
+          </button>
+          <div class="ord-body"><div class="overflow-hidden"><div class="p-4 pt-0 space-y-5 border-t border-zinc-100 dark:border-zinc-900">
+            <div class="grid md:grid-cols-2 gap-5 pt-4 text-xs leading-relaxed">
+              <div class="space-y-1">
+                <p class="text-[10px] uppercase tracking-widest text-zinc-400">Клієнт</p>
+                <p>${esc(o.customer_name)}</p>
+                <p><a class="underline" href="tel:${esc(String(o.phone).replace(/[^\d+]/g, ''))}">${esc(o.phone)}</a></p>
+                <p>Telegram: ${tg}</p><p>Instagram: ${ig}</p>
+                <p class="text-zinc-400">${o.user_id ? 'Зареєстрований користувач' : 'Гість (без акаунта)'}</p>
+              </div>
+              <div class="space-y-1">
+                <p class="text-[10px] uppercase tracking-widest text-zinc-400">Доставка</p>
+                <p>${esc(o.delivery)}</p><p>${esc(o.address)}</p>
+              </div>
+            </div>
+            <ul class="text-xs space-y-1.5 border-y border-zinc-100 dark:border-zinc-900 py-3">${items}</ul>
+            <div>
+              <p class="text-[10px] uppercase tracking-widest text-zinc-400 mb-2">Статус доставки</p>
+              <div class="flex flex-wrap gap-2">${btns}</div>
+            </div>
+            <div class="flex gap-2 items-end max-w-md">
+              <div class="flex-grow"><label class="block text-[10px] text-zinc-400 uppercase mb-1">ТТН / номер відправлення</label><input data-ttn="${o.id}" value="${esc(o.tracking_number || '')}" placeholder="20450000000000" class="field"></div>
+              <button data-save-ttn="${o.id}" class="px-4 py-2.5 text-xs uppercase tracking-widest bg-zinc-200 dark:bg-zinc-800 hover:opacity-80">Зберегти</button>
+            </div>
+          </div></div></div>
+        </article>`;
+      }).join('');
+    }
+
+    async function updateOrder(id, patch, okMsg) {
+      const { error } = await db.from('orders').update(patch).eq('id', id);
+      if (error) { toast('Помилка: ' + error.message, 'err'); return false; }
+      const o = orders.find(x => x.id === id); if (o) Object.assign(o, patch);
+      renderOrders(); if (okMsg) toast(okMsg); return true;
+    }
+
+    $('orders-list').addEventListener('click', async (e) => {
+      const tg = e.target.closest('[data-toggle]');
+      if (tg) {
+        const id = Number(tg.dataset.toggle), art = tg.closest('.ord');
+        const open = art.classList.toggle('open'); open ? openIds.add(id) : openIds.delete(id);
+        const o = orders.find(x => x.id === id);
+        if (open && o && !o.is_seen) { o.is_seen = true; renderStats(); art.querySelector('.pulse-dot')?.remove(); db.from('orders').update({ is_seen: true }).eq('id', id).then(() => {}); }
+        return;
+      }
+      const st = e.target.closest('[data-st]');
+      if (st) {
+        const id = Number(st.dataset.id), status = st.dataset.st;
+        if (status === 'cancelled' && !confirm('Скасувати це замовлення?')) return;
+        await updateOrder(id, { status, is_seen: true }, 'Статус: ' + STATUS[status].label); return;
+      }
+      const sv = e.target.closest('[data-save-ttn]');
+      if (sv) {
+        const id = Number(sv.dataset.saveTtn);
+        const v = document.querySelector(`[data-ttn="${id}"]`).value.trim();
+        await updateOrder(id, { tracking_number: v || null }, 'ТТН збережено');
+      }
+    });
+    $('o-filters').addEventListener('click', (e) => {
+      const b = e.target.closest('.chip'); if (!b) return;
+      filter = b.dataset.f;
+      document.querySelectorAll('#o-filters .chip').forEach(c => c.classList.toggle('active', c === b));
+      renderOrders();
+    });
+    $('o-search').addEventListener('input', (e) => { query = e.target.value; renderOrders(); });
+
+    function beep() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.frequency.value = 880; g.gain.value = .08; o.connect(g); g.connect(ctx.destination);
+        o.start(); o.stop(ctx.currentTime + .18);
+      } catch (e) {}
+    }
+    function subscribe() {
+      if (channel) return;
+      channel = db.channel('admin-orders')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, (p) => {
+          orders.unshift(p.new); renderOrders(); toast('Нове замовлення ' + p.new.order_no); beep();
+        })
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, (p) => {
+          const i = orders.findIndex(o => o.id === p.new.id); if (i >= 0) { orders[i] = p.new; renderOrders(); }
+        })
+        .subscribe();
+    }
+
+    /* ---------- Товари ---------- */
+    let pImages = [];
+    async function loadProducts() {
+      const { data, error } = await db.from('products').select('*');
+      if (error) { toast('Не вдалося завантажити товари', 'err'); return; }
+      products = (data || []).sort((a, b) => Number(b.id) - Number(a.id)); renderProducts();
+    }
+    function renderProducts() {
+      const el = $('p-list');
+      if (!products.length) { el.innerHTML = '<p class="text-xs text-zinc-400">Товарів ще немає</p>'; return; }
+      el.innerHTML = products.map(p => `
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-zinc-200 dark:border-zinc-800 p-3 bg-white dark:bg-zinc-900">
+          <div class="flex items-center gap-3 min-w-0">
+            <img src="${esc(getImgs(p)[0] || '')}" class="w-10 h-12 object-cover bg-zinc-200 dark:bg-zinc-800" alt="">
+            <div class="min-w-0">
+              <p class="text-xs font-semibold truncate">${esc(p.name)} <span class="text-[10px] text-zinc-400 font-mono">[${esc(p.sku || 'без SKU')}]</span></p>
+              <p class="text-[10px] text-zinc-400">${fmt(p.price)} ${p.badge ? `| [${esc(p.badge)}]` : ''}</p>
+            </div>
+          </div>
+          <div class="flex gap-2 shrink-0">
+            <button data-edit="${p.id}" class="flex-1 text-xs bg-zinc-200 dark:bg-zinc-800 px-3 py-2 uppercase">Редагувати</button>
+            <button data-del="${p.id}" class="flex-1 text-xs bg-red-600 text-white px-3 py-2 uppercase">Видалити</button>
+          </div>
+        </div>`).join('');
+    }
+    function renderPreview() {
+      $('p-preview').innerHTML = pImages.map((src, i) => `
+        <div class="relative w-16 h-20 bg-zinc-200 dark:bg-zinc-800"><img src="${esc(src)}" class="w-full h-full object-cover" alt="">
+        <button type="button" data-rm="${i}" class="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-600 text-white text-xs leading-none">&times;</button></div>`).join('');
+    }
+    $('p-preview').addEventListener('click', (e) => { const b = e.target.closest('[data-rm]'); if (b) { pImages.splice(Number(b.dataset.rm), 1); renderPreview(); } });
+
+    function compressToBlob(file, max = 1400, q = .84) {
+      return new Promise((resolve, reject) => {
+        const fr = new FileReader(); fr.onerror = reject;
+        fr.onload = () => {
+          const img = new Image(); img.onerror = reject;
+          img.onload = () => {
+            const k = Math.min(1, max / Math.max(img.width, img.height));
+            const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+            c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+            c.toBlob(b => b ? resolve(b) : reject(new Error('blob')), 'image/jpeg', q);
+          };
+          img.src = fr.result;
+        };
+        fr.readAsDataURL(file);
+      });
+    }
+    async function uploadImage(file) {
+      const blob = await compressToBlob(file);
+      const path = `p/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+      const { error } = await db.storage.from('products').upload(path, blob, { contentType: 'image/jpeg', cacheControl: '31536000' });
+      if (error) throw error;
+      return db.storage.from('products').getPublicUrl(path).data.publicUrl;
+    }
+    $('p-files').addEventListener('change', async (e) => {
+      const files = Array.from(e.target.files); if (!files.length) return;
+      toast('Завантаження фото...');
+      for (const f of files) {
+        try { pImages.push(await uploadImage(f)); } catch (err) { toast('Не вдалося завантажити фото: ' + (err.message || ''), 'err'); }
+      }
+      e.target.value = ''; renderPreview();
+    });
+    $('p-add-url').onclick = () => { const u = $('p-url').value.trim(); if (!u) return; pImages.push(u); $('p-url').value = ''; renderPreview(); };
+
+    function resetForm() {
+      $('p-form').reset(); $('p-id').value = ''; pImages = []; renderPreview();
+      $('form-title').textContent = 'Додати новий товар'; $('p-save').textContent = 'Зберегти товар'; $('p-cancel').classList.add('hidden');
+    }
+    $('p-cancel').onclick = resetForm;
+
+    $('p-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const editId = $('p-id').value;
+      const pending = $('p-url').value.trim();
+      const images = pending ? [...pImages, pending] : [...pImages];
+      const sizes = Array.from(document.querySelectorAll('input[name="p-size"]:checked')).map(cb => cb.value);
+      const oldP = $('p-old').value;
+      const payload = {
+        name: $('p-name').value.trim(), sku: $('p-sku').value.trim(), price: Number($('p-price').value),
+        oldPrice: oldP ? Number(oldP) : null, badge: $('p-badge').value, desc: $('p-desc').value,
+        images, sizes: sizes.length ? sizes : ['S', 'M', 'L']
+      };
+      const btn = $('p-save'); btn.disabled = true; btn.textContent = 'Збереження...';
+      try {
+        if (editId) { const { error } = await db.from('products').update(payload).eq('id', editId); if (error) throw error; }
+        else { payload.id = Date.now(); const { error } = await db.from('products').insert([payload]); if (error) throw error; }
+        resetForm(); await loadProducts(); toast('Збережено');
+      } catch (err) { toast('Помилка: ' + err.message, 'err'); }
+      finally { btn.disabled = false; btn.textContent = $('p-id').value ? 'Оновити товар' : 'Зберегти товар'; }
+    });
+
+    $('p-list').addEventListener('click', async (e) => {
+      const ed = e.target.closest('[data-edit]'), del = e.target.closest('[data-del]');
+      if (ed) {
+        const p = products.find(x => Number(x.id) === Number(ed.dataset.edit)); if (!p) return;
+        $('p-id').value = p.id; $('p-name').value = p.name; $('p-sku').value = p.sku || '';
+        $('p-price').value = p.price; $('p-old').value = p.oldPrice || ''; $('p-badge').value = p.badge || ''; $('p-desc').value = p.desc || '';
+        $('p-url').value = ''; pImages = [...getImgs(p)]; renderPreview();
+        document.querySelectorAll('input[name="p-size"]').forEach(cb => cb.checked = (p.sizes || ['S', 'M', 'L']).includes(cb.value));
+        $('form-title').textContent = 'Редагувати товар'; $('p-save').textContent = 'Оновити товар'; $('p-cancel').classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      if (del && confirm('Видалити цей товар?')) {
+        const { error } = await db.from('products').delete().eq('id', del.dataset.del);
+        if (error) toast('Помилка видалення: ' + error.message, 'err'); else { await loadProducts(); toast('Видалено'); }
+      }
+    });
+  </script>
+</body>
+</html>
