@@ -79,6 +79,7 @@
           <nav class="flex gap-1">
             <button data-tab="orders" class="tab-btn relative px-3 h-9 text-[11px] uppercase tracking-widest">Замовлення<span id="new-badge" class="hidden ml-1.5 bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded-full align-middle"></span></button>
             <button data-tab="products" class="tab-btn px-3 h-9 text-[11px] uppercase tracking-widest">Товари</button>
+            <button data-tab="wheel" class="tab-btn px-3 h-9 text-[11px] uppercase tracking-widest">Колесо</button>
           </nav>
         </div>
         <div class="flex items-center gap-2 text-[11px] uppercase tracking-widest">
@@ -113,6 +114,51 @@
           <input id="o-search" type="search" placeholder="Пошук: №, ім'я, телефон, ТТН" class="field md:max-w-xs">
         </div>
         <div id="orders-list" class="space-y-3"></div>
+      </section>
+
+      <!-- КОЛЕСО ФОРТУНИ -->
+      <section id="tab-wheel" class="hidden space-y-10">
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="border border-zinc-200 dark:border-zinc-800 p-5 space-y-4">
+            <h3 class="text-xs font-semibold uppercase tracking-ultra">Створити квитки на кручення</h3>
+            <div class="flex gap-2 items-end">
+              <div class="w-24"><label class="block text-[10px] text-zinc-400 uppercase mb-1">Скільки</label><input id="tk-count" type="number" min="1" max="100" value="1" class="field"></div>
+              <div class="flex-grow"><label class="block text-[10px] text-zinc-400 uppercase mb-1">Примітка (кому / де)</label><input id="tk-note" placeholder="Instagram, сторіс 9.11" class="field"></div>
+              <button id="tk-create" class="px-4 py-2.5 text-xs uppercase tracking-widest bg-black text-white dark:bg-white dark:text-black hover:opacity-80">Створити</button>
+            </div>
+            <div id="tk-new" class="hidden space-y-2">
+              <p class="text-[10px] uppercase tracking-widest text-zinc-400">Нові квитки — роздайте клієнтам</p>
+              <pre id="tk-new-list" class="font-mono text-sm bg-zinc-100 dark:bg-zinc-900 p-3 whitespace-pre-wrap select-all"></pre>
+              <button id="tk-copy" class="px-4 py-2 text-[10px] uppercase tracking-widest bg-zinc-200 dark:bg-zinc-800 hover:opacity-80">Скопіювати все</button>
+            </div>
+          </div>
+          <div class="border border-zinc-200 dark:border-zinc-800 p-5 space-y-4">
+            <h3 class="text-xs font-semibold uppercase tracking-ultra">Перевірити призовий код (Instagram)</h3>
+            <div class="flex gap-2">
+              <input id="pc-code" placeholder="ELV-XXXX" autocapitalize="characters" class="field uppercase font-mono">
+              <button id="pc-find" class="px-4 py-2.5 text-xs uppercase tracking-widest bg-zinc-200 dark:bg-zinc-800 hover:opacity-80">Знайти</button>
+            </div>
+            <div id="pc-result"></div>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <h3 class="text-xs font-semibold uppercase tracking-ultra">Хто крутив колесо</h3>
+            <div id="w-filters" class="flex gap-2">
+              <button data-wf="" class="chip active">Усі</button>
+              <button data-wf="active" class="chip">Активні</button>
+              <button data-wf="used" class="chip">Використані</button>
+              <button data-wf="expired" class="chip">Прострочені</button>
+            </div>
+          </div>
+          <div id="spins-list" class="space-y-2"></div>
+        </div>
+
+        <div class="space-y-4">
+          <h3 class="text-xs font-semibold uppercase tracking-ultra">Невикористані квитки</h3>
+          <div id="tickets-list" class="flex flex-wrap gap-2"></div>
+        </div>
       </section>
 
       <!-- ТОВАРИ -->
@@ -213,7 +259,7 @@
       const { data, error } = await db.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
       if (error || !data || !data.is_admin) { show('denied'); return; }
       me = data; $('who').textContent = data.email || ''; show('app');
-      await Promise.all([loadOrders(), loadProducts()]);
+      await Promise.all([loadOrders(), loadProducts(), loadWheel()]);
       subscribe();
     }
     function show(which) {
@@ -240,6 +286,7 @@
     function setTab(t) {
       $('tab-orders').classList.toggle('hidden', t !== 'orders');
       $('tab-products').classList.toggle('hidden', t !== 'products');
+      $('tab-wheel').classList.toggle('hidden', t !== 'wheel');
       document.querySelectorAll('.tab-btn').forEach(b => {
         const on = b.dataset.tab === t;
         b.classList.toggle('bg-black', on); b.classList.toggle('text-white', on);
@@ -288,7 +335,7 @@
             <span class="text-[11px] text-zinc-400">${new Date(o.created_at).toLocaleString('uk-UA', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
             <span class="text-xs">${esc(o.customer_name)}</span>
             <span class="text-[10px] uppercase tracking-widest text-zinc-400">${CARRIER[o.carrier] || ''}</span>
-            <span class="ml-auto flex items-center gap-3"><span class="text-xs tabular-nums">${fmt(o.total)}</span><span class="px-2.5 py-1 text-[9px] uppercase tracking-widest font-bold ${st.cls}">${st.label}</span></span>
+            <span class="ml-auto flex items-center gap-3">${(o.discount > 0 || o.free_shipping) ? '<span class="text-[9px] uppercase tracking-widest bg-yellow-500 text-black px-2 py-1 font-bold">🎁 Промокод</span>' : ''}<span class="text-xs tabular-nums">${fmt(o.total)}</span><span class="px-2.5 py-1 text-[9px] uppercase tracking-widest font-bold ${st.cls}">${st.label}</span></span>
           </button>
           <div class="ord-body"><div class="overflow-hidden"><div class="p-4 pt-0 space-y-5 border-t border-zinc-100 dark:border-zinc-900">
             <div class="grid md:grid-cols-2 gap-5 pt-4 text-xs leading-relaxed">
@@ -305,6 +352,7 @@
               </div>
             </div>
             <ul class="text-xs space-y-1.5 border-y border-zinc-100 dark:border-zinc-900 py-3">${items}</ul>
+            ${(o.discount > 0 || o.free_shipping) ? `<p class="text-xs text-emerald-500">🎁 Код <b class="font-mono">${esc(o.promo_code || '')}</b>: ${o.discount > 0 ? 'знижка −' + fmt(o.discount) + ' (було ' + fmt(o.subtotal) + ')' : 'БЕЗКОШТОВНА ДОСТАВКА — відправляєте за свій рахунок'}</p>` : ''}
             <div>
               <p class="text-[10px] uppercase tracking-widest text-zinc-400 mb-2">Статус доставки</p>
               <div class="flex flex-wrap gap-2">${btns}</div>
@@ -354,6 +402,83 @@
       renderOrders();
     });
     $('o-search').addEventListener('input', (e) => { query = e.target.value; renderOrders(); });
+
+    /* ---------- Колесо фортуни ---------- */
+    let spins = [], tickets = [], wfilter = '';
+    const PSEL = '*, profiles(display_name, public_id, email, instagram, phone)';
+    const spinState = (s) => s.status === 'used' ? 'used' : (new Date(s.expires_at) < new Date() ? 'expired' : 'active');
+    const SPIN_BADGE = {
+      active:  ['Активний', 'bg-emerald-500 text-black'],
+      used:    ['Використано', 'bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300'],
+      expired: ['Прострочено', 'bg-red-600/15 text-red-500']
+    };
+    const dt = (v) => new Date(v).toLocaleString('uk-UA', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+    const ownerHtml = (pr) => pr ? `<b>${esc(pr.display_name || '—')}</b> <span class="font-mono text-[11px] text-zinc-400">${esc(pr.public_id || '')}</span>${pr.instagram ? ` · <a class="underline" target="_blank" rel="noopener" href="https://instagram.com/${encodeURIComponent(pr.instagram)}">@${esc(pr.instagram)}</a>` : ''}<br><span class="text-[11px] text-zinc-400">${esc(pr.email || '')}${pr.phone ? ' · ' + esc(pr.phone) : ''}</span>` : '—';
+
+    async function loadWheel() {
+      const [a, b] = await Promise.all([
+        db.from('wheel_spins').select(PSEL).order('created_at', { ascending: false }).limit(300),
+        db.from('wheel_tickets').select('*').order('created_at', { ascending: false }).limit(300)
+      ]);
+      if (a.error || b.error) { console.warn('wheel', a.error || b.error); spins = []; tickets = []; renderWheel(); return; }
+      spins = a.data || []; tickets = b.data || []; renderWheel();
+    }
+    function renderWheel() {
+      const list = spins.filter(s => !wfilter || spinState(s) === wfilter);
+      $('spins-list').innerHTML = list.length ? list.map(s => {
+        const st = spinState(s), bd = SPIN_BADGE[st];
+        const how = st === 'used' ? `${s.used_channel === 'instagram' ? 'Instagram' : 'на сайті'}${s.used_note ? ' · ' + esc(s.used_note) : ''} · ${dt(s.used_at)}` : (st === 'active' ? 'діє до ' + dt(s.expires_at) : 'діяв до ' + dt(s.expires_at));
+        return `<div class="border border-zinc-200 dark:border-zinc-800 p-4 grid md:grid-cols-[1fr_auto] gap-3 text-xs">
+          <div class="space-y-1">${ownerHtml(s.profiles)}<p class="text-[11px] text-zinc-400">Крутив(ла): ${dt(s.created_at)} · квиток <span class="font-mono">${esc(s.ticket_code)}</span></p></div>
+          <div class="md:text-right space-y-1"><p class="text-sm uppercase tracking-wide">${esc(s.prize_label)}</p><p class="font-mono tracking-widest">${esc(s.prize_code)}</p>
+            <p><span class="px-2.5 py-1 text-[9px] uppercase tracking-widest font-bold ${bd[1]}">${bd[0]}</span></p><p class="text-[10px] text-zinc-400">${how}</p></div>
+        </div>`;
+      }).join('') : '<p class="text-xs text-zinc-400 py-6 text-center uppercase tracking-widest">Поки ніхто не крутив</p>';
+      const free = tickets.filter(t => !t.used_by);
+      $('tickets-list').innerHTML = free.length ? free.map(t => `<button type="button" data-copy="${esc(t.code)}" title="${esc(t.note || '')}" class="font-mono text-xs border border-zinc-200 dark:border-zinc-800 px-3 py-2 hover:opacity-70">${esc(t.code)}${t.note ? ` <span class="text-zinc-400 font-sans">· ${esc(t.note)}</span>` : ''}</button>`).join('') : '<p class="text-xs text-zinc-400">Вільних квитків немає</p>';
+    }
+    $('w-filters').addEventListener('click', (e) => {
+      const b = e.target.closest('.chip'); if (!b) return;
+      wfilter = b.dataset.wf; document.querySelectorAll('#w-filters .chip').forEach(c => c.classList.toggle('active', c === b)); renderWheel();
+    });
+    $('tickets-list').addEventListener('click', (e) => {
+      const c = e.target.closest('[data-copy]'); if (c && navigator.clipboard) navigator.clipboard.writeText(c.dataset.copy).then(() => toast('Скопійовано'));
+    });
+    $('tk-create').onclick = async () => {
+      const n = Math.max(1, Math.min(100, Number($('tk-count').value) || 1));
+      const btn = $('tk-create'); btn.disabled = true;
+      const { data, error } = await db.rpc('admin_create_tickets', { p_count: n, p_note: $('tk-note').value });
+      btn.disabled = false;
+      if (error) return toast('Помилка: ' + error.message, 'err');
+      $('tk-new-list').textContent = (data || []).join('\n'); $('tk-new').classList.remove('hidden');
+      toast('Створено квитків: ' + (data || []).length); loadWheel();
+    };
+    $('tk-copy').onclick = () => { navigator.clipboard && navigator.clipboard.writeText($('tk-new-list').textContent).then(() => toast('Скопійовано')); };
+
+    async function findPrize() {
+      const code = $('pc-code').value.trim().toUpperCase(); const box = $('pc-result');
+      if (!code) return;
+      const { data, error } = await db.from('wheel_spins').select(PSEL).eq('prize_code', code).maybeSingle();
+      if (error || !data) { box.innerHTML = '<p class="text-xs text-red-500">Такого коду немає</p>'; return; }
+      const st = spinState(data), bd = SPIN_BADGE[st];
+      box.innerHTML = `<div class="border border-zinc-200 dark:border-zinc-800 p-4 space-y-3 text-xs">
+        <div>${ownerHtml(data.profiles)}</div>
+        <p class="text-lg font-light uppercase tracking-wide">${esc(data.prize_label)} <span class="px-2.5 py-1 text-[9px] tracking-widest font-bold align-middle ${bd[1]}">${bd[0]}</span></p>
+        <p class="text-[11px] text-zinc-400">${st === 'used' ? 'Використано ' + dt(data.used_at) + ' · ' + (data.used_channel === 'instagram' ? 'Instagram' : 'на сайті') + (data.used_note ? ' · ' + esc(data.used_note) : '') : 'Діє до ' + dt(data.expires_at)}</p>
+        ${st === 'active' ? `<div class="flex gap-2 items-end"><div class="flex-grow"><label class="block text-[10px] text-zinc-400 uppercase mb-1">Примітка (що замовили)</label><input id="pc-note" placeholder="Худі чорне, M" class="field"></div><button id="pc-redeem" data-code="${esc(data.prize_code)}" class="px-4 py-2.5 text-xs uppercase tracking-widest bg-black text-white dark:bg-white dark:text-black hover:opacity-80">Погасити</button></div>
+        <p class="text-[10px] text-zinc-400">Після «Погасити» код стане використаним і на сайті більше не спрацює.</p>` : ''}
+      </div>`;
+    }
+    $('pc-find').onclick = findPrize;
+    $('pc-code').addEventListener('keydown', (e) => { if (e.key === 'Enter') findPrize(); });
+    $('pc-result').addEventListener('click', async (e) => {
+      const b = e.target.closest('#pc-redeem'); if (!b) return;
+      if (!confirm('Погасити код ' + b.dataset.code + '? Це незворотно.')) return;
+      b.disabled = true;
+      const { error } = await db.rpc('admin_redeem_prize', { p_code: b.dataset.code, p_note: $('pc-note').value });
+      if (error) { b.disabled = false; return toast(/PROMO_USED/.test(error.message) ? 'Вже використано' : /PROMO_EXPIRED/.test(error.message) ? 'Термін минув' : 'Помилка: ' + error.message, 'err'); }
+      toast('Код погашено'); await findPrize(); loadWheel();
+    });
 
     function beep() {
       try {
