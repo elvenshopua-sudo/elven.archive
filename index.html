@@ -1486,15 +1486,16 @@
       // 2) повідомлення в Telegram
       const itemsText = cart.map(i =>
         `• ${esc(i.name)} [${i.sku ? 'Артикул: ' + esc(i.sku) : 'Без артикула'}] — Розмір: <b>${esc(i.size)}</b> × ${i.qty} — ${i.price * i.qty} UAH`).join('\n');
-      const message = `🛍 <b>НОВЕ ЗАМОВЛЕННЯ [ELVÉN]</b>${orderNo ? '\n🧾 <b>№ ' + esc(orderNo) + '</b>' : ''}${profile && profile.public_id ? '\n🆔 <b>Акаунт:</b> ' + esc(profile.public_id) : ''}\n\n👤 <b>Клієнт:</b> ${esc(name)}\n📞 <b>Тел:</b> <a href="tel:+${rawPhone}">${esc(phoneInput.value)}</a>\n💬 <b>Telegram:</b> ${tg ? `<a href="https://t.me/${encodeURIComponent(tg)}">@${esc(tg)}</a>` : 'не вказано'}\n📷 <b>Instagram:</b> ${insta ? `<a href="https://instagram.com/${encodeURIComponent(insta)}">@${esc(insta)}</a>` : 'не вказано'}\n\n📦 <b>Товари:</b>\n${itemsText}${promoLine}\n\n💰 <b>Загалом:</b> ${total} UAH\n\n🚚 <b>Служба:</b> ${esc(delivery)}\n📍 <b>Адреса:</b> ${esc(address)}`;
       const promoLine = saved && promo ? `\n🎁 <b>Промокод:</b> ${esc(promo)}${discount > 0 ? ' (знижка −' + discount + ' UAH)' : ''}${freeShip ? ' — БЕЗКОШТОВНА ДОСТАВКА (оплачуємо ми)' : ''}` : '';
+      const message = `🛍 <b>НОВЕ ЗАМОВЛЕННЯ [ELVÉN]</b>${orderNo ? '\n🧾 <b>№ ' + esc(orderNo) + '</b>' : ''}${profile && profile.public_id ? '\n🆔 <b>Акаунт:</b> ' + esc(profile.public_id) : ''}\n\n👤 <b>Клієнт:</b> ${esc(name)}\n📞 <b>Тел:</b> <a href="tel:+${rawPhone}">${esc(phoneInput.value)}</a>\n💬 <b>Telegram:</b> ${tg ? `<a href="https://t.me/${encodeURIComponent(tg)}">@${esc(tg)}</a>` : 'не вказано'}\n📷 <b>Instagram:</b> ${insta ? `<a href="https://instagram.com/${encodeURIComponent(insta)}">@${esc(insta)}</a>` : 'не вказано'}\n\n📦 <b>Товари:</b>\n${itemsText}${promoLine}\n\n💰 <b>Загалом:</b> ${total} UAH\n\n🚚 <b>Служба:</b> ${esc(delivery)}\n📍 <b>Адреса:</b> ${esc(address)}`;
       let tgOk = false;
       try {
+        const ac = new AbortController(); const tm = setTimeout(() => ac.abort(), 8000);
         const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          signal: ac.signal, method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: 'HTML', disable_web_page_preview: true })
         });
-        tgOk = res.ok;
+        clearTimeout(tm); tgOk = res.ok;
       } catch (err) {}
 
       if (!saved && !tgOk) { toast('Не вдалося відправити. Спробуйте ще раз', 'err'); restore(); return; }
