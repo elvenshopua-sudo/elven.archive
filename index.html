@@ -431,6 +431,14 @@
         </button>
       </section>
 
+      <!-- ГРА -->
+      <section class="max-w-7xl mx-auto px-4 sm:px-8 pt-4">
+        <button id="game-promo" type="button" class="gpromo" aria-label="Гра ELVÉN DROP">
+          <span><span class="gk block">Міні-гра</span><span class="gt block">ELVÉN Drop</span><span class="gs block">Лови речі, обходь бомби · 50 очок = квиток на колесо</span></span>
+          <span class="gb">Грати →</span>
+        </button>
+      </section>
+
       <!-- КАТАЛОГ -->
       <section id="catalog" class="max-w-7xl mx-auto px-4 sm:px-8 pt-14 pb-20 scroll-mt-16">
         <div class="mb-8 sm:mb-10">
@@ -839,6 +847,39 @@
     .dark .size-btn:hover { border-color: #fff; }
     .size-btn.active { background: #000; color: #fff; border-color: #000; }
     .dark .size-btn.active { background: #fff; color: #000; border-color: #fff; }
+    /* ---------- Гра ELVÉN DROP ---------- */
+    .gpromo { display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: 100%; text-align: left; padding: 1.1rem 1.25rem; border: 1px solid #e4e4e7; transition: border-color .25s, transform .25s; background: transparent; cursor: pointer; }
+    .dark .gpromo { border-color: #27272a; }
+    .gpromo:hover { border-color: #000; transform: translateY(-2px); }
+    .dark .gpromo:hover { border-color: #fff; }
+    .gpromo .gk { font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: #a1a1aa; }
+    .gpromo .gt { font-size: 1.35rem; font-weight: 200; letter-spacing: .22em; text-transform: uppercase; margin-top: .25rem; }
+    .gpromo .gs { font-size: 11px; color: #71717a; margin-top: .3rem; }
+    .gpromo .gb { flex: 0 0 auto; background: #000; color: #fff; padding: .85rem 1.3rem; font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
+    .dark .gpromo .gb { background: #fff; color: #000; }
+    #game { position: fixed; inset: 0; z-index: 75; background: #09090b; color: #fff; display: none; touch-action: none; user-select: none; -webkit-user-select: none; }
+    #game.on { display: block; }
+    #game canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    #g-hud { position: absolute; left: 0; right: 0; top: 0; display: flex; align-items: flex-start; justify-content: space-between; padding: max(14px, env(safe-area-inset-top)) 16px 0; pointer-events: none; }
+    #g-hud > * { pointer-events: auto; }
+    .g-score { font-size: 2.4rem; font-weight: 200; letter-spacing: .08em; line-height: 1; }
+    .g-sub { font-size: 10px; letter-spacing: .25em; text-transform: uppercase; color: #a1a1aa; margin-top: .4rem; }
+    .g-btn { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #3f3f46; color: #e4e4e7; background: rgba(9,9,11,.6); font-size: 15px; }
+    .g-btn:hover { border-color: #fff; }
+    #g-panel { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(9,9,11,.72); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+    #g-panel.off { display: none; }
+    .g-card { width: 100%; max-width: 400px; border: 1px solid #3f3f46; background: #09090b; padding: 1.6rem 1.4rem; text-align: center; }
+    .g-card h3 { font-size: 1.7rem; font-weight: 200; letter-spacing: .3em; padding-left: .3em; text-transform: uppercase; }
+    .g-card p { font-size: 12px; color: #a1a1aa; line-height: 1.65; }
+    .g-rules { text-align: left; margin: 1.1rem 0; display: grid; gap: .55rem; font-size: 12px; color: #d4d4d8; }
+    .g-rules div { display: flex; gap: .7rem; align-items: center; }
+    .g-rules svg { width: 26px; height: 26px; flex: 0 0 26px; fill: none; stroke: #fff; stroke-width: 1.7; stroke-linejoin: round; stroke-linecap: round; }
+    .g-prize { border: 1px solid #52525b; padding: .8rem; margin: 1rem 0 1.2rem; font-size: 11px; color: #e4e4e7; line-height: 1.6; }
+    .g-prize b { color: #f6d98e; font-weight: 600; }
+    .g-go { width: 100%; background: #fff; color: #000; padding: 1rem; font-size: 12px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; }
+    .g-go + .g-go { margin-top: .6rem; }
+    .g-go.ghost { background: transparent; color: #e4e4e7; border: 1px solid #3f3f46; }
+    .g-big { font-size: 4rem; font-weight: 200; line-height: 1; margin: .6rem 0 .3rem; }
   </style>
 
   <script>
@@ -2373,6 +2414,215 @@
     updateCartUI();
     observeReveal();
     loadProductsFromCloud().then(openFromHash);
+
+    /* ---------- Гра ELVÉN DROP ---------- */
+    (function () {
+      const GAME_PRIZE_SCORE = 50;                 // скільки очок дають квиток на колесо
+      const DM_URL = 'https://ig.me/m/elven_archive';
+      const ICONS = {
+        shirt: 'M8 3 2 6l2 5 3-1v11h10V10l3 1 2-5-6-3a4 4 0 0 1-8 0z',
+        hoodie: 'M8 7 3 10l1.5 7L8 16v5h8v-5l3.5 1L21 10l-5-3M8 7c0-2.5 1.8-4 4-4s4 1.5 4 4-1.8 3-4 3-4-.5-4-3M12 10v4',
+        pants: 'M7 3h10l1 18h-4l-2-10-2 10H6z',
+        cap: 'M3 15c0-5 4-8 9-8s8 3 8 8H3zM20 15h3M12 7V5',
+        tag: 'M3 12V4h8l10 10-8 8zM7.5 8h.01'
+      };
+      const P2D = {}; Object.keys(ICONS).forEach(k => { P2D[k] = new Path2D(ICONS[k]); });
+      const root = document.createElement('div'); root.id = 'game'; root.setAttribute('role', 'dialog'); root.setAttribute('aria-label', 'Гра ELVÉN Drop');
+      const svgI = (k) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[k]}"/></svg>`;
+      root.innerHTML = `<canvas id="g-cv"></canvas>
+        <div id="g-hud"><div><div class="g-score" id="g-score">0</div><div class="g-sub" id="g-sub"></div></div>
+          <div style="display:flex;gap:8px"><button class="g-btn" id="g-snd" type="button" aria-label="Звук">♪</button><button class="g-btn" id="g-x" type="button" aria-label="Закрити">✕</button></div></div>
+        <div id="g-panel"><div class="g-card" id="g-card"></div></div>`;
+      document.body.appendChild(root);
+      const cv = root.querySelector('#g-cv'), ctx = cv.getContext('2d');
+      const el = (id) => root.querySelector('#' + id);
+      let W = 0, H = 0, U = 40, dpr = 1;
+      let state = 'idle', raf = 0, last = 0;
+      let score = 0, lives = 3, combo = 0, mult = 1, t = 0, spawnT = 0, dbl = 0, shake = 0, flash = 0;
+      let bag = { x: 0, tx: 0, w: 0 };
+      let items = [], parts = [], pops = [];
+      let best = 0; try { best = Number(localStorage.getItem('elven_game_best') || 0); } catch (e) {}
+      let sound = true; try { sound = localStorage.getItem('elven_game_snd') !== '0'; } catch (e) {}
+      let ac = null;
+      const keys = {};
+
+      function beep(f, d, type, v, slide) {
+        if (!sound) return;
+        try {
+          ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+          const o = ac.createOscillator(), g = ac.createGain(), n = ac.currentTime;
+          o.type = type || 'sine'; o.frequency.setValueAtTime(f, n); if (slide) o.frequency.exponentialRampToValueAtTime(slide, n + d);
+          g.gain.setValueAtTime(v || .05, n); g.gain.exponentialRampToValueAtTime(.0001, n + d);
+          o.connect(g); g.connect(ac.destination); o.start(n); o.stop(n + d);
+        } catch (e) {}
+      }
+      function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight;
+        cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        U = Math.max(26, Math.min(48, Math.min(W, H) / 12)); bag.w = U * 2.7;
+        bag.x = Math.min(Math.max(bag.x, bag.w / 2), W - bag.w / 2); bag.tx = bag.x;
+      }
+      addEventListener('resize', () => { if (root.classList.contains('on')) resize(); });
+
+      const GOOD = ['shirt', 'hoodie', 'pants', 'cap'];
+      function spawn() {
+        const r = Math.random(), bombP = Math.min(.14 + t / 90, .36);
+        let kind = 'good', icon = GOOD[(Math.random() * GOOD.length) | 0];
+        if (r < bombP) { kind = 'bomb'; icon = 'bomb'; }
+        else if (r > .95) { kind = 'tag'; icon = 'tag'; }
+        const sz = U * (kind === 'bomb' ? 1.0 : 1.1);
+        items.push({ kind, icon, x: sz / 2 + Math.random() * (W - sz), y: -sz, sz, vy: (H * .30 + Math.min(t * 7, H * .38)) * (.9 + Math.random() * .3), rot: (Math.random() - .5) * .8, vr: (Math.random() - .5) * 1.4 });
+      }
+      function burst(x, y, n, col) {
+        for (let i = 0; i < n; i++) { const a = Math.random() * 6.28, s = 40 + Math.random() * 160; parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 60, l: .5 + Math.random() * .4, c: col }); }
+      }
+      function pop(x, y, txt, col) { pops.push({ x, y, txt, l: .8, col }); }
+
+      function drawIcon(it) {
+        ctx.save(); ctx.translate(it.x, it.y); ctx.rotate(it.rot);
+        const s = it.sz / 24; ctx.scale(s, s); ctx.translate(-12, -12);
+        ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+        if (it.kind === 'bomb') {
+          ctx.fillStyle = '#18181b'; ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 1.6;
+          ctx.beginPath(); ctx.arc(12, 14, 8, 0, 6.28); ctx.fill(); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(15, 7); ctx.quadraticCurveTo(18, 3, 21, 4); ctx.stroke();
+          ctx.fillStyle = '#ef4444'; ctx.fillRect(20, 2, 2.4, 2.4);
+          ctx.strokeStyle = '#ef4444'; ctx.beginPath(); ctx.moveTo(9, 11); ctx.lineTo(15, 17); ctx.moveTo(15, 11); ctx.lineTo(9, 17); ctx.stroke();
+        } else {
+          const gold = it.kind === 'tag';
+          ctx.lineWidth = 1.7; ctx.strokeStyle = gold ? '#f6d98e' : '#fff'; ctx.fillStyle = gold ? 'rgba(246,217,142,.22)' : 'rgba(255,255,255,.07)';
+          ctx.fill(P2D[it.icon]); ctx.stroke(P2D[it.icon]);
+        }
+        ctx.restore();
+      }
+      function drawBag() {
+        const w = bag.w, h = w * .78, x = bag.x, y = H - h - Math.max(18, H * .045) - (innerWidth < 600 ? 40 : 0);
+        bag.top = y;
+        ctx.save(); ctx.translate(x, y);
+        ctx.fillStyle = '#fafafa'; ctx.beginPath(); ctx.moveTo(-w / 2, 0); ctx.lineTo(w / 2, 0); ctx.lineTo(w * .46, h); ctx.lineTo(-w * .46, h); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = '#fafafa'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, w * .2, Math.PI, 0); ctx.stroke();
+        ctx.fillStyle = '#09090b'; ctx.font = `200 ${Math.round(w * .16)}px Inter, system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('E L V É N', 0, h * .52);
+        if (dbl > 0) { ctx.strokeStyle = '#f6d98e'; ctx.lineWidth = 2.5; ctx.strokeRect(-w / 2 - 4, -4, w + 8, h + 8); }
+        ctx.restore();
+      }
+      function drawBg() {
+        ctx.fillStyle = '#09090b'; ctx.fillRect(0, 0, W, H);
+        ctx.save(); ctx.font = `200 ${Math.round(Math.min(W * .34, 260))}px Inter, system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.strokeStyle = 'rgba(255,255,255,.06)'; ctx.lineWidth = 1.5; ctx.strokeText('ELVÉN', W / 2, H * .45); ctx.restore();
+        ctx.strokeStyle = 'rgba(255,255,255,.04)'; ctx.lineWidth = 1;
+        for (let i = 1; i < 5; i++) { const gx = (W / 5) * i; ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
+        if (flash > 0) { ctx.fillStyle = `rgba(239,68,68,${flash * .35})`; ctx.fillRect(0, 0, W, H); }
+      }
+      function hearts() { return '♥'.repeat(Math.max(lives, 0)) + '<span style="opacity:.25">' + '♥'.repeat(3 - Math.max(lives, 0)) + '</span>'; }
+      function hud() {
+        el('g-score').textContent = score;
+        el('g-sub').innerHTML = `<span style="color:#ef4444;letter-spacing:.15em">${hearts()}</span>&nbsp; ${mult > 1 ? '× ' + mult : ''}${dbl > 0 ? ' · SALE ×2' : ''}${best ? ' · рекорд ' + best : ''}`;
+      }
+
+      function frame(ts) {
+        if (state !== 'play') return;
+        const dt = Math.min((ts - last) / 1000, .05); last = ts; t += dt;
+        const sp = 520 + Math.min(t * 5, 220);
+        if (keys.ArrowLeft || keys.a) bag.tx -= sp * dt; if (keys.ArrowRight || keys.d) bag.tx += sp * dt;
+        bag.tx = Math.min(Math.max(bag.tx, bag.w / 2), W - bag.w / 2);
+        bag.x += (bag.tx - bag.x) * Math.min(1, dt * 18);
+        spawnT -= dt; if (spawnT <= 0) { spawn(); spawnT = Math.max(.26, .8 - t / 55) * (.8 + Math.random() * .5); }
+        if (dbl > 0) dbl -= dt; if (shake > 0) shake -= dt; if (flash > 0) flash -= dt * 2.2;
+        for (const it of items) { it.y += it.vy * dt; it.rot += it.vr * dt; }
+        const top = bag.top || H * .8;
+        for (let i = items.length - 1; i >= 0; i--) {
+          const it = items[i];
+          if (it.y + it.sz * .4 >= top && it.y < top + bag.w * .5 && Math.abs(it.x - bag.x) < bag.w / 2 + it.sz * .15) {
+            if (it.kind === 'bomb') {
+              lives--; combo = 0; mult = 1; shake = .35; flash = 1; burst(it.x, top, 26, '#ef4444'); pop(bag.x, top - 20, '−1 ♥', '#ef4444'); beep(150, .35, 'sawtooth', .07, 50);
+              if (lives <= 0) { items.splice(i, 1); return end(); }
+            } else if (it.kind === 'tag') {
+              dbl = 6; score += 5 * (dbl > 0 ? 2 : 1); burst(it.x, top, 24, '#f6d98e'); pop(it.x, top - 20, 'SALE ×2', '#f6d98e'); beep(880, .25, 'triangle', .06, 1320);
+            } else {
+              combo++; mult = Math.min(1 + ((combo / 5) | 0), 5); const pts = mult * (dbl > 0 ? 2 : 1); score += pts;
+              burst(it.x, top, 10, '#ffffff'); pop(it.x, top - 16, '+' + pts, '#ffffff'); beep(520 + mult * 70, .12, 'triangle', .05);
+            }
+            items.splice(i, 1); hud();
+          } else if (it.y > H + it.sz) { if (it.kind === 'good') { combo = 0; mult = 1; hud(); } items.splice(i, 1); }
+        }
+        for (const p of parts) { p.l -= dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 520 * dt; } parts = parts.filter(p => p.l > 0);
+        for (const p of pops) { p.l -= dt; p.y -= 60 * dt; } pops = pops.filter(p => p.l > 0);
+        render(); raf = requestAnimationFrame(frame);
+      }
+      function render() {
+        ctx.save();
+        if (shake > 0 && !reduceMotion()) ctx.translate((Math.random() - .5) * 12, (Math.random() - .5) * 12);
+        drawBg();
+        items.forEach(drawIcon);
+        parts.forEach(p => { ctx.globalAlpha = Math.max(0, p.l * 1.8); ctx.fillStyle = p.c; ctx.fillRect(p.x, p.y, 3.5, 3.5); }); ctx.globalAlpha = 1;
+        drawBag();
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = '600 16px Inter, system-ui, sans-serif';
+        pops.forEach(p => { ctx.globalAlpha = Math.min(1, p.l * 2); ctx.fillStyle = p.col; ctx.fillText(p.txt, p.x, p.y); }); ctx.globalAlpha = 1;
+        ctx.restore();
+      }
+
+      function card(html) { el('g-card').innerHTML = html; el('g-panel').classList.remove('off'); }
+      function showStart() {
+        state = 'idle'; cancelAnimationFrame(raf); resize(); items = []; parts = []; pops = []; render(); hud();
+        card(`<p style="letter-spacing:.3em;text-transform:uppercase;font-size:10px">Міні-гра</p><h3 style="margin:.4rem 0 .2rem">ELVÉN Drop</h3>
+          <div class="g-rules">
+            <div>${svgI('hoodie')}<span>Лови речі сумкою: пальцем або мишкою, або стрілками ← →</span></div>
+            <div>${svgI('tag')}<span>Золота бирка: 6 секунд подвійних очок</span></div>
+            <div><svg viewBox="0 0 24 24" aria-hidden="true" style="stroke:#ef4444"><circle cx="12" cy="14" r="8"/><path d="M15 7q3-4 6-3"/></svg><span>Бомба забирає життя. Їх у тебе три</span></div>
+          </div>
+          <div class="g-prize">🎁 Набери <b>${GAME_PRIZE_SCORE}+ очок</b>, зроби скріншот і надішли нам у Direct <b>@elven_archive</b>: подаруємо <b>квиток на колесо фортуни</b>.</div>
+          <button class="g-go" type="button" data-act="play">Грати</button>${best ? `<p style="margin-top:.8rem">Твій рекорд: ${best}</p>` : ''}`);
+      }
+      function start() {
+        resize(); score = 0; lives = 3; combo = 0; mult = 1; t = 0; spawnT = .4; dbl = 0; shake = 0; flash = 0; items = []; parts = []; pops = [];
+        bag.x = bag.tx = W / 2; state = 'play'; el('g-panel').classList.add('off'); hud(); last = performance.now(); raf = requestAnimationFrame(frame); beep(440, .15, 'triangle', .05, 660);
+      }
+      function end() {
+        state = 'over'; cancelAnimationFrame(raf); render();
+        const nb = score > best; if (nb) { best = score; try { localStorage.setItem('elven_game_best', String(best)); } catch (e) {} } hud();
+        const win = score >= GAME_PRIZE_SCORE;
+        const msg = win ? `Круто! Це <b style="color:#f6d98e">${score} очок</b>: скріншот у Direct, і квиток на колесо твій 🎁` : score >= 15 ? 'Майже! Ще трохи до подарунка' : 'Розминка вдалась. Спробуй ще раз!';
+        card(`<p style="letter-spacing:.3em;text-transform:uppercase;font-size:10px">Гра закінчена</p><div class="g-big">${score}</div>
+          <p>${nb && score > 0 ? '🏆 Новий рекорд!' : 'Рекорд: ' + best}</p><p style="margin:.8rem 0 1.2rem;color:#e4e4e7">${msg}</p>
+          ${win ? '<button class="g-go" type="button" data-act="dm">Надіслати результат в Instagram</button>' : ''}
+          <button class="g-go ${win ? 'ghost' : ''}" type="button" data-act="play">Ще раз</button>
+          <button class="g-go ghost" type="button" data-act="shop">До каталогу</button>`);
+        beep(220, .5, 'sine', .06, 110);
+      }
+      function open() { root.classList.add('on'); lockScroll(true); showStart(); history.replaceState(null, '', location.href); }
+      function close() { state = 'idle'; cancelAnimationFrame(raf); root.classList.remove('on'); lockScroll(false); }
+      function snd() { el('g-snd').style.opacity = sound ? 1 : .35; }
+
+      root.addEventListener('click', (e) => {
+        const a = e.target.closest('[data-act]');
+        if (a) {
+          if (a.dataset.act === 'play') start();
+          else if (a.dataset.act === 'shop') { close(); $('catalog').scrollIntoView({ behavior: 'smooth' }); }
+          else if (a.dataset.act === 'dm') {
+            const txt = `Мій результат в ELVÉN Drop: ${score} очок 🎁`;
+            try { navigator.clipboard.writeText(txt); } catch (err) {}
+            toast('Текст скопійовано. Додайте скріншот у Direct');
+            window.open(DM_URL, '_blank', 'noopener');
+          }
+        }
+        if (e.target.closest('#g-x')) close();
+        if (e.target.closest('#g-snd')) { sound = !sound; try { localStorage.setItem('elven_game_snd', sound ? '1' : '0'); } catch (err) {} snd(); }
+      });
+      const movePtr = (e) => { if (state === 'play') bag.tx = e.clientX; };
+      cv.addEventListener('pointermove', movePtr); cv.addEventListener('pointerdown', movePtr);
+      addEventListener('keydown', (e) => {
+        if (!root.classList.contains('on')) return;
+        if (e.key === 'Escape') { close(); return; }
+        keys[e.key] = true; if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') e.preventDefault();
+        if ((e.key === 'Enter' || e.key === ' ') && state !== 'play' && e.target.tagName !== 'BUTTON') { e.preventDefault(); start(); }
+      });
+      addEventListener('keyup', (e) => { keys[e.key] = false; });
+      document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'play') { state = 'idle'; cancelAnimationFrame(raf); card(`<h3>Пауза</h3><p style="margin:1rem 0 1.2rem">Рахунок: ${score}</p><button class="g-go" type="button" data-act="resume">Продовжити</button>`); el('g-card').querySelector('[data-act="resume"]').onclick = () => { el('g-panel').classList.add('off'); state = 'play'; last = performance.now(); raf = requestAnimationFrame(frame); }; } });
+      $('game-promo').addEventListener('click', open);
+      snd();
+      window.__elvenGame = { open, close };
+    })();
   </script>
 </body>
 </html>
