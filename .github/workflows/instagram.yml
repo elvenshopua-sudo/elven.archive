@@ -1,0 +1,45 @@
+name: Публікація нових товарів в Instagram
+
+on:
+  schedule:
+    - cron: '20 * * * *'        # щогодини
+  workflow_dispatch:            # ручний запуск
+    inputs:
+      dry_run:
+        description: 'Пробний запуск (нічого не публікувати)'
+        type: boolean
+        default: true
+      only_id:
+        description: 'Опублікувати лише товар з цим id (необов''язково)'
+        type: string
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: instagram-post
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Опублікувати нові товари
+        env:
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || '' }}
+          ONLY_ID: ${{ github.event.inputs.only_id || '' }}
+        run: node scripts/instagram-post.mjs
+      - name: Зберегти список опублікованих
+        if: always()
+        run: |
+          git config user.name "elven-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add instagram-posted.json || true
+          if git diff --cached --quiet; then echo "без змін"; else git commit -m "Оновлено список опублікованих в Instagram" && git pull --rebase && git push; fi
