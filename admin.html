@@ -175,6 +175,10 @@
             <input type="hidden" id="p-id">
             <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Назва товару</label><input type="text" id="p-name" required class="field"></div>
             <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Артикул (SKU)</label><input type="text" id="p-sku" placeholder="напр. ELV-001" class="field"></div>
+            <div>
+              <label class="block text-[10px] text-zinc-400 uppercase mb-1">Категорія</label>
+              <select id="p-cat" class="field"><option value="" class="dark:bg-zinc-900">— Без категорії (лише у вкладці «Усі») —</option><option value="suits" class="dark:bg-zinc-900">Спортивні костюми</option><option value="hoodies" class="dark:bg-zinc-900">Худі</option><option value="sweatshirts" class="dark:bg-zinc-900">Кофти та світшоти</option><option value="tshirts" class="dark:bg-zinc-900">Футболки та поло</option><option value="pants" class="dark:bg-zinc-900">Штани</option><option value="shorts" class="dark:bg-zinc-900">Шорти</option><option value="outerwear" class="dark:bg-zinc-900">Куртки та жилети</option><option value="thermal" class="dark:bg-zinc-900">Термобілизна</option><option value="sets" class="dark:bg-zinc-900">Комплекти</option><option value="accessories" class="dark:bg-zinc-900">Аксесуари</option></select>
+            </div>
             <div class="grid grid-cols-2 gap-4">
               <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Ціна (UAH)</label><input type="number" id="p-price" required min="0" inputmode="numeric" class="field"></div>
               <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Стара ціна</label><input type="number" id="p-old" min="0" inputmode="numeric" placeholder="Необов'язково" class="field"></div>
@@ -507,6 +511,8 @@
     }
 
     /* ---------- Товари ---------- */
+    const CATS = [['suits','Спортивні костюми'],['hoodies','Худі'],['sweatshirts','Кофти та світшоти'],['tshirts','Футболки та поло'],['pants','Штани'],['shorts','Шорти'],['outerwear','Куртки та жилети'],['thermal','Термобілизна'],['sets','Комплекти'],['accessories','Аксесуари']];
+    const catLabel = (k) => (CATS.find(c => c[0] === k) || [0, ''])[1];
     let pImages = [];
     async function loadProducts() {
       const { data, error } = await db.from('products').select('*');
@@ -523,6 +529,9 @@
             <div class="min-w-0">
               <p class="text-xs font-semibold truncate">${esc(p.name)} <span class="text-[10px] text-zinc-400 font-mono">[${esc(p.sku || 'без SKU')}]</span></p>
               <p class="text-[10px] text-zinc-400">${fmt(p.price)} ${p.badge ? `| [${esc(p.badge)}]` : ''}</p>
+              <select data-setcat="${p.id}" class="mt-1 bg-transparent border border-zinc-300 dark:border-zinc-700 text-[10px] px-1.5 py-1 max-w-[190px] focus:outline-none">
+                <option value="" class="dark:bg-zinc-900">Без категорії</option>${CATS.map(c => `<option value="${c[0]}" class="dark:bg-zinc-900" ${p.category === c[0] ? 'selected' : ''}>${c[1]}</option>`).join('')}
+              </select>
             </div>
           </div>
           <div class="flex gap-2 shrink-0">
@@ -586,16 +595,34 @@
       const oldP = $('p-old').value;
       const payload = {
         name: $('p-name').value.trim(), sku: $('p-sku').value.trim(), price: Number($('p-price').value),
-        oldPrice: oldP ? Number(oldP) : null, badge: $('p-badge').value, desc: $('p-desc').value,
+        oldPrice: oldP ? Number(oldP) : null, badge: $('p-badge').value, desc: $('p-desc').value, category: $('p-cat').value || null,
         images, sizes: sizes.length ? sizes : ['S', 'M', 'L']
       };
       const btn = $('p-save'); btn.disabled = true; btn.textContent = 'Збереження...';
       try {
-        if (editId) { const { error } = await db.from('products').update(payload).eq('id', editId); if (error) throw error; }
-        else { payload.id = Date.now(); const { error } = await db.from('products').insert([payload]); if (error) throw error; }
+        const run = (pl) => editId ? db.from('products').update(pl).eq('id', editId) : db.from('products').insert([pl]);
+        if (!editId) payload.id = Date.now();
+        let { error } = await run(payload);
+        if (error && /category/i.test(error.message || '')) {
+          // колонка category ще не створена в базі — зберігаємо без неї
+          const { category, ...rest } = payload;
+          ({ error } = await run(rest));
+          if (!error && category) toast('Збережено без категорії: виконайте supabase-categories.sql', 'err');
+        }
+        if (error) throw error;
         resetForm(); await loadProducts(); toast('Збережено');
       } catch (err) { toast('Помилка: ' + err.message, 'err'); }
       finally { btn.disabled = false; btn.textContent = $('p-id').value ? 'Оновити товар' : 'Зберегти товар'; }
+    });
+
+    $('p-list').addEventListener('change', async (e) => {
+      const sel = e.target.closest('[data-setcat]'); if (!sel) return;
+      const val = sel.value || null; sel.disabled = true;
+      const { error } = await db.from('products').update({ category: val }).eq('id', sel.dataset.setcat);
+      sel.disabled = false;
+      if (error) { toast(/category/i.test(error.message || '') ? 'Спочатку виконайте supabase-categories.sql у Supabase' : 'Помилка: ' + error.message, 'err'); return; }
+      const pr = products.find(x => Number(x.id) === Number(sel.dataset.setcat)); if (pr) pr.category = val;
+      toast(val ? 'Категорія: ' + catLabel(val) : 'Категорію прибрано');
     });
 
     $('p-list').addEventListener('click', async (e) => {
@@ -603,7 +630,7 @@
       if (ed) {
         const p = products.find(x => Number(x.id) === Number(ed.dataset.edit)); if (!p) return;
         $('p-id').value = p.id; $('p-name').value = p.name; $('p-sku').value = p.sku || '';
-        $('p-price').value = p.price; $('p-old').value = p.oldPrice || ''; $('p-badge').value = p.badge || ''; $('p-desc').value = p.desc || '';
+        $('p-price').value = p.price; $('p-old').value = p.oldPrice || ''; $('p-badge').value = p.badge || ''; $('p-cat').value = p.category || ''; $('p-desc').value = p.desc || '';
         $('p-url').value = ''; pImages = [...getImgs(p)]; renderPreview();
         document.querySelectorAll('input[name="p-size"]').forEach(cb => cb.checked = (p.sizes || ['S', 'M', 'L']).includes(cb.value));
         $('form-title').textContent = 'Редагувати товар'; $('p-save').textContent = 'Оновити товар'; $('p-cancel').classList.remove('hidden');
