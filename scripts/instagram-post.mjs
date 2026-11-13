@@ -28,44 +28,24 @@ async function load() {
   return r.json();
 }
 
-// Бере опис із сайту й лишає тільки характеристики (без вступу, виробника, підпису й розмірів: їх додаємо окремо).
-function specLines(p) {
-  let t = String(p.desc || '').replace(/\r/g, '');
-  t = t.replace(/Стильна модель.*?деталі\.\s*/s, '');
-  t = t.replace(/🖤?\s*ELV[ÉE]N\s*[—–-]\s*стиль у кожній деталі\.?/gi, '');
-  t = t.replace(/📌|\*\*/g, '').replace(/Характеристики\s*:/gi, '');
-  t = t.replace(/[ \t]+(Матеріал|Колір|Виробник|Розміри?|Склад|Логотип)\s*:/gi, '\n$1:'); // якщо опис в один рядок
-  const name = String(p.name || '').trim().toLowerCase();
-  let sizesLine = '';
-  const lines = [];
-  for (let l of t.split('\n')) {
-    l = l.trim().replace(/\s+:/g, ':');
-    if (!l || /^опис:?$/i.test(l)) continue;
-    if (l.toLowerCase() === name) continue;
-    if (/^виробник/i.test(l)) continue;
-    if (/^розмір/i.test(l)) { sizesLine = l.replace(/^розміри?\s*:\s*/i, ''); continue; }
-    lines.push(l);
-  }
-  const sizes = Array.isArray(p.sizes) && p.sizes.length ? p.sizes.join(', ') : sizesLine;
-  if (sizes) lines.push('Розмір: ' + sizes);
-  return lines;
-}
-
 function caption(p) {
-  const specs = specLines(p);
-  const sku = String(p.sku || '').trim();
-  const out = [
-    '✨ ' + String(p.name).trim(),
+  const price = Number(p.price), old = Number(p.oldPrice) > price ? Number(p.oldPrice) : 0;
+  const sizes = Array.isArray(p.sizes) && p.sizes.length ? p.sizes.join(' · ') : '';
+  const lines = [
+    String(p.name).trim().toUpperCase(),
     '',
-    ...(specs.length ? ['📌 Характеристики:', ...specs, ''] : []),
-    `💰 - ${Number(p.price)} ГРН 💸`,
-    ...(sku ? [`🔖 - ${sku} - це артикул`] : []),
+    old ? `🔥 ${fmt(price)}  (було ${fmt(old)})` : `💰 ${fmt(price)}`,
+    sizes ? `📏 Розміри: ${sizes}` : '',
     '',
-    '🖤 ELVEN — стиль у кожній деталі.',
+    '🚚 Нова Пошта щодня',
+    '🔄 Обмін 14 днів',
+    '👀 Огляд на пошті',
+    '',
+    `🛒 Замовити: ${SITE.replace('https://', '')} або в Direct`,
     '',
     [BASE_TAGS, TAGS[p.category] || ''].filter(Boolean).join(' '),
   ];
-  return out.join('\n').slice(0, 2100);
+  return lines.filter((l, i, a) => !(l === '' && (i === 0 || a[i - 1] === ''))).join('\n').slice(0, 2100);
 }
 
 async function api(path, params) {
