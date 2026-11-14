@@ -175,6 +175,10 @@
             <input type="hidden" id="p-id">
             <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Назва товару</label><input type="text" id="p-name" required class="field"></div>
             <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Артикул (SKU)</label><input type="text" id="p-sku" placeholder="напр. ELV-001" class="field"></div>
+            <div class="grid grid-cols-2 gap-4">
+              <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Зріст моделі, см</label><input type="number" id="p-mh" min="140" max="220" placeholder="напр. 175" class="field"></div>
+              <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Розмір на моделі</label><input type="text" id="p-ms" maxlength="8" placeholder="напр. S" class="field"></div>
+            </div>
             <div>
               <label class="block text-[10px] text-zinc-400 uppercase mb-1">Категорія</label>
               <select id="p-cat" class="field"><option value="" class="dark:bg-zinc-900">— Без категорії (лише у вкладці «Усі») —</option><option value="suits" class="dark:bg-zinc-900">Спортивні костюми</option><option value="hoodies" class="dark:bg-zinc-900">Худі</option><option value="sweatshirts" class="dark:bg-zinc-900">Кофти та світшоти</option><option value="tshirts" class="dark:bg-zinc-900">Футболки та поло</option><option value="pants" class="dark:bg-zinc-900">Штани</option><option value="shorts" class="dark:bg-zinc-900">Шорти</option><option value="outerwear" class="dark:bg-zinc-900">Куртки та жилети</option><option value="thermal" class="dark:bg-zinc-900">Термобілизна</option><option value="sets" class="dark:bg-zinc-900">Комплекти</option><option value="accessories" class="dark:bg-zinc-900">Аксесуари</option></select>
@@ -598,6 +602,8 @@
         oldPrice: oldP ? Number(oldP) : null, badge: $('p-badge').value, desc: $('p-desc').value, category: $('p-cat').value || null,
         images, sizes: sizes.length ? sizes : ['S', 'M', 'L']
       };
+      const mh = $('p-mh').value, ms = $('p-ms').value.trim(), hadModel = !!(editId && products.find(x => Number(x.id) === Number(editId)) && 'model_height' in products.find(x => Number(x.id) === Number(editId)));
+      if (mh || ms || hadModel) { payload.model_height = mh ? Number(mh) : null; payload.model_size = ms || null; }
       const btn = $('p-save'); btn.disabled = true; btn.textContent = 'Збереження...';
       try {
         const run = (pl) => editId ? db.from('products').update(pl).eq('id', editId) : db.from('products').insert([pl]);
@@ -608,6 +614,12 @@
           const { category, ...rest } = payload;
           ({ error } = await run(rest));
           if (!error && category) toast('Збережено без категорії: виконайте supabase-categories.sql', 'err');
+        }
+        if (error && /model_/i.test(error.message || '')) {
+          // колонок для моделі ще немає в базі — зберігаємо без них
+          const { model_height, model_size, ...rest2 } = payload;
+          ({ error } = await run(rest2));
+          if (!error) toast('Збережено без даних моделі: виконайте supabase-sizes.sql', 'err');
         }
         if (error) throw error;
         resetForm(); await loadProducts(); toast('Збережено');
@@ -629,7 +641,7 @@
       const ed = e.target.closest('[data-edit]'), del = e.target.closest('[data-del]');
       if (ed) {
         const p = products.find(x => Number(x.id) === Number(ed.dataset.edit)); if (!p) return;
-        $('p-id').value = p.id; $('p-name').value = p.name; $('p-sku').value = p.sku || '';
+        $('p-id').value = p.id; $('p-name').value = p.name; $('p-sku').value = p.sku || ''; $('p-mh').value = p.model_height || ''; $('p-ms').value = p.model_size || '';
         $('p-price').value = p.price; $('p-old').value = p.oldPrice || ''; $('p-badge').value = p.badge || ''; $('p-cat').value = p.category || ''; $('p-desc').value = p.desc || '';
         $('p-url').value = ''; pImages = [...getImgs(p)]; renderPreview();
         document.querySelectorAll('input[name="p-size"]').forEach(cb => cb.checked = (p.sizes || ['S', 'M', 'L']).includes(cb.value));
