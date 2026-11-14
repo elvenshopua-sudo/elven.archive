@@ -556,6 +556,8 @@
                   <p id="pm-size-cur" class="text-[11px] uppercase tracking-wider text-black dark:text-white font-semibold"></p>
                 </div>
                 <div id="pm-sizes" class="relative flex gap-2"></div>
+                <p id="pm-model" class="hidden mt-3 text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed"></p>
+                <button type="button" id="pm-sg-open" class="mt-3 text-[11px] uppercase tracking-wider underline underline-offset-4 text-zinc-500 hover:text-black dark:hover:text-white">Таблиця розмірів · Підібрати розмір</button>
               </div>
               <div class="pm-st hidden lg:block">
                 <button type="button" class="pm-add btn-shine w-full h-14 bg-black dark:bg-white text-white dark:text-black font-semibold text-xs uppercase tracking-ultra"><span class="lbl">Додати в кошик</span></button>
@@ -880,6 +882,45 @@
     .g-go + .g-go { margin-top: .6rem; }
     .g-go.ghost { background: transparent; color: #e4e4e7; border: 1px solid #3f3f46; }
     .g-big { font-size: 4rem; font-weight: 200; line-height: 1; margin: .6rem 0 .3rem; }
+
+    /* таблиця розмірів і підбір */
+    #sg { position: fixed; inset: 0; z-index: 95; display: none; align-items: flex-end; justify-content: center; background: rgba(0,0,0,.62); }
+    #sg.on { display: flex; }
+    @media (min-width: 640px) { #sg { align-items: center; } }
+    .sgc { background: #fff; color: #09090b; width: 100%; max-width: 560px; max-height: 92dvh; overflow: auto; padding: 1.3rem 1.2rem 1.5rem; position: relative; }
+    .dark .sgc { background: #09090b; color: #fff; border: 1px solid #27272a; }
+    .sgc h3 { font-size: 1.15rem; font-weight: 200; letter-spacing: .22em; text-transform: uppercase; padding-right: 2.5rem; }
+    .sgx { position: absolute; top: .7rem; right: .7rem; width: 40px; height: 40px; font-size: 16px; border: 1px solid #d4d4d8; }
+    .dark .sgx { border-color: #3f3f46; }
+    .sgt { display: flex; gap: 0; margin: 1rem 0 1.1rem; border-bottom: 1px solid #e4e4e7; }
+    .dark .sgt { border-color: #27272a; }
+    .sgt button { padding: .7rem 1rem; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: #71717a; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+    .sgt button.on { color: inherit; border-color: currentColor; font-weight: 600; }
+    .sg-tb { width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; margin: .4rem 0 1.1rem; }
+    .sg-tb th, .sg-tb td { border: 1px solid #e4e4e7; padding: .5rem .3rem; }
+    .dark .sg-tb th, .dark .sg-tb td { border-color: #27272a; }
+    .sg-tb th { font-weight: 600; background: rgba(0,0,0,.04); }
+    .dark .sg-tb th { background: rgba(255,255,255,.06); }
+    .sg-tb td:first-child, .sg-tb th:first-child { text-align: left; font-size: 11px; color: #52525b; }
+    .dark .sg-tb td:first-child { color: #a1a1aa; }
+    .sg-tb .hl { background: #000; color: #fff; }
+    .dark .sg-tb .hl { background: #fff; color: #000; }
+    .sg-cap { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: #71717a; margin-top: .6rem; }
+    .sg-note { font-size: 11px; color: #71717a; line-height: 1.6; }
+    .sgc button, .sgc input, .sgc select { font-family: inherit; color: inherit; background: transparent; cursor: pointer; box-sizing: border-box; }
+    .sgc input { cursor: text; }
+    .sgt button { border: 0; border-bottom: 2px solid transparent; }
+    .sgt button.on { border-bottom-color: currentColor; }
+    .sg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+    .sg-grid label { min-width: 0; }
+    .sg-in { width: 100%; box-sizing: border-box; border-radius: 0; padding: .75rem .8rem; border: 1px solid #d4d4d8; background: transparent; font-size: 16px; }
+    .dark .sg-in { border-color: #3f3f46; }
+    .sg-res { border: 1px solid #d4d4d8; padding: 1rem; margin-top: 1rem; }
+    .dark .sg-res { border-color: #3f3f46; }
+    .sg-big { font-size: 2.6rem; font-weight: 200; letter-spacing: .08em; line-height: 1; }
+    .sgc .sg-btn { width: 100%; padding: .9rem; border: 0; background: #000; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
+    .dark .sgc .sg-btn { background: #fff; color: #000; }
+    .sgc .sg-btn.ghost { background: transparent; color: inherit; border: 1px solid #a1a1aa; margin-top: .5rem; }
   </style>
 
   <script>
@@ -1188,6 +1229,7 @@
       curProduct = p; curImgs = getImgs(p);
       const sizes = (p.sizes && p.sizes.length) ? p.sizes : ['S', 'M', 'L'];
       curSize = sizes[0];
+      sgUpdate(p);
       if (!curList.length) curList = products.slice();
       const idx = curList.findIndex(x => Number(x.id) === Number(p.id));
       $('pm-counter').textContent = idx >= 0 ? `${pad2(idx + 1)} / ${pad2(curList.length)}` : '—';
@@ -2611,6 +2653,93 @@
       snd();
       window.__elvenGame = { open, close, peek: () => ({ items, bag, state, score, lives }) };
     })();
-  </script>
+  
+
+    /* ---------- Таблиця розмірів і підбір розміру ---------- */
+    // Дані з розмірної сітки виробника. Виміри в см, виріб лежить рівно, «півобхват» = половина обхвату.
+    const SG = {
+      ord: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'], ua: ['С', 'М', 'Л', 'ХЛ', '2ХЛ', '3ХЛ'],
+      top: { title: 'Кофта, худі, верх костюма', rows: [['Довжина виробу', [71, 72, 73, 73, 75, 77]], ['Півобхват грудей', [59, 60, 62, 65, 67, 69]], ['Довжина рукава', [62, 62, 64, 65, 67, 69]]] },
+      bottom: { title: 'Штани, низ костюма', rows: [['Довжина штанів', [101, 103, 103, 104, 106, 107]], ['Півобхват стегон', [54, 56, 59, 62, 64, 66]]] },
+      guide: [['S', 'до 165', 'близько 50'], ['M', '175', '75–80'], ['L', '180–185', 'близько 85'], ['XL', 'близько 185', 'близько 95'], ['XXL', 'близько 190', '100–105'], ['XXXL', '190–195', '110–115']],
+      wt: [63.75, 81.25, 90, 98.75, 107.5], ht: [170, 178.75, 183.75, 187.5, 191.25]   // межі між сусідніми розмірами (середини між опорними точками таблиці)
+    };
+    const SG_CATS = { suits: ['top', 'bottom'], sets: ['top', 'bottom'], hoodies: ['top'], sweatshirts: ['top'], pants: ['bottom'], shorts: [], tshirts: [], outerwear: [], thermal: [], accessories: null };
+    const sgNorm = (x) => { x = String(x || '').toUpperCase().replace(/\s/g, ''); return x === '3XL' ? 'XXXL' : x === '2XL' ? 'XXL' : x; };
+    const sgIdx = (v, th) => { let i = 0; while (i < th.length && v > th[i]) i++; return i; };
+    let sgProd = null, sgHl = -1;
+
+    function sgUpdate(p) {
+      sgProd = p;
+      const b = $('pm-sg-open'); if (b) b.classList.toggle('hidden', SG_CATS[p.category] === null);
+      const m = $('pm-model'), h = Number(p.model_height), sz = String(p.model_size || '').trim();
+      if (m) { if (h > 0 && sz) { m.innerHTML = `Зріст моделі на фото: <b>${h} см</b> · розмір на моделі: <b>${esc(sz)}</b>`; m.classList.remove('hidden'); } else { m.classList.add('hidden'); m.textContent = ''; } }
+    }
+
+    function sgTable(key) {
+      const t = SG[key];
+      return `<p class="sg-cap">${t.title}</p><table class="sg-tb"><tr><th></th>${SG.ord.map((z, i) => `<th class="${i === sgHl ? 'hl' : ''}">${z}<br><span style="font-weight:400;font-size:10px;opacity:.7">${SG.ua[i]}</span></th>`).join('')}</tr>` +
+        t.rows.map(r => `<tr><td>${r[0]}</td>${r[1].map((v, i) => `<td class="${i === sgHl ? 'hl' : ''}">${v}</td>`).join('')}</tr>`).join('') + '</table>';
+    }
+    function sgTables() {
+      const keys = SG_CATS[sgProd.category] || [];
+      const g = `<p class="sg-cap">Зріст і вага (орієнтир)</p><table class="sg-tb"><tr><th>Розмір</th><th>Зріст, см</th><th>Вага, кг</th></tr>${SG.guide.map((r, i) => `<tr><td class="${i === sgHl ? 'hl' : ''}" style="font-weight:600">${r[0]}</td><td class="${i === sgHl ? 'hl' : ''}">${r[1]}</td><td class="${i === sgHl ? 'hl' : ''}">${r[2]}</td></tr>`).join('')}</table>`;
+      const note = `<p class="sg-note">Виміри виробу в сантиметрах (виріб лежить рівно), допуск ±1–2 см. «Півобхват» — половина обхвату: щоб отримати повний обхват, помножте на 2.` +
+        (keys.length ? '' : ' Для цього типу виробів таблиці вимірів ми поки не маємо, тому даємо лише орієнтир за зростом і вагою. Напишіть нам, якщо потрібні точні розміри.') + '</p>';
+      return keys.map(sgTable).join('') + g + note;
+    }
+
+    function sgCalc() {
+      const h = Number($('sg-h').value), w = Number($('sg-w').value), loose = $('sg-fit').value === 'loose', out = $('sg-out');
+      sgHl = -1;
+      if (!(h > 0) || !(w > 0)) { out.innerHTML = '<p class="sg-note">Вкажіть зріст і вагу.</p>'; return; }
+      if (h < 150 || h > 205 || w < 40 || w > 140) { out.innerHTML = '<div class="sg-res"><p class="sg-note" style="font-size:12px">Ваші параметри виходять за межі нашої таблиці (зріст 150–205 см, вага 40–140 кг). Напишіть нам в Instagram <b>@elven_archive</b>: підкажемо індивідуально.</p></div>'; return; }
+      const a = sgIdx(h, SG.ht), b = sgIdx(w, SG.wt), lo = Math.min(a, b), hi = Math.max(a, b);
+      if (hi - lo >= 2) {
+        out.innerHTML = `<div class="sg-res"><p style="font-size:13px;line-height:1.6">За зростом вам підходить <b>${SG.ord[a]}</b>, а за вагою — <b>${SG.ord[b]}</b>. Таблиця не дає однозначної відповіді для такої комбінації. Напишіть нам в Instagram <b>@elven_archive</b> зі зростом, вагою та улюбленим розміром, і ми підкажемо.</p></div>`; return;
+      }
+      let t = hi - lo === 1 ? hi : a; if (loose) t = Math.min(SG.ord.length - 1, t + 1);
+      let rec = SG.ord[t]; let note = '';
+      const avail = ((sgProd && sgProd.sizes && sgProd.sizes.length) ? sgProd.sizes : ['S', 'M', 'L']).map(sgNorm).filter(x => SG.ord.includes(x));
+      if (avail.length && !avail.includes(rec)) {
+        const alt = avail.slice().sort((x, y) => Math.abs(SG.ord.indexOf(x) - t) - Math.abs(SG.ord.indexOf(y) - t) || SG.ord.indexOf(y) - SG.ord.indexOf(x))[0];
+        note = `Розміру ${rec} для цього товару немає, найближчий доступний: <b>${alt}</b>.`; rec = alt; t = SG.ord.indexOf(alt);
+      }
+      sgHl = t;
+      const keys = SG_CATS[sgProd && sgProd.category] || [];
+      const meas = keys.map(k => SG[k].rows.map(r => `${r[0].toLowerCase()} ${r[1][t]} см`).join(', ')).join('; ');
+      const between = hi - lo === 1 ? `<p class="sg-note" style="margin-top:.6rem">Ваші параметри між <b>${SG.ord[lo]}</b> і <b>${SG.ord[hi]}</b>. ${loose ? 'Для вільної посадки радимо більший.' : `Для щільнішої посадки можна взяти ${SG.ord[lo]}, для вільнішої — ${SG.ord[hi]}.`}</p>` : '';
+      out.innerHTML = `<div class="sg-res"><p class="sg-cap" style="margin:0 0 .4rem">Рекомендуємо</p><div class="sg-big">${rec}</div>${meas ? `<p class="sg-note" style="margin-top:.5rem">Параметри виробу: ${meas}.</p>` : ''}${note ? `<p class="sg-note" style="margin-top:.5rem">${note}</p>` : ''}${between}` +
+        `<button type="button" class="sg-btn" id="sg-pick" style="margin-top:1rem">Вибрати розмір ${rec}</button></div><p class="sg-note" style="margin-top:.8rem">Це орієнтир за таблицею виробника: у людей з однаковими зростом і вагою фігура може відрізнятися. Сумніваєтесь між двома розмірами? Обмін 14 днів.</p>`;
+      $('sg-pick').onclick = () => { const btn = Array.from(document.querySelectorAll('#pm-sizes .sz')).find(x => sgNorm(x.dataset.size) === rec); if (btn) btn.click(); sgClose(); };
+      $('sg-tables').innerHTML = sgTables();
+    }
+
+    function sgTab(name) {
+      document.querySelectorAll('#sg .sgt button').forEach(x => x.classList.toggle('on', x.dataset.tab === name));
+      $('sg-calc').style.display = name === 'calc' ? '' : 'none'; $('sg-tabl').style.display = name === 'tabl' ? '' : 'none';
+      if (name === 'tabl') { sgHl = -1; $('sg-tables2').innerHTML = sgTables(); }
+    }
+    function sgClose() { const m = $('sg'); if (m) m.classList.remove('on'); }
+    function sgOpen() {
+      if (!sgProd) return;
+      let m = $('sg');
+      if (!m) {
+        m = document.createElement('div'); m.id = 'sg'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-label', 'Таблиця розмірів');
+        m.innerHTML = `<div class="sgc"><button type="button" class="sgx" aria-label="Закрити">✕</button><h3>Розмір</h3>
+          <div class="sgt"><button type="button" data-tab="calc" class="on">Підібрати</button><button type="button" data-tab="tabl">Таблиця</button></div>
+          <div id="sg-calc"><div class="sg-grid"><label class="sg-note">Зріст, см<input id="sg-h" class="sg-in" type="number" inputmode="numeric" min="140" max="220" placeholder="напр. 178"></label><label class="sg-note">Вага, кг<input id="sg-w" class="sg-in" type="number" inputmode="numeric" min="30" max="200" placeholder="напр. 76"></label></div>
+          <label class="sg-note" style="display:block;margin-top:.8rem">Посадка<select id="sg-fit" class="sg-in"><option value="normal">Як зазвичай</option><option value="loose">Вільніше (оверсайз)</option></select></label>
+          <button type="button" class="sg-btn" id="sg-go" style="margin-top:1rem">Підібрати розмір</button><div id="sg-out"></div><div id="sg-tables"></div></div>
+          <div id="sg-tabl" style="display:none"><div id="sg-tables2"></div></div></div>`;
+        document.body.appendChild(m);
+        m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.sgx')) sgClose(); const tb = e.target.closest('.sgt button'); if (tb) sgTab(tb.dataset.tab); });
+        $('sg-go').onclick = sgCalc;
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('sg').classList.contains('on')) { sgClose(); e.stopPropagation(); } }, true);
+      }
+      sgHl = -1; $('sg-out').innerHTML = ''; $('sg-tables').innerHTML = ''; sgTab('calc'); m.classList.add('on');
+    }
+    document.addEventListener('click', (e) => { if (e.target.closest('#pm-sg-open')) sgOpen(); });
+</script>
 </body>
 </html>
