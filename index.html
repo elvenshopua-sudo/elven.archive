@@ -11,6 +11,11 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="ELVÉN">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#09090b">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="ELVÉN">
@@ -921,6 +926,17 @@
     .sgc .sg-btn { width: 100%; padding: .9rem; border: 0; background: #000; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
     .dark .sgc .sg-btn { background: #fff; color: #000; }
     .sgc .sg-btn.ghost { background: transparent; color: inherit; border: 1px solid #a1a1aa; margin-top: .5rem; }
+
+    /* встановлення додатка */
+    #pwa-pill { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 40; max-width: 420px; margin: 0 auto; display: none; align-items: center; gap: .8rem; padding: .8rem .9rem; background: #09090b; color: #fff; border: 1px solid #3f3f46; box-shadow: 0 10px 30px rgba(0,0,0,.4); }
+    #pwa-pill.on { display: flex; }
+    #pwa-pill img { width: 40px; height: 40px; flex: 0 0 auto; }
+    #pwa-pill .t { flex: 1; min-width: 0; font-size: 12px; line-height: 1.4; }
+    #pwa-pill .t b { display: block; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; }
+    #pwa-pill .t span { color: #a1a1aa; }
+    #pwa-pill button { font-family: inherit; cursor: pointer; }
+    #pwa-pill .go { padding: .6rem .9rem; background: #fff; color: #000; border: 0; font-size: 10px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
+    #pwa-pill .x { width: 32px; height: 32px; background: transparent; color: #a1a1aa; border: 0; font-size: 15px; }
   </style>
 
   <script>
@@ -2689,6 +2705,33 @@
       return keys.map(sgTable).join('') + g + note;
     }
 
+
+    // Схема: де на зрості користувача закінчуються кофта і штани (лише довжина, без припущень про фігуру).
+    // Орієнтири пропорцій дорослої людини: плечі ≈ 0.82 зросту, талія ≈ 0.60, низ тулуба ≈ 0.47, коліно ≈ 0.28.
+    function sgFigure(h, t, keys) {
+      const Y = (cm) => 252 - cm / h * 236, M = (r) => SG[r.k].rows[r.i][1][t];
+      const lines = []; let svg = `<svg viewBox="0 0 150 262" width="150" height="262" style="display:block;margin:0 auto" aria-hidden="true">`;
+      const sh = .82 * h, wa = .6 * h, cr = .47 * h, kn = .28 * h;
+      svg += `<g stroke="currentColor" stroke-width="1.4" fill="none" opacity=".55" stroke-linecap="round" stroke-linejoin="round"><circle cx="75" cy="${Y(.93 * h)}" r="${.065 * h / h * 236}"/>`
+        + `<path d="M58 ${Y(sh)} L92 ${Y(sh)} L90 ${Y(wa)} L86 ${Y(cr)} M58 ${Y(sh)} L60 ${Y(wa)} L64 ${Y(cr)}"/>`
+        + `<path d="M64 ${Y(cr)} L62 ${Y(kn)} L61 ${Y(.04 * h)} M86 ${Y(cr)} L88 ${Y(kn)} L89 ${Y(.04 * h)}"/>`
+        + `<path d="M58 ${Y(sh)} L48 ${Y(.62 * h)} L46 ${Y(.46 * h)} M92 ${Y(sh)} L102 ${Y(.62 * h)} L104 ${Y(.46 * h)}"/></g>`;
+      if (keys.includes('bottom')) {
+        const len = SG.bottom.rows[0][1][t], end = wa - len;
+        svg += `<g fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="1.2"><path d="M60 ${Y(wa)} L90 ${Y(wa)} L92 ${Y(Math.max(end, 0))} L77 ${Y(Math.max(end, 0))} L75 ${Y(cr - 4)} L73 ${Y(Math.max(end, 0))} L58 ${Y(Math.max(end, 0))} Z"/></g>`;
+        lines.push(end < -.02 * h ? `Штани довжиною ${len} см для вашого зросту довгуваті: кінці лягатимуть на взуття, можливий підгин.` : end < .04 * h ? `Штани довжиною ${len} см сягатимуть майже до підлоги, закриваючи взуття.` : end < .09 * h ? `Штани довжиною ${len} см закінчаться біля щиколотки.` : `Штани довжиною ${len} см будуть вище щиколотки, вкорочена довжина.`);
+      }
+      if (keys.includes('top')) {
+        const len = SG.top.rows[0][1][t], hem = sh - len, slv = SG.top.rows[2][1][t];
+        svg += `<g fill="currentColor" fill-opacity=".28" stroke="currentColor" stroke-width="1.2"><path d="M56 ${Y(sh)} L94 ${Y(sh)} L96 ${Y(hem)} L54 ${Y(hem)} Z"/></g>`
+          + `<line x1="20" x2="130" y1="${Y(hem)}" y2="${Y(hem)}" stroke="currentColor" stroke-dasharray="3 3" stroke-width="1"/><text x="105" y="${Y(hem) + 11}" font-size="7.5" fill="currentColor">низ кофти</text>`;
+        lines.push(hem > .56 * h ? `Кофта довжиною ${len} см вийде короткою: до пояса.` : hem > cr ? `Кофта довжиною ${len} см закриє сідниці (класична довжина).` : hem > .4 * h ? `Кофта довжиною ${len} см опуститься нижче сідниць (довша, оверсайз посадка).` : `Кофта довжиною ${len} см дійде приблизно до середини стегна (дуже довга).`);
+        const arm = (sh - .46 * h) + .02 * h; lines.push(slv > arm + 6 ? `Рукав ${slv} см може бути довшим за вашу руку: можливі складки на манжетах.` : slv < arm - 8 ? `Рукав ${slv} см вийде коротшим: нижче зап'ястя може не дістати.` : `Рукав ${slv} см приблизно відповідає довжині руки.`);
+      }
+      svg += `<line x1="10" x2="140" y1="252" y2="252" stroke="currentColor" opacity=".3"/></svg>`;
+      return `<div style="margin-top:1rem">${svg}<p class="sg-note" style="margin-top:.5rem">${lines.join(' ')}</p><p class="sg-note" style="margin-top:.4rem">Схема показує лише довжину на зрості ${h} см. Ширину й посадку по фігурі вона не показує: орієнтуйтеся на півобхват у таблиці.</p></div>`;
+    }
+
     function sgCalc() {
       const h = Number($('sg-h').value), w = Number($('sg-w').value), loose = $('sg-fit').value === 'loose', out = $('sg-out');
       sgHl = -1;
@@ -2710,7 +2753,7 @@
       const meas = keys.map(k => SG[k].rows.map(r => `${r[0].toLowerCase()} ${r[1][t]} см`).join(', ')).join('; ');
       const between = hi - lo === 1 ? `<p class="sg-note" style="margin-top:.6rem">Ваші параметри між <b>${SG.ord[lo]}</b> і <b>${SG.ord[hi]}</b>. ${loose ? 'Для вільної посадки радимо більший.' : `Для щільнішої посадки можна взяти ${SG.ord[lo]}, для вільнішої — ${SG.ord[hi]}.`}</p>` : '';
       out.innerHTML = `<div class="sg-res"><p class="sg-cap" style="margin:0 0 .4rem">Рекомендуємо</p><div class="sg-big">${rec}</div>${meas ? `<p class="sg-note" style="margin-top:.5rem">Параметри виробу: ${meas}.</p>` : ''}${note ? `<p class="sg-note" style="margin-top:.5rem">${note}</p>` : ''}${between}` +
-        `<button type="button" class="sg-btn" id="sg-pick" style="margin-top:1rem">Вибрати розмір ${rec}</button></div><p class="sg-note" style="margin-top:.8rem">Це орієнтир за таблицею виробника: у людей з однаковими зростом і вагою фігура може відрізнятися. Сумніваєтесь між двома розмірами? Обмін 14 днів.</p>`;
+        `<button type="button" class="sg-btn" id="sg-pick" style="margin-top:1rem">Вибрати розмір ${rec}</button></div>${keys.length ? sgFigure(h, t, keys) : ''}<p class="sg-note" style="margin-top:.8rem">Це орієнтир за таблицею виробника: у людей з однаковими зростом і вагою фігура може відрізнятися. Сумніваєтесь між двома розмірами? Обмін 14 днів.</p>`;
       $('sg-pick').onclick = () => { const btn = Array.from(document.querySelectorAll('#pm-sizes .sz')).find(x => sgNorm(x.dataset.size) === rec); if (btn) btn.click(); sgClose(); };
       $('sg-tables').innerHTML = sgTables();
     }
@@ -2740,6 +2783,28 @@
       sgHl = -1; $('sg-out').innerHTML = ''; $('sg-tables').innerHTML = ''; sgTab('calc'); m.classList.add('on');
     }
     document.addEventListener('click', (e) => { if (e.target.closest('#pm-sg-open')) sgOpen(); });
+
+    /* ---------- Додаток (PWA): service worker + підказка «Встановити» ---------- */
+    (function () {
+      if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+      const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      const store = { get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
+      if (standalone) return;
+      const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !/crios|fxios/i.test(navigator.userAgent);
+      let deferred = null, pill = null;
+      const mk = (text, btn) => {
+        if (pill || store.get('elven_pwa_x')) return;
+        pill = document.createElement('div'); pill.id = 'pwa-pill';
+        pill.innerHTML = `<img src="/favicon-192.png" alt=""><div class="t"><b>Додаток ELVÉN</b><span>${text}</span></div>${btn ? '<button type="button" class="go">Встановити</button>' : ''}<button type="button" class="x" aria-label="Закрити">✕</button>`;
+        document.body.appendChild(pill); setTimeout(() => pill && pill.classList.add('on'), 20000);
+        pill.querySelector('.x').onclick = () => { pill.classList.remove('on'); store.set('elven_pwa_x', '1'); };
+        const go = pill.querySelector('.go');
+        if (go) go.onclick = async () => { pill.classList.remove('on'); if (deferred) { deferred.prompt(); try { await deferred.userChoice; } catch (e) {} deferred = null; } store.set('elven_pwa_x', '1'); };
+      };
+      window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferred = e; mk('Швидкий доступ з головного екрана', true); });
+      window.addEventListener('appinstalled', () => { if (pill) pill.classList.remove('on'); store.set('elven_pwa_x', '1'); });
+      if (ios) window.addEventListener('load', () => mk('Натисніть «Поділитись» і виберіть «На початковий екран»', false));
+    })();
 </script>
 </body>
 </html>
