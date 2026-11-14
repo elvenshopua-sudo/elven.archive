@@ -1601,7 +1601,7 @@
       // 2) повідомлення в Telegram: через сервер (токен бота на сайті не зберігається)
       let tgOk = false;
       if (saved && orderNo) {
-        try { const { data: r } = await db.functions.invoke('notify-order', { body: { order_no: orderNo } }); tgOk = !!(r && r.ok); } catch (err) {}
+        try { const { data: r } = await db.functions.invoke('swift-worker', { body: { order_no: orderNo } }); tgOk = !!(r && r.ok); } catch (err) {}
       }
 
       if (!saved) { toast('Не вдалося відправити. Спробуйте ще раз', 'err'); restore(); return; }
