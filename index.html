@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <script>try{if(!sessionStorage.getItem('elven_pre')){document.documentElement.classList.add('preloading')}}catch(e){}</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <script>try{if(matchMedia('(display-mode: standalone)').matches||navigator.standalone)document.documentElement.classList.add('standalone')}catch(e){}</script>
   <meta name="theme-color" content="#09090b">
   <title>ELVÉN | Official Store</title>
   <link rel="icon" href="/favicon.ico" sizes="any">
@@ -937,7 +938,54 @@
     #pwa-pill button { font-family: inherit; cursor: pointer; }
     #pwa-pill .go { padding: .6rem .9rem; background: #fff; color: #000; border: 0; font-size: 10px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
     #pwa-pill .x { width: 32px; height: 32px; background: transparent; color: #a1a1aa; border: 0; font-size: 15px; }
+
+    /* режим додатка (встановлений на головний екран) */
+    html.standalone { --sat: env(safe-area-inset-top, 0px); --sab: env(safe-area-inset-bottom, 0px); }
+    html.standalone body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; height: var(--sat); background: #09090b; z-index: 2147483000; pointer-events: none; }
+    html.standalone header { padding-top: var(--sat); }
+    html.standalone .drawer { padding-top: var(--sat); }
+    html.standalone body { padding-bottom: calc(58px + var(--sab)); -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+    html.standalone input, html.standalone textarea, html.standalone select { -webkit-user-select: text; user-select: text; }
+    html.standalone #ig-fab { bottom: calc(70px + var(--sab)); }
+    html.standalone #pwa-pill { display: none !important; }
+    #tabbar { display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 35; grid-template-columns: repeat(4, 1fr); padding-bottom: var(--sab, 0px); background: rgba(255,255,255,.92); border-top: 1px solid #e4e4e7; -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+    .dark #tabbar { background: rgba(9,9,11,.92); border-color: #27272a; }
+    html.standalone #tabbar { display: grid; }
+    #tabbar button { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; height: 56px; background: none; border: 0; color: #71717a; font: 600 9px Inter, system-ui, sans-serif; letter-spacing: .14em; text-transform: uppercase; cursor: pointer; }
+    #tabbar button:active { color: #000; transform: scale(.94); }
+    .dark #tabbar button:active { color: #fff; }
+    #tabbar svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    #tabbar .bd { position: absolute; top: 5px; left: calc(50% + 6px); min-width: 15px; height: 15px; padding: 0 4px; border-radius: 8px; background: #000; color: #fff; font-size: 9px; line-height: 15px; letter-spacing: 0; display: none; }
+    .dark #tabbar .bd { background: #fff; color: #000; }
+    /* екран «немає зв'язку» */
+    #net { position: fixed; inset: 0; z-index: 2147483100; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 22px; text-align: center; padding: 24px; background: #09090b; color: #fff; }
+    #net.on { display: flex; }
+    #net h4 { font-weight: 200; letter-spacing: .35em; padding-left: .35em; margin: 0; font-size: 13px; text-transform: uppercase; }
+    #net p { color: #a1a1aa; font-size: 13px; line-height: 1.6; margin: 0; max-width: 290px; }
+    #net button { padding: 13px 24px; border: 1px solid #52525b; background: transparent; color: #fff; font: 600 10px Inter, system-ui, sans-serif; letter-spacing: .2em; text-transform: uppercase; cursor: pointer; }
+    .nl{display:block}.nr{transform-origin:100px 100px;animation:nrot 1.5s linear infinite}@keyframes nrot{to{transform:rotate(360deg)}}
+    .p{opacity:0;animation:nassemble 3.8s cubic-bezier(.6,0,.3,1) infinite}
+    @keyframes nassemble{0%{opacity:0;transform:translate(var(--x),var(--y))}28%,62%{opacity:1;transform:none}90%,100%{opacity:0;transform:translate(calc(var(--x) * -1),calc(var(--y) * -1))}}
+    @media (prefers-reduced-motion:reduce){.nr{animation-duration:4s}.p{animation:none;opacity:1}}
   </style>
+
+  
+  <nav id="tabbar" aria-label="Меню додатка">
+    <button type="button" data-tab="home"><svg viewBox="0 0 24 24"><path d="M3.5 11 12 4l8.5 7M5.5 9.5V20h13V9.5"/></svg>Головна</button>
+    <button type="button" data-tab="catalog"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5"/><rect x="13.5" y="4" width="6.5" height="6.5"/><rect x="4" y="13.5" width="6.5" height="6.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5"/></svg>Каталог</button>
+    <button type="button" data-tab="cart"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>Кошик<span class="bd" id="tab-bd"></span></button>
+    <button type="button" data-tab="acc"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.7"/><path d="M4.5 20c.8-3.8 3.7-5.6 7.5-5.6s6.7 1.8 7.5 5.6"/></svg>Акаунт</button>
+  </nav>
+  <div id="net" role="alert"><svg class="nl" viewBox="0 0 200 200" width="190" height="190" aria-hidden="true">
+  <circle cx="100" cy="100" r="92" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="3"/>
+  <circle class="nr" cx="100" cy="100" r="92" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-dasharray="150 430"/>
+  <g transform="translate(100 100) scale(.4) translate(-261 -221)" fill="#fff" stroke="#fff">
+    <rect class="p" style="--x:-260px;--y:0" x="168" y="138" width="22" height="236" stroke="none"/>
+    <rect class="p" style="--x:260px;--y:-120px;animation-delay:.12s" x="168" y="138" width="187" height="22" stroke="none"/>
+    <rect class="p" style="--x:260px;--y:60px;animation-delay:.24s" x="168" y="244" width="165" height="22" stroke="none"/>
+    <rect class="p" style="--x:-200px;--y:200px;animation-delay:.36s" x="168" y="352" width="187" height="22" stroke="none"/>
+    <line class="p" style="--x:120px;--y:-260px;animation-delay:.48s" x1="232" y1="106" x2="282" y2="70" stroke-width="22" fill="none"/>
+  </g></svg><h4>Підключення…</h4><p>Немає інтернету. Підключимось автоматично, щойно з'явиться мережа.</p><button type="button" id="net-skip">Продовжити без зв'язку</button></div>
 
   <script>
     const SUPABASE_URL = 'https://tbkrdfspdozxdiptcmgi.supabase.co';
@@ -2804,6 +2852,31 @@
       window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferred = e; mk('Швидкий доступ з головного екрана', true); });
       window.addEventListener('appinstalled', () => { if (pill) pill.classList.remove('on'); store.set('elven_pwa_x', '1'); });
       if (ios) window.addEventListener('load', () => mk('Натисніть «Поділитись» і виберіть «На початковий екран»', false));
+    })();
+
+    /* ---------- Режим додатка: нижнє меню й екран «Підключення…» ---------- */
+    (function () {
+      const standalone = document.documentElement.classList.contains('standalone');
+      const bar = document.getElementById('tabbar'), net = document.getElementById('net');
+      if (bar) {
+        bar.addEventListener('click', (e) => {
+          const b = e.target.closest('button[data-tab]'); if (!b) return; const t = b.dataset.tab;
+          if (t === 'home') window.scrollTo({ top: 0, behavior: 'smooth' });
+          else if (t === 'catalog') { const c = document.getElementById('catalog'); if (c) c.scrollIntoView({ behavior: 'smooth' }); }
+          else if (t === 'cart') document.getElementById('cart-btn').click();
+          else if (t === 'acc') document.getElementById('acc-btn').click();
+        });
+        const cc = document.getElementById('cart-count'), bd = document.getElementById('tab-bd');
+        const sync = () => { const n = parseInt(cc.textContent, 10) || 0; bd.textContent = n; bd.style.display = n ? 'block' : 'none'; };
+        if (cc && bd) { sync(); new MutationObserver(sync).observe(cc, { childList: true, characterData: true, subtree: true }); }
+      }
+      if (!standalone || !net) return;
+      let skipped = false;
+      const show = () => { if (!skipped) net.classList.add('on'); };
+      const hide = () => { if (net.classList.contains('on')) { net.classList.remove('on'); try { toast('Зв\'язок відновлено'); } catch (e) {} } skipped = false; };
+      window.addEventListener('offline', show); window.addEventListener('online', hide);
+      document.getElementById('net-skip').onclick = () => { skipped = true; net.classList.remove('on'); };
+      if (navigator.onLine === false) show();
     })();
 </script>
 </body>

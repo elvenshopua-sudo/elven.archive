@@ -1,6 +1,6 @@
 /* ELVÉN: service worker. Мережа в пріоритеті (щоб ціни й товари завжди були свіжі), кеш лише як запасний варіант.
    Запити до бази (Supabase), Telegram та інші сторонні адреси не кешуються. Змініть VERSION, щоб скинути кеш. */
-const VERSION = 'elven-v1';
+const VERSION = 'elven-v2';
 const SHELL = ['/', '/offline.html', '/favicon-192.png', '/favicon-512.png', '/favicon.svg', '/apple-touch-icon.png'];
 
 self.addEventListener('install', (e) => {
