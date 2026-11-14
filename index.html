@@ -434,7 +434,7 @@
       <!-- ГРА -->
       <section class="max-w-7xl mx-auto px-4 sm:px-8 pt-4">
         <button id="game-promo" type="button" class="gpromo" aria-label="Гра ELVÉN DROP">
-          <span><span class="gk block">Міні-гра</span><span class="gt block">ELVÉN Drop</span><span class="gs block">Лови речі, обходь бомби · 50 очок = квиток на колесо</span></span>
+          <span><span class="gk block">Міні-гра</span><span class="gt block">ELVÉN Drop</span><span class="gs block">Лови речі, обходь бомби · 60 очок = квиток на колесо</span></span>
           <span class="gb">Грати →</span>
         </button>
       </section>
@@ -883,9 +883,6 @@
   </style>
 
   <script>
-    // ⚠️ УВАГА: ці ключі видно кожному відвідувачу сайту. Див. пояснення в чаті.
-    const TELEGRAM_BOT_TOKEN = '9041628328:AAFZiTfZSwnVw51YARVIyKJvxt_o7Kaeyus';
-    const TELEGRAM_CHAT_ID = '-1003781227185';
     const SUPABASE_URL = 'https://tbkrdfspdozxdiptcmgi.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_7-9ZVZfZehf8pr59oYztUQ_3G6EYLfI';
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -1601,22 +1598,13 @@
         // SQL-скрипт ще не виконано — працюємо як раніше (лише Telegram)
       }
 
-      // 2) повідомлення в Telegram
-      const itemsText = cart.map(i =>
-        `• ${esc(i.name)} [${i.sku ? 'Артикул: ' + esc(i.sku) : 'Без артикула'}] — Розмір: <b>${esc(i.size)}</b> × ${i.qty} — ${i.price * i.qty} UAH`).join('\n');
-      const promoLine = saved && promo ? `\n🎁 <b>Промокод:</b> ${esc(promo)}${discount > 0 ? ' (знижка −' + discount + ' UAH)' : ''}${freeShip ? ' — БЕЗКОШТОВНА ДОСТАВКА (оплачуємо ми)' : ''}` : '';
-      const message = `🛍 <b>НОВЕ ЗАМОВЛЕННЯ [ELVÉN]</b>${orderNo ? '\n🧾 <b>№ ' + esc(orderNo) + '</b>' : ''}${profile && profile.public_id ? '\n🆔 <b>Акаунт:</b> ' + esc(profile.public_id) : ''}\n\n👤 <b>Клієнт:</b> ${esc(name)}\n📞 <b>Тел:</b> <a href="tel:+${rawPhone}">${esc(phoneInput.value)}</a>\n💬 <b>Telegram:</b> ${tg ? `<a href="https://t.me/${encodeURIComponent(tg)}">@${esc(tg)}</a>` : 'не вказано'}\n📷 <b>Instagram:</b> ${insta ? `<a href="https://instagram.com/${encodeURIComponent(insta)}">@${esc(insta)}</a>` : 'не вказано'}\n\n📦 <b>Товари:</b>\n${itemsText}${promoLine}\n\n💰 <b>Загалом:</b> ${total} UAH\n\n🚚 <b>Служба:</b> ${esc(delivery)}\n📍 <b>Адреса:</b> ${esc(address)}`;
+      // 2) повідомлення в Telegram: через сервер (токен бота на сайті не зберігається)
       let tgOk = false;
-      try {
-        const ac = new AbortController(); const tm = setTimeout(() => ac.abort(), 8000);
-        const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-          signal: ac.signal, method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: 'HTML', disable_web_page_preview: true })
-        });
-        clearTimeout(tm); tgOk = res.ok;
-      } catch (err) {}
+      if (saved && orderNo) {
+        try { const { data: r } = await db.functions.invoke('notify-order', { body: { order_no: orderNo } }); tgOk = !!(r && r.ok); } catch (err) {}
+      }
 
-      if (!saved && !tgOk) { toast('Не вдалося відправити. Спробуйте ще раз', 'err'); restore(); return; }
+      if (!saved) { toast('Не вдалося відправити. Спробуйте ще раз', 'err'); restore(); return; }
 
       // 3) успіх
       cart = []; saveCart(); updateCartUI(); closeCart(); $('order-form').reset(); updateCartTotals(); restore();
@@ -2417,7 +2405,7 @@
 
     /* ---------- Гра ELVÉN DROP ---------- */
     (function () {
-      const GAME_PRIZE_SCORE = 50;                 // скільки очок дають квиток на колесо
+      const GAME_PRIZE_SCORE = 60;                 // скільки очок дають квиток на колесо
       const DM_URL = 'https://ig.me/m/elven_archive';
       const ICONS = {
         shirt: 'M8 3 2 6l2 5 3-1v11h10V10l3 1 2-5-6-3a4 4 0 0 1-8 0z',
@@ -2459,19 +2447,19 @@
       function resize() {
         dpr = Math.min(window.devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight;
         cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        U = Math.max(26, Math.min(48, Math.min(W, H) / 12)); bag.w = U * 2.7;
+        U = Math.max(26, Math.min(48, Math.min(W, H) / 12)); bag.w = U * 2.2;
         bag.x = Math.min(Math.max(bag.x, bag.w / 2), W - bag.w / 2); bag.tx = bag.x;
       }
       addEventListener('resize', () => { if (root.classList.contains('on')) resize(); });
 
       const GOOD = ['shirt', 'hoodie', 'pants', 'cap'];
       function spawn() {
-        const r = Math.random(), bombP = Math.min(.14 + t / 90, .36);
+        const r = Math.random(), bombP = Math.min(.2 + t / 60, .42);
         let kind = 'good', icon = GOOD[(Math.random() * GOOD.length) | 0];
         if (r < bombP) { kind = 'bomb'; icon = 'bomb'; }
         else if (r > .95) { kind = 'tag'; icon = 'tag'; }
-        const sz = U * (kind === 'bomb' ? 1.0 : 1.1);
-        items.push({ kind, icon, x: sz / 2 + Math.random() * (W - sz), y: -sz, sz, vy: (H * .30 + Math.min(t * 7, H * .38)) * (.9 + Math.random() * .3), rot: (Math.random() - .5) * .8, vr: (Math.random() - .5) * 1.4 });
+        const sz = U * (kind === 'bomb' ? 1.15 : 1.05);
+        items.push({ kind, icon, x: sz / 2 + Math.random() * (W - sz), y: -sz, sz, vy: (H * .34 + Math.min(t * 9, H * .5)) * (.9 + Math.random() * .3), rot: (Math.random() - .5) * .8, vr: (Math.random() - .5) * 1.4 });
       }
       function burst(x, y, n, col) {
         for (let i = 0; i < n; i++) { const a = Math.random() * 6.28, s = 40 + Math.random() * 160; parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 60, l: .5 + Math.random() * .4, c: col }); }
@@ -2527,7 +2515,7 @@
         if (keys.ArrowLeft || keys.a) bag.tx -= sp * dt; if (keys.ArrowRight || keys.d) bag.tx += sp * dt;
         bag.tx = Math.min(Math.max(bag.tx, bag.w / 2), W - bag.w / 2);
         bag.x += (bag.tx - bag.x) * Math.min(1, dt * 18);
-        spawnT -= dt; if (spawnT <= 0) { spawn(); spawnT = Math.max(.26, .8 - t / 55) * (.8 + Math.random() * .5); }
+        spawnT -= dt; if (spawnT <= 0) { spawn(); spawnT = Math.max(.22, .7 - t / 45) * (.8 + Math.random() * .5); }
         if (dbl > 0) dbl -= dt; if (shake > 0) shake -= dt; if (flash > 0) flash -= dt * 2.2;
         for (const it of items) { it.y += it.vy * dt; it.rot += it.vr * dt; }
         const top = bag.top || H * .8;
@@ -2540,7 +2528,7 @@
             } else if (it.kind === 'tag') {
               dbl = 6; score += 5 * (dbl > 0 ? 2 : 1); burst(it.x, top, 24, '#f6d98e'); pop(it.x, top - 20, 'SALE ×2', '#f6d98e'); beep(880, .25, 'triangle', .06, 1320);
             } else {
-              combo++; mult = Math.min(1 + ((combo / 5) | 0), 5); const pts = mult * (dbl > 0 ? 2 : 1); score += pts;
+              combo++; mult = Math.min(1 + ((combo / 8) | 0), 4); const pts = mult * (dbl > 0 ? 2 : 1); score += pts;
               burst(it.x, top, 10, '#ffffff'); pop(it.x, top - 16, '+' + pts, '#ffffff'); beep(520 + mult * 70, .12, 'triangle', .05);
             }
             items.splice(i, 1); hud();
@@ -2621,7 +2609,7 @@
       document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'play') { state = 'idle'; cancelAnimationFrame(raf); card(`<h3>Пауза</h3><p style="margin:1rem 0 1.2rem">Рахунок: ${score}</p><button class="g-go" type="button" data-act="resume">Продовжити</button>`); el('g-card').querySelector('[data-act="resume"]').onclick = () => { el('g-panel').classList.add('off'); state = 'play'; last = performance.now(); raf = requestAnimationFrame(frame); }; } });
       $('game-promo').addEventListener('click', open);
       snd();
-      window.__elvenGame = { open, close };
+      window.__elvenGame = { open, close, peek: () => ({ items, bag, state, score, lives }) };
     })();
   </script>
 </body>
