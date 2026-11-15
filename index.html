@@ -489,12 +489,10 @@
 
     <footer class="border-t border-zinc-100 dark:border-zinc-900 overflow-hidden">
       <div class="max-w-7xl mx-auto px-4 sm:px-8 pt-14">
-        <div class="grid grid-cols-2 sm:grid-cols-5 gap-x-6 gap-y-5 text-[11px] uppercase tracking-widest text-zinc-400">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 text-[11px] uppercase tracking-widest text-zinc-400">
           <a href="#catalog" class="hover:text-black dark:hover:text-white transition">Каталог →</a>
-          <a href="/delivery/" class="hover:text-black dark:hover:text-white transition">Доставка та оплата →</a>
-          <a href="/returns/" class="hover:text-black dark:hover:text-white transition">Обмін та повернення →</a>
-          <a href="/about/" class="hover:text-black dark:hover:text-white transition">Про ELVÉN →</a>
-          <a href="/contacts/" class="hover:text-black dark:hover:text-white transition">Контакти →</a>
+          <a href="#info" class="hover:text-black dark:hover:text-white transition">Доставка та оплата →</a>
+          <a href="#info" class="hover:text-black dark:hover:text-white transition">Обмін та повернення →</a>
         </div>
         <div class="flex justify-center mt-14">
           <a data-ig class="ig-link inline-flex items-center gap-3 text-[11px] uppercase tracking-ultra text-zinc-500 hover:text-black dark:hover:text-white transition" href="https://www.instagram.com/elven_archive/" target="_blank" rel="noopener">
@@ -928,6 +926,74 @@
     .p{opacity:0;animation:nassemble 3.8s cubic-bezier(.6,0,.3,1) infinite}
     @keyframes nassemble{0%{opacity:0;transform:translate(var(--x),var(--y))}28%,62%{opacity:1;transform:none}90%,100%{opacity:0;transform:translate(calc(var(--x) * -1),calc(var(--y) * -1))}}
     @media (prefers-reduced-motion:reduce){.nr{animation-duration:4s}.p{animation:none;opacity:1}}
+      /* ===== ЗИМОВА КОЛЕКЦІЯ ===== */
+    #shop-switch { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-bottom: 1.1rem; }
+    .shop-tab { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: .55rem; padding: 1rem .8rem; border: 1px solid #e4e4e7; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; font-weight: 600; color: #71717a; background: transparent; cursor: pointer; transition: all .3s; }
+    .dark .shop-tab { border-color: #27272a; }
+    .shop-tab:hover { color: #000; border-color: #a1a1aa; }
+    .dark .shop-tab:hover { color: #fff; }
+    .shop-tab.on { background: #000; color: #fff; border-color: #000; }
+    .dark .shop-tab.on { background: #fff; color: #000; border-color: #fff; }
+    .shop-tab.w { color: #3b82c4; border-color: rgba(100,170,230,.45); background: linear-gradient(180deg, rgba(150,205,255,.14), transparent); }
+    .dark .shop-tab.w { color: #a9d6ff; border-color: rgba(150,205,255,.3); }
+    .shop-tab.w.on { background: linear-gradient(135deg, #bfe3ff, #7fc0f5); color: #06223f; border-color: #bfe3ff; box-shadow: 0 0 28px rgba(140,200,255,.35); }
+    .shop-tab i { font-style: normal; opacity: .55; font-size: 9px; letter-spacing: .05em; }
+    .shop-tab .sf { width: 15px; height: 15px; }
+    .shop-tab.w:not(.on) .sf { animation: sfspin 8s linear infinite; }
+    @keyframes sfspin { to { transform: rotate(360deg); } }
+    #snow-cv { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 34; pointer-events: none; display: none; }
+    html.winter #snow-cv { display: block; }
+    #snow-drift { position: fixed; left: 0; right: 0; bottom: var(--sab, 0px); height: 38px; z-index: 33; pointer-events: none; display: none; opacity: .92; }
+    html.winter #snow-drift { display: block; }
+    html.standalone #snow-drift { bottom: calc(56px + var(--sab, 0px)); }
+    html.winter body { background-image: radial-gradient(1100px 520px at 50% -8%, rgba(130,190,255,.17), transparent 62%), radial-gradient(700px 380px at 100% 45%, rgba(170,215,255,.08), transparent 70%); background-attachment: fixed; }
+    html.winter:not(.dark) body { background-image: radial-gradient(1100px 520px at 50% -8%, rgba(120,180,240,.22), transparent 62%), radial-gradient(700px 380px at 100% 45%, rgba(150,200,245,.12), transparent 70%); }
+    html.winter #catalog h2 { background: linear-gradient(90deg, #2c6fae, #7fc0f5 50%, #2c6fae); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    html.winter.dark #catalog h2 { background: linear-gradient(90deg, #fff, #9fd0ff 50%, #fff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    html.winter .card-media { box-shadow: 0 0 0 1px rgba(150,205,255,.18); transition: box-shadow .4s; }
+    html.winter article:hover .card-media { box-shadow: 0 0 0 1px rgba(150,205,255,.5), 0 10px 40px -10px rgba(120,190,255,.45); }
+    html.winter .card-media::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 15px; z-index: 4; pointer-events: none; background: linear-gradient(#fff, #fff) top / 100% 5px no-repeat, radial-gradient(circle at 8% 0, #fff 9px, transparent 10px), radial-gradient(circle at 24% 0, #fff 13px, transparent 14px), radial-gradient(circle at 41% 0, #fff 8px, transparent 9px), radial-gradient(circle at 63% 0, #fff 12px, transparent 13px), radial-gradient(circle at 80% 0, #fff 9px, transparent 10px), radial-gradient(circle at 95% 0, #fff 12px, transparent 13px); filter: drop-shadow(0 2px 2px rgba(80,130,190,.25)); }
+    .snow-hit { position: absolute; right: .5rem; bottom: .5rem; z-index: 12; width: 36px; height: 36px; border-radius: 999px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,.88); color: #2c6fae; border: 1px solid rgba(120,180,235,.5); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); cursor: pointer; transition: transform .15s, background .2s; }
+    .snow-hit:hover { background: #fff; transform: scale(1.1); }
+    .snow-hit:active { transform: scale(.88); }
+    .snow-hit svg { width: 18px; height: 18px; }
+    .splat { position: absolute; z-index: 6; pointer-events: none; width: var(--s); height: var(--s); margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2); border-radius: var(--br); background: radial-gradient(circle at 40% 36%, #fff 0, #fff 52%, rgba(232,244,255,.94) 74%, rgba(232,244,255,0) 100%); box-shadow: var(--dr); filter: drop-shadow(0 1px 2px rgba(70,120,180,.4)); transform: scale(.2); animation: splat .24s cubic-bezier(.2, 1.7, .4, 1) forwards; transition: opacity 1.8s ease, transform 1.8s ease; }
+    .splat.melt { opacity: 0; transform: translateY(14px) scale(1, 1.25); }
+    @keyframes splat { to { transform: scale(1); } }
+    .wob { animation: wob .38s ease; }
+    @keyframes wob { 0% { transform: none; } 20% { transform: translate(-4px, 1px) rotate(-.7deg); } 45% { transform: translate(4px, -1px) rotate(.7deg); } 70% { transform: translate(-2px, 0) rotate(-.3deg); } 100% { transform: none; } }
+    #snow-ui { position: fixed; right: 16px; bottom: calc(var(--sab, 0px) + 56px); z-index: 36; display: none; align-items: center; gap: .55rem; }
+    html.winter #snow-ui { display: flex; }
+    html.standalone #snow-ui { bottom: calc(var(--sab, 0px) + 74px); }
+    #snow-count { display: none; padding: .45rem .8rem; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; font-weight: 600; background: rgba(8,28,52,.88); color: #cfe8ff; border: 1px solid rgba(150,205,255,.35); border-radius: 999px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+    html.snowball-on #snow-count { display: block; }
+    #snow-btn { width: 56px; height: 56px; border-radius: 999px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #cfe9ff, #7fc0f5); color: #06223f; border: 0; cursor: pointer; box-shadow: 0 8px 28px rgba(80,150,220,.5); transition: transform .15s; }
+    #snow-btn:active { transform: scale(.9); }
+    #snow-btn svg { width: 26px; height: 26px; }
+    html.snowball-on #snow-btn { background: #06223f; color: #cfe8ff; box-shadow: 0 0 0 3px #7fc0f5, 0 8px 28px rgba(80,150,220,.6); }
+    html:not(.snowball-on) #snow-btn { animation: snowpulse 2.4s ease-in-out infinite; }
+    @keyframes snowpulse { 0%, 100% { box-shadow: 0 8px 28px rgba(80,150,220,.5), 0 0 0 0 rgba(127,192,245,.5); } 50% { box-shadow: 0 8px 28px rgba(80,150,220,.5), 0 0 0 12px rgba(127,192,245,0); } }
+    html.snowball-on #product-grid, html.snowball-on #product-grid * { cursor: crosshair !important; }
+    @media (prefers-reduced-motion: reduce) { .shop-tab.w .sf, #snow-btn { animation: none !important; } }
+      /* ===== НОВОРІЧНИЙ ДЕКОР ===== */
+    #ny-deco { position: fixed; inset: 0; z-index: 32; pointer-events: none; overflow: hidden; display: none; }
+    html.winter #ny-deco { display: block; }
+    .ny-c { position: absolute; width: 270px; height: 330px; }
+    .ny-c > .in { position: absolute; left: 0; width: 270px; height: 330px; }
+    .ny-br { position: absolute; left: 0; width: 270px; height: 90px; transform-origin: 0 50%; animation: nysway var(--d, 7s) ease-in-out infinite; animation-delay: var(--dl, 0s); filter: drop-shadow(0 6px 8px rgba(20,50,30,.28)); }
+    @keyframes nysway { 0%, 100% { transform: rotate(calc(var(--r) * 1deg - 1.6deg)); } 50% { transform: rotate(calc(var(--r) * 1deg + 1.6deg)); } }
+    .ny-hang { position: absolute; width: 0; height: 0; transform: rotate(calc(var(--r) * -1deg)); }
+    .ny-sw { position: absolute; left: -17px; top: 0; width: 34px; transform-origin: 17px 0; animation: nyswing var(--d, 4s) ease-in-out infinite; animation-delay: var(--dl, 0s); }
+    @keyframes nyswing { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+    .ny-sw i { display: block; width: 1px; margin: 0 auto; background: rgba(120,120,120,.7); }
+    .ny-sw svg { display: block; width: 34px; height: 40px; filter: drop-shadow(0 4px 4px rgba(0,0,0,.28)); }
+    .ny-cane { position: absolute; width: 42px; height: 96px; filter: drop-shadow(0 4px 5px rgba(0,0,0,.25)); animation: nycane 6s ease-in-out infinite; transform-origin: 50% 100%; }
+    @keyframes nycane { 0%, 100% { transform: rotate(calc(var(--r) * 1deg - 3deg)); } 50% { transform: rotate(calc(var(--r) * 1deg + 3deg)); } }
+    #ny-lights { position: absolute; left: 0; right: 0; top: calc(var(--sat, 0px) + 64px); height: 46px; }
+    #ny-lights svg { width: 100%; height: 100%; overflow: visible; }
+    #ny-lights .bulb { animation: nytw 2.2s ease-in-out infinite; }
+    @keyframes nytw { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+    @media (prefers-reduced-motion: reduce) { .ny-br, .ny-sw, .ny-cane, #ny-lights .bulb { animation: none !important; } }
   </style>
 
   
@@ -1055,6 +1121,7 @@
     try { cart = JSON.parse(localStorage.getItem('elven_cart') || '[]'); } catch (e) { cart = []; }
     let activeFilter = '';
     let activeCat = '';
+    let shop = 'main';
     let page = 1;
     let sortMode = 'new';
     const CATS = [
@@ -1088,9 +1155,10 @@
     }
 
     function renderCats() {
-      const cnt = {}; products.forEach(p => { if (p.category) cnt[p.category] = (cnt[p.category] || 0) + 1; });
+      const base = products.filter(p => shop === 'winter' ? p.category === 'winter' : p.category !== 'winter');
+      const cnt = {}; base.forEach(p => { if (p.category) cnt[p.category] = (cnt[p.category] || 0) + 1; });
       if (activeCat && !cnt[activeCat]) activeCat = '';
-      const tabs = [['', 'Усі', products.length]].concat(CATS.filter(c => cnt[c[0]]).map(c => [c[0], c[1], cnt[c[0]]]));
+      const tabs = [['', 'Усі', base.length]].concat(CATS.filter(c => cnt[c[0]]).map(c => [c[0], c[1], cnt[c[0]]]));
       $('cats').innerHTML = tabs.map(t => `<button type="button" role="tab" data-cat="${t[0]}" class="chip chip-c ${t[0] === activeCat ? 'active' : ''}">${esc(t[1])}<i>${t[2]}</i></button>`).join('');
     }
 
@@ -1116,7 +1184,7 @@
     function renderProducts() {
       const grid = $('product-grid');
       renderCats();
-      let list = products.filter(p => (!activeCat || p.category === activeCat) && (!activeFilter || (activeFilter === 'FAV' ? favs.has(Number(p.id)) : p.badge === activeFilter)));
+      let list = products.filter(p => (shop === 'winter' ? p.category === 'winter' : p.category !== 'winter') && (!activeCat || p.category === activeCat) && (!activeFilter || (activeFilter === 'FAV' ? favs.has(Number(p.id)) : p.badge === activeFilter)));
       if (sortMode === 'asc') list.sort((a, b) => a.price - b.price);
       else if (sortMode === 'desc') list.sort((a, b) => b.price - a.price);
       else list.sort((a, b) => Number(b.id) - Number(a.id));
@@ -1132,7 +1200,7 @@
       renderPager(list.length);
 
       if (!list.length) {
-        grid.innerHTML = `<div class="col-span-full text-center py-20 text-zinc-400 text-xs uppercase tracking-widest"><svg class="ic text-3xl mb-4 block mx-auto" aria-hidden="true"><use href="#i-smile"/></svg>${activeFilter === 'FAV' ? 'Ви ще нічого не додали в обране' : 'Тут поки порожньо'}</div>`;
+        grid.innerHTML = `<div class="col-span-full text-center py-20 text-zinc-400 text-xs uppercase tracking-widest"><svg class="ic text-3xl mb-4 block mx-auto" aria-hidden="true"><use href="#i-smile"/></svg>${activeFilter === 'FAV' ? 'Ви ще нічого не додали в обране' : (shop === 'winter' ? 'Зимова колекція скоро з’явиться ❄' : 'Тут поки порожньо')}</div>`;
         return;
       }
 
@@ -2481,7 +2549,7 @@
       guide: [['S', 'до 165', 'близько 50'], ['M', '175', '75–80'], ['L', '180–185', 'близько 85'], ['XL', 'близько 185', 'близько 95'], ['XXL', 'близько 190', '100–105'], ['XXXL', '190–195', '110–115']],
       wt: [63.75, 81.25, 90, 98.75, 107.5], ht: [170, 178.75, 183.75, 187.5, 191.25]   // межі між сусідніми розмірами (середини між опорними точками таблиці)
     };
-    const SG_CATS = { suits: ['top', 'bottom'], sets: ['top', 'bottom'], hoodies: ['top'], sweatshirts: ['top'], pants: ['bottom'], shorts: [], tshirts: [], outerwear: [], thermal: [], accessories: null };
+    const SG_CATS = { suits: ['top', 'bottom'], sets: ['top', 'bottom'], hoodies: ['top'], sweatshirts: ['top'], pants: ['bottom'], shorts: [], tshirts: [], outerwear: [], thermal: [], accessories: null, winter: [] };
     const sgNorm = (x) => { x = String(x || '').toUpperCase().replace(/\s/g, ''); return x === '3XL' ? 'XXXL' : x === '2XL' ? 'XXL' : x; };
     const sgIdx = (v, th) => { let i = 0; while (i < th.length && v > th[i]) i++; return i; };
     let sgProd = null, sgHl = -1;
@@ -2632,5 +2700,251 @@
       if (navigator.onLine === false) show();
     })();
 </script>
+  <script>
+  /* ===== ЗИМОВА КОЛЕКЦІЯ: сніг + сніжки ===== */
+  (function () {
+    const root = document.documentElement;
+    const SF = (c) => `<svg class="${c || 'sf'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7"/><path d="M9.5 3.8L12 6l2.5-2.2M9.5 20.2L12 18l2.5 2.2M3 10.5l3.2.8-.6 3.2M21 10.5l-3.2.8.6 3.2" stroke-width="1.5"/></svg>`;
+    const rm = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isWinterP = (p) => p.category === 'winter';
+
+    /* --- перемикач розділів --- */
+    const sw = document.createElement('div');
+    sw.id = 'shop-switch';
+    $('cats').parentNode.insertBefore(sw, $('cats'));
+    function renderSwitch() {
+      const nm = products.filter(p => !isWinterP(p)).length, nw = products.filter(isWinterP).length;
+      sw.innerHTML = `<button type="button" data-shop="main" class="shop-tab ${shop === 'main' ? 'on' : ''}">Основний каталог<i>${nm}</i></button>` +
+        `<button type="button" data-shop="winter" class="shop-tab w ${shop === 'winter' ? 'on' : ''}">${SF()}Зимова колекція<i>${nw}</i></button>`;
+    }
+    sw.addEventListener('click', (e) => { const b = e.target.closest('[data-shop]'); if (b) setShop(b.dataset.shop); });
+    const navW = document.createElement('button');
+    navW.type = 'button'; navW.id = 'nav-winter';
+    navW.className = 'hover:text-black dark:hover:text-white transition inline-flex items-center gap-1.5';
+    navW.innerHTML = SF('w-3.5 h-3.5') + 'Зима';
+    const nav = document.querySelector('header nav'); if (nav) nav.insertBefore(navW, nav.children[1] || null);
+    navW.onclick = () => { setShop('winter'); $('catalog').scrollIntoView({ behavior: rm() ? 'auto' : 'smooth', block: 'start' }); };
+
+    /* --- UI --- */
+    const cv = document.createElement('canvas'); cv.id = 'snow-cv'; document.body.appendChild(cv);
+    const ctx = cv.getContext('2d');
+    const drift = document.createElement('div'); drift.id = 'snow-drift';
+    drift.innerHTML = '<svg width="100%" height="100%" viewBox="0 0 1200 38" preserveAspectRatio="none"><defs><linearGradient id="dg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#cfe6fb"/></linearGradient></defs><path d="M0 38V22C60 8 120 6 190 16s130 14 210 0 140-14 220-2 150 12 230-4 150-8 210 4 140 8 140 8V38z" fill="url(#dg)"/></svg>';
+    document.body.appendChild(drift);
+    const ui = document.createElement('div'); ui.id = 'snow-ui';
+    ui.innerHTML = `<span id="snow-count">Влучань: <b id="snow-n">0</b></span><button id="snow-btn" type="button" aria-label="Сніжки: увімкнути/вимкнути" aria-pressed="false">${SF('')}</button>`;
+    document.body.appendChild(ui);
+
+    /* --- стан --- */
+    let flakes = [], balls = [], parts = [], raf = 0, last = 0, W = 0, H = 0, dpr = 1, hits = 0, armed = false, wind = 0, windT = 0, burst = 0;
+    function resize() { dpr = Math.min(window.devicePixelRatio || 1, 1.5); W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+    function mk(top) { return { x: Math.random() * W, y: top ? -10 - Math.random() * H * .3 : Math.random() * H, r: .8 + Math.random() * 2.6, vy: 24 + Math.random() * 46, ph: Math.random() * 6.28, sw: 10 + Math.random() * 26, a: .45 + Math.random() * .5 }; }
+    function fill() { const n = Math.round(Math.min(120, Math.max(36, W / 13)) * (rm() ? .35 : 1)); flakes = Array.from({ length: n }, () => mk(false)); }
+
+    function frame(t) {
+      raf = requestAnimationFrame(frame);
+      if (document.hidden) { last = t; return; }
+      const dt = Math.min(.05, (t - last) / 1000 || .016); last = t;
+      const dark = root.classList.contains('dark');
+      ctx.clearRect(0, 0, W, H);
+      windT += dt; wind = Math.sin(windT * .35) * 14;
+      const sp = rm() ? .4 : 1;
+      ctx.fillStyle = dark ? '#fff' : '#a8cdf2';
+      for (const f of flakes) {
+        f.y += f.vy * dt * sp; f.ph += dt * .9;
+        f.x += (Math.sin(f.ph) * f.sw * .35 + wind) * dt;
+        if (f.y > H + 8) { f.y = -8; f.x = Math.random() * W; }
+        if (f.x > W + 10) f.x = -10; else if (f.x < -10) f.x = W + 10;
+        ctx.globalAlpha = f.a; ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, 6.283); ctx.fill();
+      }
+      if (burst > 0) {
+        burst -= dt;
+        for (let i = 0; i < 6; i++) { const f = mk(true); f.vy *= 5; f.r *= 1.1; f.life = 1; flakes.push(f); }
+      }
+      if (flakes.length > 400) flakes.splice(0, flakes.length - 400);
+      flakes = flakes.filter(f => !f.life || f.y < H + 20 || (f.life = 0, false));
+      /* кульки */
+      for (let i = balls.length - 1; i >= 0; i--) {
+        const b = balls[i]; b.t += dt * 1000 / b.dur;
+        const k = Math.min(1, b.t), x = b.sx + (b.tx - b.sx) * k, y = b.sy + (b.ty - b.sy) * k - Math.sin(Math.PI * k) * b.arc, r = 22 - 13 * k;
+        for (let j = 3; j >= 1; j--) { const kk = Math.max(0, k - j * .035), xx = b.sx + (b.tx - b.sx) * kk, yy = b.sy + (b.ty - b.sy) * kk - Math.sin(Math.PI * kk) * b.arc; ctx.globalAlpha = .12 * (4 - j); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(xx, yy, r * (1 - j * .1), 0, 6.283); ctx.fill(); }
+        const g = ctx.createRadialGradient(x - r * .3, y - r * .3, r * .1, x, y, r);
+        g.addColorStop(0, '#fff'); g.addColorStop(1, '#bcd9f3');
+        ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.283); ctx.fill();
+        if (k >= 1) { balls.splice(i, 1); impact(b.tx, b.ty); }
+      }
+      /* бризки */
+      for (let i = parts.length - 1; i >= 0; i--) {
+        const p = parts[i]; p.life -= dt * 1.8; if (p.life <= 0) { parts.splice(i, 1); continue; }
+        p.vy += 420 * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+        ctx.globalAlpha = Math.min(1, p.life); ctx.fillStyle = dark ? '#fff' : '#cfe6fb'; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.283); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+    function start() { if (raf) return; resize(); fill(); last = performance.now(); raf = requestAnimationFrame(frame); }
+    function stop() { cancelAnimationFrame(raf); raf = 0; balls = []; parts = []; ctx.clearRect(0, 0, W, H); }
+    window.addEventListener('resize', () => { if (raf) { resize(); fill(); } });
+
+    /* --- звук --- */
+    let ac = null;
+    function sfx(kind) {
+      try {
+        ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+        const n = ac.sampleRate * (kind === 'hit' ? .16 : .09), buf = ac.createBuffer(1, n, ac.sampleRate), d = buf.getChannelData(0);
+        for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, kind === 'hit' ? 2.2 : 3);
+        const s = ac.createBufferSource(); s.buffer = buf;
+        const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = kind === 'hit' ? 900 : 2600;
+        const g = ac.createGain(); g.gain.value = kind === 'hit' ? .16 : .05;
+        s.connect(f); f.connect(g); g.connect(ac.destination); s.start();
+      } catch (e) {}
+    }
+
+    /* --- кидок --- */
+    let lastThrow = 0;
+    function throwBall(tx, ty) {
+      const now = performance.now(); if (now - lastThrow < 110) return; lastThrow = now;
+      if (!raf) start();
+      const sx = tx + (W / 2 - tx) * .35 + (Math.random() - .5) * 70;
+      balls.push({ sx, sy: H + 30, tx, ty, t: 0, dur: 380 + Math.random() * 120, arc: Math.min(240, H * .3) });
+      sfx('throw');
+    }
+    function impact(x, y) {
+      for (let i = 0; i < 16; i++) { const a = Math.random() * 6.283, v = 60 + Math.random() * 170; parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 70, r: 1.4 + Math.random() * 2.8, life: .8 + Math.random() * .6 }); }
+      const el = document.elementFromPoint(x, y);
+      const card = el && el.closest && el.closest('article[data-open]');
+      if (!card) return;
+      sfx('hit');
+      const media = card.querySelector('.card-media'), r = media.getBoundingClientRect();
+      const lx = Math.min(Math.max(x - r.left, 14), r.width - 14), ly = Math.min(Math.max(y - r.top, 14), r.height - 14);
+      const old = media.querySelectorAll('.splat'); if (old.length > 7) old[0].remove();
+      const s = document.createElement('div'); s.className = 'splat';
+      const size = 62 + Math.random() * 46, rd = () => Math.round(30 + Math.random() * 30);
+      let dr = []; for (let i = 0; i < 6; i++) { const a = Math.random() * 6.283, d = size * (.55 + Math.random() * .35), sz = 2 + Math.random() * 5; dr.push(`${Math.round(Math.cos(a) * d)}px ${Math.round(Math.sin(a) * d)}px 0 ${-Math.round(size * .5 - sz)}px #fff`); }
+      s.style.cssText = `left:${lx}px;top:${ly}px;--s:${size}px;--br:${rd()}% ${rd()}% ${rd()}% ${rd()}%;--dr:${dr.join(',')}`;
+      media.appendChild(s);
+      setTimeout(() => s.classList.add('melt'), 7000); setTimeout(() => s.remove(), 9000);
+      card.classList.remove('wob'); void card.offsetWidth; card.classList.add('wob');
+      hits++; $('snow-n').textContent = hits;
+      const msg = { 5: 'Непогано! ❄', 15: 'Снайпер! 🎯', 30: 'Сніговий бог ⛄', 60: 'Це вже війна сніжками 😄' }[hits];
+      if (msg) toast(msg);
+    }
+    function arm(on) {
+      armed = on; root.classList.toggle('snowball-on', on); $('snow-btn').setAttribute('aria-pressed', on ? 'true' : 'false');
+      if (on) toast('Сніжки увімкнено: тицяй по товарах! Щоб відкрити товар — вимкни ❄');
+    }
+    $('snow-btn').onclick = () => arm(!armed);
+    /* перехоплюємо кліки в сітці */
+    document.addEventListener('click', (e) => {
+      if (!root.classList.contains('winter')) return;
+      const hit = e.target.closest && e.target.closest('[data-snow]');
+      if (hit) { e.stopPropagation(); e.preventDefault(); const a = hit.closest('article'), r = a.getBoundingClientRect(); throwBall(r.left + r.width * (.25 + Math.random() * .5), r.top + r.height * (.15 + Math.random() * .5)); return; }
+      if (armed && e.target.closest && e.target.closest('#product-grid')) { e.stopPropagation(); e.preventDefault(); throwBall(e.clientX, e.clientY); }
+    }, true);
+
+    /* --- режими --- */
+    function setShop(s) {
+      if (s === shop) return;
+      shop = s; activeCat = ''; page = 1;
+      const w = s === 'winter';
+      vt(() => {
+        root.classList.toggle('winter', w);
+        if (w) { start(); burst = 1.1; } else { arm(false); stop(); }
+        renderProducts();
+      });
+      try { history.replaceState(null, '', w ? '#winter' : location.pathname + location.search); } catch (e) {}
+      if (w) setTimeout(() => toast('❄ Зимова колекція! Тицяй на ❄ внизу, щоб кидатись сніжками'), 600);
+    }
+    window.setShop = setShop;
+
+    /* --- хук на відмальовку --- */
+    const _rp = renderProducts;
+    renderProducts = function () {
+      _rp();
+      renderSwitch();
+      const w = shop === 'winter';
+      $('cats').style.display = w ? 'none' : '';
+      const h = document.querySelector('#catalog h2'); if (h) h.textContent = w ? 'Зима' : 'Каталог';
+      if (w) {
+        document.querySelectorAll('#product-grid .card-media').forEach(m => {
+          if (m.querySelector('.snow-hit')) return;
+          const b = document.createElement('button'); b.type = 'button'; b.className = 'snow-hit'; b.setAttribute('data-snow', ''); b.setAttribute('aria-label', 'Кинути сніжкою'); b.innerHTML = SF('');
+          m.appendChild(b);
+        });
+      }
+    };
+    if (location.hash === '#winter') { shop = 'winter'; root.classList.add('winter'); start(); }
+    renderProducts();
+  })();
+  </script>
+  <script>
+  /* ===== НОВОРІЧНИЙ ДЕКОР: гілки, кульки, льодяники, гірлянда ===== */
+  (function () {
+    const root = document.documentElement;
+    const deco = document.createElement('div'); deco.id = 'ny-deco'; document.body.appendChild(deco);
+    let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const COLS = [['#ff7b7b', '#d7191f', '#7d0a10'], ['#ffffff', '#ece6df', '#b9b1a7'], ['#ffe28a', '#e0a82a', '#8a5d0a'], ['#ff7b7b', '#c4161c', '#6e080d'], ['#9fd0ff', '#4b8fd6', '#1f4e8a']];
+    let uid = 0;
+    function bauble(c, h) {
+      const id = 'bg' + (uid++);
+      return `<svg viewBox="0 0 34 40"><defs><radialGradient id="${id}" cx=".35" cy=".32" r=".8"><stop offset="0" stop-color="${c[0]}"/><stop offset=".55" stop-color="${c[1]}"/><stop offset="1" stop-color="${c[2]}"/></radialGradient></defs><rect x="13" y="0" width="8" height="6" rx="1.5" fill="#d9a93a"/><rect x="15" y="0" width="4" height="2" fill="#f3d684"/><circle cx="17" cy="23" r="15" fill="url(#${id})"/><ellipse cx="11.5" cy="15.5" rx="4.5" ry="3" transform="rotate(-35 11.5 15.5)" fill="#fff" opacity=".6"/>${h ? `<path d="M3 23h28" stroke="#fff" stroke-opacity=".5" stroke-width="2"/>` : ''}</svg>`;
+    }
+    function branch(len) {
+      const col = ['#1c5a38', '#2a7a4b', '#14472b', '#38905a'], paths = col.map(() => '');
+      for (let x = 6; x < len - 4; x += 5.5) {
+        const t = x / len, L = 36 * (1 - t * .78) + 6, y = 45 + Math.sin(x / 40) * 2.5;
+        for (const sd of [-1, 1]) {
+          const a = (sd * (48 + rnd() * 14)) * Math.PI / 180, l = L * (.8 + rnd() * .4), k = Math.floor(rnd() * 4);
+          paths[k] += `M${x.toFixed(1)} ${y.toFixed(1)}l${(Math.cos(a) * l * .55 + l * .5).toFixed(1)} ${(Math.sin(a) * l).toFixed(1)}`;
+        }
+      }
+      let berries = ''; for (let i = 0; i < 4; i++) { const x = len * (.25 + rnd() * .6), y = 45 + (rnd() - .5) * 30; berries += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.2" fill="#d7191f"/><circle cx="${(x - 1).toFixed(1)}" cy="${(y - 1).toFixed(1)}" r="1" fill="#fff" opacity=".7"/>`; }
+      return `<svg viewBox="0 0 ${len} 90" width="${len}" height="90"><path d="M0 45Q${len * .5} 40 ${len - 6} 45" stroke="#4a3320" stroke-width="3" fill="none" stroke-linecap="round"/>${paths.map((d, i) => `<path d="${d}" stroke="${col[i]}" stroke-width="3.1" stroke-linecap="round" fill="none"/>`).join('')}${berries}</svg>`;
+    }
+    const cane = `<svg viewBox="0 0 42 96" width="42" height="96"><path d="M10 94V30a11 11 0 0 1 22 0" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round"/><path d="M10 92V30a11 11 0 0 1 22 0" fill="none" stroke="#d7191f" stroke-width="9" stroke-dasharray="7 7"/><path d="M10 94V30a11 11 0 0 1 22 0" fill="none" stroke="#000" stroke-opacity=".08" stroke-width="11" stroke-linecap="round"/></svg>`;
+    function hang(x, y, r, len, ci, d) { const c = COLS[ci % COLS.length]; return `<div class="ny-hang" style="left:${x}px;top:${y}px;--r:${r}"><div class="ny-sw" style="--d:${d}s;--dl:-${(rnd() * 4).toFixed(1)}s"><i style="height:${len}px"></i>${bauble(c, ci % 3 === 0)}</div></div>`; }
+    function cluster(bottom, s) {
+      const r1 = bottom ? -36 : 36, r2 = bottom ? -74 : 74, edge = bottom ? 'bottom:-45px' : 'top:-45px';
+      const dot = (x, y, r, rr) => hang(x, 45, r, 6 + rnd() * 22, s++, 3.4 + rnd() * 2);
+      const b1 = `<div class="ny-br" style="${edge};--r:${r1};--d:7.5s;width:250px">${branch(250)}${hang(150, 46, r1, 14, s, 4.2)}${hang(215, 46, r1, 32, s + 1, 3.6)}</div>`;
+      const b2 = `<div class="ny-br" style="${edge};--r:${r2};--d:6.5s;--dl:-2s;width:190px">${branch(190)}${hang(160, 46, r2, 22, s + 2, 3.9)}</div>`;
+      const cn = `<div class="ny-cane" style="${bottom ? 'bottom:150px' : 'top:150px'};left:4px;--r:${bottom ? 8 : -8}">${cane}</div>`;
+      return b1 + b2 + cn;
+    }
+    const cl = {};
+    function build() {
+      deco.innerHTML = '';
+      const mk = (key, bottom, right, s) => { const w = document.createElement('div'); w.className = 'ny-c'; w.dataset.b = bottom ? 1 : 0; w.dataset.r = right ? 1 : 0; w.innerHTML = '<div class="in">' + cluster(bottom, s) + '</div>'; deco.appendChild(w); cl[key] = w; };
+      seed = 11; mk('tl', 0, 0, 0); seed = 23; mk('tr', 0, 1, 2); seed = 37; mk('bl', 1, 0, 1); seed = 51; mk('br', 1, 1, 3);
+      const lg = document.createElement('div'); lg.id = 'ny-lights'; deco.appendChild(lg);
+      layout();
+    }
+    function layout() {
+      const W = innerWidth, k = Math.max(.46, Math.min(1, W / 1150)), sab = getComputedStyle(root).getPropertyValue('--sab') || '0px';
+      const topOff = 'calc(var(--sat, 0px) + 60px)', botOff = root.classList.contains('standalone') ? 'calc(var(--sab, 0px) + 54px)' : '0px';
+      Object.values(cl).forEach(w => {
+        const b = w.dataset.b === '1', r = w.dataset.r === '1', inn = w.firstChild;
+        w.style.width = 270 * k + 'px'; w.style.height = 330 * k + 'px';
+        w.style.left = r ? 'auto' : '0'; w.style.right = r ? '0' : 'auto';
+        w.style.top = b ? 'auto' : topOff; w.style.bottom = b ? botOff : 'auto';
+        inn.style[b ? 'bottom' : 'top'] = '0'; inn.style.transformOrigin = b ? '0 100%' : '0 0';
+        inn.style.transform = r ? `translateX(${270 * k}px) scale(${-k},${k})` : `scale(${k})`;
+      });
+      /* гірлянда */
+      const lg = $('ny-lights'); if (!lg) return;
+      const seg = Math.max(70, Math.min(130, W / 9)), n = Math.ceil(W / seg), cols = ['#ff4d4d', '#ffd76a', '#ffffff', '#6fd0ff', '#7dff9a'];
+      let wire = '', bulbs = '';
+      for (let i = 0; i < n; i++) {
+        const x0 = i * seg, x1 = x0 + seg, y = 4, cy = y + 20;
+        wire += `M${x0} ${y}Q${x0 + seg / 2} ${cy} ${x1} ${y}`;
+        for (let j = 1; j <= 2; j++) { const t = j / 3, x = x0 + seg * t, yy = (1 - t) * (1 - t) * y + 2 * (1 - t) * t * cy + t * t * y, c = cols[(i * 2 + j) % cols.length]; bulbs += `<g class="bulb" style="animation-delay:${((i * 2 + j) % 5) * .4}s"><rect x="${x - 2}" y="${yy}" width="4" height="4" fill="#555"/><ellipse cx="${x}" cy="${yy + 10}" rx="4.2" ry="6.2" fill="${c}" style="filter:drop-shadow(0 0 5px ${c})"/></g>`; }
+      }
+      lg.innerHTML = `<svg viewBox="0 0 ${W} 46" preserveAspectRatio="none"><path d="${wire}" fill="none" stroke="#3a3a3a" stroke-width="1.4"/>${bulbs}</svg>`;
+    }
+    const mo = new MutationObserver(() => { if (root.classList.contains('winter') && !deco.firstChild) build(); });
+    mo.observe(root, { attributes: true, attributeFilter: ['class'] });
+    window.addEventListener('resize', () => { if (deco.firstChild) layout(); });
+    if (root.classList.contains('winter')) build();
+  })();
+  </script>
 </body>
 </html>

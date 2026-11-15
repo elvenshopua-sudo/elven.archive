@@ -181,7 +181,7 @@
             </div>
             <div>
               <label class="block text-[10px] text-zinc-400 uppercase mb-1">Категорія</label>
-              <select id="p-cat" class="field"><option value="" class="dark:bg-zinc-900">— Без категорії (лише у вкладці «Усі») —</option><option value="suits" class="dark:bg-zinc-900">Спортивні костюми</option><option value="hoodies" class="dark:bg-zinc-900">Худі</option><option value="sweatshirts" class="dark:bg-zinc-900">Кофти та світшоти</option><option value="tshirts" class="dark:bg-zinc-900">Футболки та поло</option><option value="pants" class="dark:bg-zinc-900">Штани</option><option value="shorts" class="dark:bg-zinc-900">Шорти</option><option value="outerwear" class="dark:bg-zinc-900">Куртки та жилети</option><option value="thermal" class="dark:bg-zinc-900">Термобілизна</option><option value="sets" class="dark:bg-zinc-900">Комплекти</option><option value="accessories" class="dark:bg-zinc-900">Аксесуари</option></select>
+              <select id="p-cat" class="field"><option value="" class="dark:bg-zinc-900">— Без категорії (лише у вкладці «Усі») —</option><option value="suits" class="dark:bg-zinc-900">Спортивні костюми</option><option value="hoodies" class="dark:bg-zinc-900">Худі</option><option value="sweatshirts" class="dark:bg-zinc-900">Кофти та світшоти</option><option value="tshirts" class="dark:bg-zinc-900">Футболки та поло</option><option value="pants" class="dark:bg-zinc-900">Штани</option><option value="shorts" class="dark:bg-zinc-900">Шорти</option><option value="outerwear" class="dark:bg-zinc-900">Куртки та жилети</option><option value="thermal" class="dark:bg-zinc-900">Термобілизна</option><option value="sets" class="dark:bg-zinc-900">Комплекти</option><option value="accessories" class="dark:bg-zinc-900">Аксесуари</option><option value="winter" class="dark:bg-zinc-900">❄ Зимова колекція (окремий розділ)</option></select>
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Ціна (UAH)</label><input type="number" id="p-price" required min="0" inputmode="numeric" class="field"></div>
@@ -224,6 +224,7 @@
         </div>
         <div class="lg:col-span-2 space-y-4">
           <h3 class="text-xs font-semibold uppercase tracking-ultra border-b border-zinc-200 dark:border-zinc-800 pb-3">Товари в каталозі</h3>
+          <div id="p-shops" class="grid grid-cols-2 gap-2 mb-4"></div>
           <div id="p-list" class="space-y-3"></div>
         </div>
       </section>
@@ -515,9 +516,16 @@
     }
 
     /* ---------- Товари ---------- */
-    const CATS = [['suits','Спортивні костюми'],['hoodies','Худі'],['sweatshirts','Кофти та світшоти'],['tshirts','Футболки та поло'],['pants','Штани'],['shorts','Шорти'],['outerwear','Куртки та жилети'],['thermal','Термобілизна'],['sets','Комплекти'],['accessories','Аксесуари']];
+    const CATS = [['suits','Спортивні костюми'],['hoodies','Худі'],['sweatshirts','Кофти та світшоти'],['tshirts','Футболки та поло'],['pants','Штани'],['shorts','Шорти'],['outerwear','Куртки та жилети'],['thermal','Термобілизна'],['sets','Комплекти'],['accessories','Аксесуари'],['winter','❄ Зимова колекція']];
     const catLabel = (k) => (CATS.find(c => c[0] === k) || [0, ''])[1];
     let pImages = [];
+    let pShop = 'main';
+    const inShop = (p) => pShop === 'winter' ? p.category === 'winter' : p.category !== 'winter';
+    function renderShops() {
+      const nm = products.filter(p => p.category !== 'winter').length, nw = products.filter(p => p.category === 'winter').length;
+      $('p-shops').innerHTML = `<button type="button" data-pshop="main" class="px-3 py-3 text-[11px] uppercase tracking-widest border ${pShop === 'main' ? 'bg-black text-white dark:bg-white dark:text-black border-transparent' : 'border-zinc-300 dark:border-zinc-700 text-zinc-500'}">Основний каталог (${nm})</button><button type="button" data-pshop="winter" class="px-3 py-3 text-[11px] uppercase tracking-widest border ${pShop === 'winter' ? 'bg-sky-300 text-sky-950 border-transparent' : 'border-sky-400/50 text-sky-500'}">❄ Зимовий (${nw})</button>`;
+    }
+    $('p-shops').addEventListener('click', (e) => { const b = e.target.closest('[data-pshop]'); if (!b) return; pShop = b.dataset.pshop; if (!$('p-id').value) $('p-cat').value = pShop === 'winter' ? 'winter' : ''; renderProducts(); });
     async function loadProducts() {
       const { data, error } = await db.from('products').select('*');
       if (error) { toast('Не вдалося завантажити товари', 'err'); return; }
@@ -525,8 +533,10 @@
     }
     function renderProducts() {
       const el = $('p-list');
-      if (!products.length) { el.innerHTML = '<p class="text-xs text-zinc-400">Товарів ще немає</p>'; return; }
-      el.innerHTML = products.map(p => `
+      renderShops();
+      const shown = products.filter(inShop);
+      if (!shown.length) { el.innerHTML = '<p class="text-xs text-zinc-400">' + (pShop === 'winter' ? 'У зимовому розділі ще немає товарів. Додайте товар зліва — він потрапить сюди.' : 'Товарів ще немає') + '</p>'; return; }
+      el.innerHTML = shown.map(p => `
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-zinc-200 dark:border-zinc-800 p-3 bg-white dark:bg-zinc-900">
           <div class="flex items-center gap-3 min-w-0">
             <img src="${esc(getImgs(p)[0] || '')}" class="w-10 h-12 object-cover bg-zinc-200 dark:bg-zinc-800" alt="">
@@ -585,7 +595,7 @@
     $('p-add-url').onclick = () => { const u = $('p-url').value.trim(); if (!u) return; pImages.push(u); $('p-url').value = ''; renderPreview(); };
 
     function resetForm() {
-      $('p-form').reset(); $('p-id').value = ''; pImages = []; renderPreview();
+      $('p-form').reset(); $('p-id').value = ''; pImages = []; renderPreview(); $('p-cat').value = pShop === 'winter' ? 'winter' : '';
       $('form-title').textContent = 'Додати новий товар'; $('p-save').textContent = 'Зберегти товар'; $('p-cancel').classList.add('hidden');
     }
     $('p-cancel').onclick = resetForm;
@@ -635,6 +645,7 @@
       if (error) { toast(/category/i.test(error.message || '') ? 'Спочатку виконайте supabase-categories.sql у Supabase' : 'Помилка: ' + error.message, 'err'); return; }
       const pr = products.find(x => Number(x.id) === Number(sel.dataset.setcat)); if (pr) pr.category = val;
       toast(val ? 'Категорія: ' + catLabel(val) : 'Категорію прибрано');
+      renderProducts();
     });
 
     $('p-list').addEventListener('click', async (e) => {
