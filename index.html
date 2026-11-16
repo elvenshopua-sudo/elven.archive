@@ -221,6 +221,10 @@
     .pm-th { flex: 0 0 auto; width: 62px; height: 80px; padding: 0; overflow: hidden; border: 1.5px solid transparent; opacity: .55; background: #e4e4e7; transition: opacity .25s, border-color .25s, transform .2s; }
     .dark .pm-th { background: #18181b; }
     .pm-th img { width: 100%; height: 100%; object-fit: cover; }
+    .pm-th { position: relative; }
+    .pm-play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; background: rgba(0,0,0,.38); }
+    .pm-slide video { width: 100%; height: 100%; object-fit: contain; background: #000; }
+    .vid-chip { position: absolute; left: .5rem; bottom: .5rem; z-index: 11; font-size: 9px; letter-spacing: .14em; font-weight: 700; padding: .28rem .5rem; border-radius: 999px; background: rgba(0,0,0,.62); color: #fff; backdrop-filter: blur(6px); pointer-events: none; }
     .pm-th.on { opacity: 1; border-color: #000; } .dark .pm-th.on { border-color: #fff; }
     .pm-th:active { transform: scale(.94); }
     .sz { position: relative; z-index: 1; min-width: 3.25rem; height: 3rem; padding: 0 .9rem; border: 1px solid #d4d4d8; font-size: 12px; font-weight: 500; text-transform: uppercase; transition: color .25s, border-color .25s, transform .2s; }
@@ -1407,7 +1411,7 @@
     }
 
     function renderProduct(p) {
-      curProduct = p; curImgs = getImgs(p);
+      curProduct = p; curImgs = getImgs(p); const nPh = curImgs.length; if (p.video) curImgs = curImgs.concat([p.video]);
       const sizes = (p.sizes && p.sizes.length) ? p.sizes : ['S', 'M', 'L'];
       curSize = sizes[0];
       sgUpdate(p);
@@ -1423,11 +1427,11 @@
       $('pm-gallery').innerHTML = curImgs.map((src, k) => `
         <div class="pm-slide shrink-0 w-full h-full snap-center snap-always">
           <div class="pm-zoom relative w-full h-full flex items-center justify-center overflow-hidden bg-zinc-100 dark:bg-zinc-900">
-            <img src="${esc(src)}" alt="${esc(p.name)}" draggable="false" ${k ? 'loading="lazy"' : ''}>
+            ${k >= nPh ? `<video src="${esc(src)}" poster="${esc(thumbOf(curImgs[0]))}" preload="none" controls playsinline loop></video>` : `<img src="${esc(src)}" alt="${esc(p.name)}" draggable="false" ${k ? 'loading="lazy"' : ''}>`}
             <span class="absolute left-3 top-3 z-10 font-mono text-[10px] tracking-widest text-black/60 dark:text-white/60">${pad2(k + 1)}/${pad2(n)}</span>
           </div>
         </div>`).join('');
-      $('pm-thumbs').innerHTML = n > 1 ? curImgs.map((src, k) => `<button type="button" class="pm-th ${k === 0 ? 'on' : ''}" data-th="${k}" aria-label="Фото ${k + 1}"><img src="${esc(src)}" alt="" loading="lazy" draggable="false"></button>`).join('') : '';
+      $('pm-thumbs').innerHTML = n > 1 ? curImgs.map((src, k) => `<button type="button" class="pm-th ${k === 0 ? 'on' : ''}" data-th="${k}" aria-label="${k >= nPh ? 'Відео' : 'Фото ' + (k + 1)}"><img src="${esc(k >= nPh ? thumbOf(curImgs[0]) : thumbOf(src))}" alt="" loading="lazy" draggable="false">${k >= nPh ? '<span class="pm-play">▶</span>' : ''}</button>`).join('') : '';
       pmUpdateGallery();
       $('pm-dots').innerHTML = n > 1 ? curImgs.map((_, k) => `<span class="h-1.5 rounded-full transition-all duration-300 ${k === 0 ? 'w-5 bg-black dark:bg-white' : 'w-1.5 bg-black/25 dark:bg-white/25'}"></span>`).join('') : '';
 
@@ -1504,6 +1508,7 @@
     function closeProductModal(instant, fromPop) {
       const m = $('product-modal');
       if (m.classList.contains('hidden')) return;
+      document.querySelectorAll('#pm-gallery video').forEach(v => v.pause());
       const finish = () => { m.classList.add('hidden'); lockScroll(false); };
       const card = curProduct && document.querySelector(`[data-open="${curProduct.id}"] .card-media`);
       const first = m.querySelector('.pm-zoom');
@@ -1600,6 +1605,7 @@
     }
     function pmUpdateGallery() {
       const n = curImgs.length, k = Math.min(n - 1, pmIndex());
+      document.querySelectorAll('#pm-gallery video').forEach(v => { if (k !== n - 1) v.pause(); });
       $('pm-gprev').disabled = $('pm-gnext').disabled = n < 2;
       if (n > 1) { $('pm-gprev').disabled = k <= 0; $('pm-gnext').disabled = k >= n - 1; }
       document.querySelectorAll('#pm-dots span').forEach((d, i) => {
@@ -3032,6 +3038,7 @@
     renderProducts = function () {
       _rp();
       renderSwitch();
+      document.querySelectorAll('#product-grid article[data-open]').forEach(a => { const pr = products.find(x => Number(x.id) === Number(a.dataset.open)); const m = a.querySelector('.card-media'); if (pr && pr.video && m && !m.querySelector('.vid-chip')) { const c = document.createElement('span'); c.className = 'vid-chip'; c.textContent = '▶ ВІДЕО'; m.appendChild(c); } });
       const w = shop === 'winter';
       $('cats').style.display = w ? 'none' : '';
       const h = document.querySelector('#catalog h2'); if (h) h.textContent = w ? 'Зима' : shop === 'women' ? 'Для неї' : 'Каталог';

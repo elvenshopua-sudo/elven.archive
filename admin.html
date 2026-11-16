@@ -207,6 +207,12 @@
             </div>
             <div id="p-preview" class="flex gap-2 flex-wrap"></div>
             <div>
+              <label class="block text-[10px] text-zinc-400 uppercase mb-2">Відео товару (необов’язково)</label>
+              <div class="flex gap-2 mb-2"><input type="text" id="p-video" placeholder="Посилання на .mp4 / .webm" class="field"><label class="px-3 text-xs bg-zinc-200 dark:bg-zinc-800 flex items-center cursor-pointer whitespace-nowrap">Файл<input type="file" id="p-vfile" accept="video/mp4,video/webm,video/quicktime" class="hidden"></label></div>
+              <video id="p-vprev" class="hidden w-40 mb-1 bg-black" controls playsinline muted></video>
+              <p class="text-[10px] text-zinc-400 leading-relaxed">До 10 секунд і до 8 МБ: відео витрачає трафік Supabase. Краще покласти mp4 у папку репозиторію на GitHub і вставити посилання, там трафік безкоштовний.</p>
+            </div>
+            <div>
               <label class="block text-[10px] text-zinc-400 uppercase mb-2">Розміри</label>
               <div class="flex flex-wrap gap-4 text-xs">
                 <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="XS"> XS</label>
@@ -535,6 +541,24 @@
       const on = 'bg-black text-white dark:bg-white dark:text-black border-transparent', off = 'border-zinc-300 dark:border-zinc-700 text-zinc-500';
       $('p-shops').innerHTML = `<button type="button" data-pshop="main" class="px-2 py-3 text-[11px] uppercase tracking-widest border ${pShop === 'main' ? on : off}">Чоловічий (${c.main})</button><button type="button" data-pshop="women" class="px-2 py-3 text-[11px] uppercase tracking-widest border ${pShop === 'women' ? 'bg-rose-300 text-rose-950 border-transparent' : 'border-rose-400/50 text-rose-400'}">✿ Жіночий (${c.women})</button><button type="button" data-pshop="winter" class="px-2 py-3 text-[11px] uppercase tracking-widest border ${pShop === 'winter' ? 'bg-sky-300 text-sky-950 border-transparent' : 'border-sky-400/50 text-sky-500'}">❄ Зима (${c.winter})</button>`;
     }
+    $('p-thumbs').onclick = async () => {
+      const btn = $('p-thumbs'); btn.disabled = true;
+      const marker = '/storage/v1/object/public/products/';
+      const urls = [...new Set(products.flatMap(p => getImgs(p)).filter(u => typeof u === 'string' && u.includes(marker) && /\.jpg$/i.test(u) && !/_s\.jpg$/i.test(u)))];
+      let done = 0, fail = 0;
+      for (const u of urls) {
+        btn.textContent = `Мініатюри: ${done + fail} / ${urls.length}...`;
+        try {
+          const path = decodeURIComponent(u.split(marker)[1].split('?')[0]).replace(/\.jpg$/i, '_s.jpg');
+          const r = await fetch(u); if (!r.ok) throw new Error('fetch');
+          const tb = await compressToBlob(await r.blob(), 560, .78);
+          const { error } = await db.storage.from('products').upload(path, tb, { contentType: 'image/jpeg', cacheControl: '31536000', upsert: true });
+          if (error) throw error; done++;
+        } catch (e) { fail++; }
+      }
+      btn.disabled = false; btn.textContent = 'Створити мініатюри для старих товарів (економить трафік)';
+      toast(`Готово: ${done} мініатюр${fail ? ', помилок: ' + fail : ''}`, fail ? 'err' : 'ok');
+    };
     $('p-shops').addEventListener('click', (e) => { const b = e.target.closest('[data-pshop]'); if (!b) return; pShop = b.dataset.pshop; if (!$('p-id').value) { $('p-cat').value = defCat(); defSizes(); } renderProducts(); });
     async function loadProducts() {
       const { data, error } = await db.from('products').select('*');
@@ -603,10 +627,25 @@
       }
       e.target.value = ''; renderPreview();
     });
+    const vShow = () => { const u = $('p-video').value.trim(), v = $('p-vprev'); if (u) { v.src = u; v.classList.remove('hidden'); } else { v.removeAttribute('src'); v.classList.add('hidden'); } };
+    $('p-video').addEventListener('change', vShow);
+    $('p-vfile').addEventListener('change', async (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      if (f.size > 12 * 1024 * 1024) { toast('Відео завелике (' + Math.round(f.size / 1048576) + ' МБ). Стисніть до 8 МБ.', 'err'); e.target.value = ''; return; }
+      toast('Завантаження відео...');
+      try {
+        const ext = (f.name.split('.').pop() || 'mp4').toLowerCase().replace(/[^a-z0-9]/g, '');
+        const path = `v/${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
+        const { error } = await db.storage.from('products').upload(path, f, { contentType: f.type || 'video/mp4', cacheControl: '31536000' });
+        if (error) throw error;
+        $('p-video').value = db.storage.from('products').getPublicUrl(path).data.publicUrl; vShow(); toast('Відео завантажено');
+      } catch (err) { toast('Не вдалося завантажити відео: ' + (err.message || ''), 'err'); }
+      e.target.value = '';
+    });
     $('p-add-url').onclick = () => { const u = $('p-url').value.trim(); if (!u) return; pImages.push(u); $('p-url').value = ''; renderPreview(); };
 
     function resetForm() {
-      $('p-form').reset(); $('p-id').value = ''; pImages = []; renderPreview(); $('p-cat').value = defCat(); defSizes();
+      $('p-form').reset(); $('p-id').value = ''; pImages = []; renderPreview(); $('p-cat').value = defCat(); defSizes(); vShow();
       $('form-title').textContent = 'Додати новий товар'; $('p-save').textContent = 'Зберегти товар'; $('p-cancel').classList.add('hidden');
     }
     $('p-cancel').onclick = resetForm;
@@ -623,6 +662,8 @@
         oldPrice: oldP ? Number(oldP) : null, badge: $('p-badge').value, desc: $('p-desc').value, category: $('p-cat').value || null,
         images, sizes: sizes.length ? sizes : ['S', 'M', 'L']
       };
+      const vid = $('p-video').value.trim(), oldProd = editId && products.find(x => Number(x.id) === Number(editId));
+      if (vid || (oldProd && oldProd.video)) payload.video = vid || null;
       const mh = $('p-mh').value, ms = $('p-ms').value.trim(), hadModel = !!(editId && products.find(x => Number(x.id) === Number(editId)) && 'model_height' in products.find(x => Number(x.id) === Number(editId)));
       if (mh || ms || hadModel) { payload.model_height = mh ? Number(mh) : null; payload.model_size = ms || null; }
       const btn = $('p-save'); btn.disabled = true; btn.textContent = 'Збереження...';
@@ -635,6 +676,11 @@
           const { category, ...rest } = payload;
           ({ error } = await run(rest));
           if (!error && category) toast('Збережено без категорії: виконайте supabase-categories.sql', 'err');
+        }
+        if (error && /video/i.test(error.message || '')) {
+          const { video, ...rest3 } = payload;
+          ({ error } = await run(rest3));
+          if (!error) toast('Збережено без відео: виконайте supabase-video.sql', 'err');
         }
         if (error && /model_/i.test(error.message || '')) {
           // колонок для моделі ще немає в базі — зберігаємо без них
@@ -666,7 +712,7 @@
         pShop = p.category === 'winter' ? 'winter' : isW(p) ? 'women' : 'main'; renderProducts();
         $('p-id').value = p.id; $('p-name').value = p.name; $('p-sku').value = p.sku || ''; $('p-mh').value = p.model_height || ''; $('p-ms').value = p.model_size || '';
         $('p-price').value = p.price; $('p-old').value = p.oldPrice || ''; $('p-badge').value = p.badge || ''; $('p-cat').value = p.category || ''; $('p-desc').value = p.desc || '';
-        $('p-url').value = ''; pImages = [...getImgs(p)]; renderPreview();
+        $('p-url').value = ''; pImages = [...getImgs(p)]; renderPreview(); $('p-video').value = p.video || ''; vShow();
         document.querySelectorAll('input[name="p-size"]').forEach(cb => cb.checked = (p.sizes || ['S', 'M', 'L']).includes(cb.value));
         $('form-title').textContent = 'Редагувати товар'; $('p-save').textContent = 'Оновити товар'; $('p-cancel').classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'smooth' });
