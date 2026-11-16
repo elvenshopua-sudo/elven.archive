@@ -29,6 +29,7 @@
   <link rel="canonical" href="https://elven-archive.shop/">
   <meta name="robots" content="index, follow">
   <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","name":"ELVÉN","url":"https://elven-archive.shop/","logo":"https://elven-archive.shop/favicon-192.png","sameAs":["https://instagram.com/elven_archive"]},{"@type":"WebSite","name":"ELVÉN","url":"https://elven-archive.shop/"},{"@type":"Store","name":"ELVÉN","url":"https://elven-archive.shop/","image":"https://elven-archive.shop/og-image.png","description":"Інтернет-магазин одягу: худі, костюми, оверсайз. Доставка Новою поштою по Україні."}]}</script>
+  <link rel="preconnect" href="https://tbkrdfspdozxdiptcmgi.supabase.co" crossorigin>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -1135,14 +1136,21 @@
     const getImgs = (p) => (p.images && p.images.length) ? p.images : (p.img ? [p.img] : ['https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800']);
 
     /* ---------- Завантаження ---------- */
+    const thumbOf = (u) => (typeof u === 'string' && u.includes('/storage/v1/object/public/products/') && /\.jpg$/i.test(u)) ? u.replace(/\.jpg$/i, '_s.jpg') : u;
+    const thumbErr = (u) => `this.onerror=null;this.src='${String(u).replace(/'/g, '%27')}'`;
     async function loadProductsFromCloud() {
+      let cached = '';
+      try { cached = localStorage.getItem('elven_products') || ''; if (cached) { const c = JSON.parse(cached); if (Array.isArray(c) && c.length) { products = c; loaded = true; renderProducts(); } } } catch (e) { cached = ''; }
       try {
         const { data, error } = await db.from('products').select('*');
         if (error) throw error;
+        const fresh = JSON.stringify(data || []);
+        if (fresh === cached && loaded) return;
         products = data || [];
+        try { localStorage.setItem('elven_products', fresh); } catch (e) {}
       } catch (err) {
         console.error(err);
-        toast('Не вдалося завантажити товари', 'err');
+        if (!loaded) toast('Не вдалося завантажити товари', 'err');
       }
       loaded = true;
       renderProducts();
@@ -1219,8 +1227,8 @@
         <article class="group cursor-pointer reveal" style="transition-delay:${Math.min(i, 8) * 50}ms" data-open="${p.id}">
           <div class="card-media relative overflow-hidden bg-zinc-100 dark:bg-zinc-900 mb-3 aspect-[3/4]">
             ${badge}
-            <img src="${esc(imgs[0])}" alt="${esc(p.name)}" loading="lazy" draggable="false" class="absolute inset-0 w-full h-full object-cover transition duration-700 ease-out ${imgs[1] ? 'group-hover:opacity-0' : 'group-hover:scale-105'}">
-            ${imgs[1] ? `<img src="${esc(imgs[1])}" alt="" loading="lazy" draggable="false" class="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 group-hover:scale-105 transition duration-700 ease-out">` : ''}
+            <img src="${esc(thumbOf(imgs[0]))}" onerror="${esc(thumbErr(imgs[0]))}" alt="${esc(p.name)}" decoding="async" ${i < 4 ? 'fetchpriority="high"' : 'loading="lazy"'} draggable="false" class="absolute inset-0 w-full h-full object-cover transition duration-700 ease-out ${imgs[1] ? 'group-hover:opacity-0' : 'group-hover:scale-105'}">
+            ${imgs[1] ? `<img data-src="${esc(thumbOf(imgs[1]))}" data-full="${esc(imgs[1])}" alt="" decoding="async" draggable="false" class="hov2 absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 group-hover:scale-105 transition duration-700 ease-out">` : ''}
             <button type="button" data-fav="${p.id}" aria-label="В обране" class="fav-btn ${fav ? 'fav-on' : ''} absolute top-2 right-2 z-10 w-9 h-9"><svg class="ic" aria-hidden="true"><use href="#i-heart"/></svg></button>
             <span class="card-no absolute left-3 bottom-3 z-10 font-mono text-[10px] tracking-widest text-white mix-blend-difference">${pad2(start + i + 1)}</span>
             <div class="card-sizes">${sizes}</div>
@@ -1236,6 +1244,13 @@
       }).join('');
       observeReveal();
     }
+
+    $('product-grid').addEventListener('pointerover', (e) => {
+      const c = e.target.closest && e.target.closest('article'); if (!c) return;
+      const im = c.querySelector('img.hov2[data-src]'); if (!im) return;
+      im.onerror = () => { im.onerror = null; im.src = im.dataset.full; };
+      im.src = im.dataset.src; im.removeAttribute('data-src');
+    });
 
     function observeReveal() {
       const els = document.querySelectorAll('.reveal:not(.in)');
