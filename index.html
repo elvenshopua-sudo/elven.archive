@@ -29,7 +29,7 @@
   <link rel="canonical" href="https://elven-archive.shop/">
   <meta name="robots" content="index, follow">
   <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","name":"ELVÉN","url":"https://elven-archive.shop/","logo":"https://elven-archive.shop/favicon-192.png","sameAs":["https://instagram.com/elven_archive"]},{"@type":"WebSite","name":"ELVÉN","url":"https://elven-archive.shop/"},{"@type":"Store","name":"ELVÉN","url":"https://elven-archive.shop/","image":"https://elven-archive.shop/og-image.png","description":"Інтернет-магазин одягу: худі, костюми, оверсайз. Доставка Новою поштою по Україні."}]}</script>
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <link rel="preconnect" href="https://tbkrdfspdozxdiptcmgi.supabase.co" crossorigin>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -43,7 +43,7 @@
       }
     }
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     .ic { width: 1em; height: 1em; display: inline-block; vertical-align: -0.125em; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
@@ -1684,15 +1684,15 @@
       const root = document.documentElement; if (!root.classList.contains('preloading')) return;
       const pre = $('preloader');
       const done = () => { root.classList.remove('preloading'); try { sessionStorage.setItem('elven_pre', '1'); } catch (e) {} };
-      setTimeout(() => { pre.style.display = 'none'; done(); }, 4500);
+      setTimeout(() => { pre.style.display = 'none'; done(); }, 1800);
       setTimeout(() => {
         if (reduceMotion()) { pre.style.display = 'none'; done(); return; }
         pre.style.display = 'flex';
         const a = pre.animate([{ transform: 'translate3d(0,0,0)' }, { transform: 'translate3d(0,-100%,0)' }],
-          { duration: 750, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'forwards' });
+          { duration: 450, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'forwards' });
         done();
         a.onfinish = () => { pre.style.display = 'none'; };
-      }, 1400);
+      }, 500);
     })();
 
     /* ---------- Кошик ---------- */
