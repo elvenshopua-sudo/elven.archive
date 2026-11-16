@@ -240,6 +240,7 @@
               <input id="gh-token" type="password" class="field" placeholder="Токен GitHub (Contents: Read and write)">
               <div class="flex gap-2"><button type="button" id="gh-save" class="flex-1 bg-black dark:bg-white text-white dark:text-black py-2 uppercase text-[10px] tracking-widest">Зберегти й перевірити</button><button type="button" id="gh-off" class="px-3 bg-zinc-200 dark:bg-zinc-800 uppercase text-[10px]">Вимкнути</button></div>
               <p class="text-[10px] text-zinc-400 leading-relaxed">Токен зберігається лише в цьому браузері. Створіть його на github.com → Settings → Developer settings → Fine-grained tokens: лише цей репозиторій, дозвіл Contents: Read and write. Після завантаження фото з’являється на сайті приблизно через хвилину.</p>
+              <button type="button" id="gh-snap" class="w-full bg-zinc-200 dark:bg-zinc-800 py-2 uppercase text-[10px] tracking-widest">Оновити швидкий каталог (products.json)</button>
               <button type="button" id="gh-migrate" class="w-full border border-emerald-500/60 text-emerald-500 py-2 uppercase text-[10px] tracking-widest">Перенести старі фото з Supabase на GitHub</button>
             </div>
           </details>
@@ -592,7 +593,7 @@
         } catch (e) { fail++; console.error(e); }
       }
       btn.disabled = false; btn.textContent = 'Перенести старі фото з Supabase на GitHub';
-      await loadProducts(); toast(`Перенесено товарів: ${ok}${fail ? ', помилок: ' + fail : ''}. Фото з’являться на сайті за хвилину-дві.`, fail ? 'err' : 'ok');
+      await loadProducts(); snap(); toast(`Перенесено товарів: ${ok}${fail ? ', помилок: ' + fail : ''}. Фото з’являться на сайті за хвилину-дві.`, fail ? 'err' : 'ok');
     };
     $('p-shops').addEventListener('click', (e) => { const b = e.target.closest('[data-pshop]'); if (!b) return; pShop = b.dataset.pshop; if (!$('p-id').value) { $('p-cat').value = defCat(); defSizes(); } renderProducts(); });
     async function loadProducts() {
@@ -668,8 +669,14 @@
         localStorage.setItem('elven_gh', JSON.stringify(GH)); ghShow(); toast('GitHub підключено ✓');
       } catch (e) { toast(e.message, 'err'); }
     };
+    $('gh-snap').onclick = async () => { if (!ghOn()) { toast('Спершу підключіть GitHub', 'err'); return; } try { await ghPut('products.json', new Blob([JSON.stringify(products)], { type: 'application/json' })); toast('Швидкий каталог оновлено ✓'); } catch (e) { toast(e.message, 'err'); } };
     $('gh-off').onclick = () => { localStorage.removeItem('elven_gh'); GH.repo = GH.token = GH.branch = ''; ghShow(); toast('GitHub вимкнено: фото знову йдуть у Supabase'); };
     ghShow();
+    let snapT = 0;
+    function snap() {
+      if (!ghOn()) return; clearTimeout(snapT);
+      snapT = setTimeout(async () => { try { await ghPut('products.json', new Blob([JSON.stringify(products)], { type: 'application/json' })); } catch (e) { console.warn('snapshot', e); } }, 1500);
+    }
     async function uploadImage(file) {
       if (ghOn()) {
         const name = `img/${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -755,7 +762,7 @@
           if (!error) toast('Збережено без даних моделі: виконайте supabase-sizes.sql', 'err');
         }
         if (error) throw error;
-        resetForm(); await loadProducts(); toast('Збережено');
+        resetForm(); await loadProducts(); snap(); toast('Збережено');
       } catch (err) { toast('Помилка: ' + err.message, 'err'); }
       finally { btn.disabled = false; btn.textContent = $('p-id').value ? 'Оновити товар' : 'Зберегти товар'; }
     });
@@ -768,7 +775,7 @@
       if (error) { toast(/category/i.test(error.message || '') ? 'Спочатку виконайте supabase-categories.sql у Supabase' : 'Помилка: ' + error.message, 'err'); return; }
       const pr = products.find(x => Number(x.id) === Number(sel.dataset.setcat)); if (pr) pr.category = val;
       toast(val ? 'Категорія: ' + catLabel(val) : 'Категорію прибрано');
-      renderProducts();
+      renderProducts(); snap();
     });
 
     $('p-list').addEventListener('click', async (e) => {
@@ -785,7 +792,7 @@
       }
       if (del && confirm('Видалити цей товар?')) {
         const { error } = await db.from('products').delete().eq('id', del.dataset.del);
-        if (error) toast('Помилка видалення: ' + error.message, 'err'); else { await loadProducts(); toast('Видалено'); }
+        if (error) toast('Помилка видалення: ' + error.message, 'err'); else { await loadProducts(); snap(); toast('Видалено'); }
       }
     });
   </script>
