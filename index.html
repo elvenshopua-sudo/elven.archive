@@ -1213,7 +1213,7 @@
     const getImgs = (p) => (p.images && p.images.length) ? p.images : (p.img ? [p.img] : ['https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800']);
 
     /* ---------- Завантаження ---------- */
-    const thumbOf = (u) => (typeof u === 'string' && u.includes('/storage/v1/object/public/products/') && /\.jpg$/i.test(u)) ? u.replace(/\.jpg$/i, '_s.jpg') : u;
+    const thumbOf = (u) => (typeof u === 'string' && (u.includes('/storage/v1/object/public/products/') || /\/img\/[^/?]+$/.test(u)) && /\.jpg$/i.test(u) && !/_s\.jpg$/i.test(u)) ? u.replace(/\.jpg$/i, '_s.jpg') : u;
     const thumbErr = (u) => `this.onerror=null;this.src='${String(u).replace(/'/g, '%27')}'`;
     async function loadProductsFromCloud() {
       let cached = '';

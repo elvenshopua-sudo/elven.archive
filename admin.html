@@ -232,6 +232,17 @@
         <div class="lg:col-span-2 space-y-4">
           <h3 class="text-xs font-semibold uppercase tracking-ultra border-b border-zinc-200 dark:border-zinc-800 pb-3">Товари в каталозі</h3>
           <div id="p-shops" class="grid grid-cols-3 gap-2 mb-4"></div>
+          <details id="gh-box" class="mb-4 border border-zinc-300 dark:border-zinc-700 p-3 text-xs">
+            <summary class="cursor-pointer uppercase tracking-widest text-[10px]">Фото й відео через GitHub (безкоштовний трафік) <span id="gh-state" class="ml-1 text-emerald-500"></span></summary>
+            <div class="space-y-2 mt-3">
+              <input id="gh-repo" class="field" placeholder="Репозиторій: ваш-логін/назва-репо">
+              <input id="gh-branch" class="field" placeholder="Гілка (зазвичай main)">
+              <input id="gh-token" type="password" class="field" placeholder="Токен GitHub (Contents: Read and write)">
+              <div class="flex gap-2"><button type="button" id="gh-save" class="flex-1 bg-black dark:bg-white text-white dark:text-black py-2 uppercase text-[10px] tracking-widest">Зберегти й перевірити</button><button type="button" id="gh-off" class="px-3 bg-zinc-200 dark:bg-zinc-800 uppercase text-[10px]">Вимкнути</button></div>
+              <p class="text-[10px] text-zinc-400 leading-relaxed">Токен зберігається лише в цьому браузері. Створіть його на github.com → Settings → Developer settings → Fine-grained tokens: лише цей репозиторій, дозвіл Contents: Read and write. Після завантаження фото з’являється на сайті приблизно через хвилину.</p>
+              <button type="button" id="gh-migrate" class="w-full border border-emerald-500/60 text-emerald-500 py-2 uppercase text-[10px] tracking-widest">Перенести старі фото з Supabase на GitHub</button>
+            </div>
+          </details>
           <button type="button" id="p-thumbs" class="w-full mb-4 text-[10px] uppercase tracking-widest border border-emerald-500/60 text-emerald-500 px-3 py-3">Створити мініатюри для старих товарів (економить трафік)</button>
           <div id="p-list" class="space-y-3"></div>
         </div>
@@ -559,6 +570,30 @@
       btn.disabled = false; btn.textContent = 'Створити мініатюри для старих товарів (економить трафік)';
       toast(`Готово: ${done} мініатюр${fail ? ', помилок: ' + fail : ''}`, fail ? 'err' : 'ok');
     };
+    $('gh-migrate').onclick = async () => {
+      if (!ghOn()) { toast('Спершу підключіть GitHub', 'err'); return; }
+      if (!confirm('Перенести всі фото товарів із Supabase на GitHub? Це може тривати кілька хвилин. Не закривайте сторінку.')) return;
+      const btn = $('gh-migrate'), marker = '/storage/v1/object/public/products/'; btn.disabled = true;
+      const todo = products.filter(p => getImgs(p).some(u => typeof u === 'string' && u.includes(marker) && /\.jpg$/i.test(u) && !/_s\.jpg$/i.test(u)));
+      let ok = 0, fail = 0, n = 0;
+      for (const p of todo) {
+        n++; btn.textContent = `Перенесення: товар ${n} з ${todo.length}...`;
+        try {
+          const raw = Array.isArray(p.images) ? [...p.images] : getImgs(p), out = [];
+          for (const u of raw) {
+            if (typeof u === 'string' && u.includes(marker) && /\.jpg$/i.test(u) && !/_s\.jpg$/i.test(u)) {
+              const r = await fetch(u); if (!r.ok) throw new Error('fetch ' + r.status);
+              const bl = await r.blob(), name = `img/m${p.id}-${Math.random().toString(36).slice(2, 7)}`;
+              out.push(await ghPut(name + '.jpg', await compressToBlob(bl, 1200, .8)));
+              try { await ghPut(name + '_s.jpg', await compressToBlob(bl, 560, .78)); } catch (e) {}
+            } else out.push(u);
+          }
+          const { error } = await db.from('products').update({ images: out }).eq('id', p.id); if (error) throw error; ok++;
+        } catch (e) { fail++; console.error(e); }
+      }
+      btn.disabled = false; btn.textContent = 'Перенести старі фото з Supabase на GitHub';
+      await loadProducts(); toast(`Перенесено товарів: ${ok}${fail ? ', помилок: ' + fail : ''}. Фото з’являться на сайті за хвилину-дві.`, fail ? 'err' : 'ok');
+    };
     $('p-shops').addEventListener('click', (e) => { const b = e.target.closest('[data-pshop]'); if (!b) return; pShop = b.dataset.pshop; if (!$('p-id').value) { $('p-cat').value = defCat(); defSizes(); } renderProducts(); });
     async function loadProducts() {
       const { data, error } = await db.from('products').select('*');
@@ -611,7 +646,37 @@
         fr.readAsDataURL(file);
       });
     }
+    /* ---- GitHub-сховище ---- */
+    const GH = (() => { try { return JSON.parse(localStorage.getItem('elven_gh') || '{}'); } catch (e) { return {}; } })();
+    const ghOn = () => !!(GH.repo && GH.token);
+    function ghShow() { $('gh-repo').value = GH.repo || ''; $('gh-branch').value = GH.branch || ''; $('gh-token').value = GH.token || ''; $('gh-state').textContent = ghOn() ? '· увімкнено' : ''; }
+    const b64 = (blob) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = rej; r.readAsDataURL(blob); });
+    async function ghPut(path, blob) {
+      const url = `https://api.github.com/repos/${GH.repo}/contents/${path}`, br = GH.branch || 'main';
+      const h = { Authorization: 'Bearer ' + GH.token, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' };
+      let sha; try { const g = await fetch(url + '?ref=' + encodeURIComponent(br), { headers: h }); if (g.ok) sha = (await g.json()).sha; } catch (e) {}
+      const r = await fetch(url, { method: 'PUT', headers: h, body: JSON.stringify({ message: 'media: ' + path, content: await b64(blob), branch: br, ...(sha ? { sha } : {}) }) });
+      if (!r.ok) { let m = ''; try { m = (await r.json()).message; } catch (e) {} throw new Error('GitHub ' + r.status + (m ? ': ' + m : '')); }
+      return location.origin + '/' + path;
+    }
+    $('gh-save').onclick = async () => {
+      GH.repo = $('gh-repo').value.trim().replace(/^https?:\/\/github\.com\//, '').replace(/\.git$/, '').replace(/\/$/, ''); GH.branch = $('gh-branch').value.trim() || 'main'; GH.token = $('gh-token').value.trim();
+      try {
+        const r = await fetch('https://api.github.com/repos/' + GH.repo, { headers: { Authorization: 'Bearer ' + GH.token, Accept: 'application/vnd.github+json' } });
+        if (!r.ok) throw new Error('GitHub ' + r.status + ': перевірте репозиторій і токен');
+        const j = await r.json(); if (j.permissions && !j.permissions.push) throw new Error('У токена немає права запису (Contents: Read and write)');
+        localStorage.setItem('elven_gh', JSON.stringify(GH)); ghShow(); toast('GitHub підключено ✓');
+      } catch (e) { toast(e.message, 'err'); }
+    };
+    $('gh-off').onclick = () => { localStorage.removeItem('elven_gh'); GH.repo = GH.token = GH.branch = ''; ghShow(); toast('GitHub вимкнено: фото знову йдуть у Supabase'); };
+    ghShow();
     async function uploadImage(file) {
+      if (ghOn()) {
+        const name = `img/${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+        const full = await ghPut(name + '.jpg', await compressToBlob(file, 1200, .8));
+        try { await ghPut(name + '_s.jpg', await compressToBlob(file, 560, .78)); } catch (e) {}
+        return full;
+      }
       const blob = await compressToBlob(file, 1200, .8);
       const path = `p/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
       const { error } = await db.storage.from('products').upload(path, blob, { contentType: 'image/jpeg', cacheControl: '31536000' });
@@ -635,6 +700,7 @@
       toast('Завантаження відео...');
       try {
         const ext = (f.name.split('.').pop() || 'mp4').toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (ghOn()) { $('p-video').value = await ghPut(`videos/${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`, f); vShow(); toast('Відео завантажено на GitHub'); e.target.value = ''; return; }
         const path = `v/${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
         const { error } = await db.storage.from('products').upload(path, f, { contentType: f.type || 'video/mp4', cacheControl: '31536000' });
         if (error) throw error;
