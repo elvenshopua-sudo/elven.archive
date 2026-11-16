@@ -29,6 +29,7 @@
   <link rel="canonical" href="https://elven-archive.shop/">
   <meta name="robots" content="index, follow">
   <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","name":"ELVÉN","url":"https://elven-archive.shop/","logo":"https://elven-archive.shop/favicon-192.png","sameAs":["https://instagram.com/elven_archive"]},{"@type":"WebSite","name":"ELVÉN","url":"https://elven-archive.shop/"},{"@type":"Store","name":"ELVÉN","url":"https://elven-archive.shop/","image":"https://elven-archive.shop/og-image.png","description":"Інтернет-магазин одягу: худі, костюми, оверсайз. Доставка Новою поштою по Україні."}]}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
   <link rel="preconnect" href="https://tbkrdfspdozxdiptcmgi.supabase.co" crossorigin>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -995,6 +996,38 @@
     #ny-lights .bulb { animation: nytw 2.2s ease-in-out infinite; }
     @keyframes nytw { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
     @media (prefers-reduced-motion: reduce) { .ny-br, .ny-sw, .ny-cane, #ny-lights .bulb { animation: none !important; } }
+      /* ===== ЖІНОЧА КОЛЕКЦІЯ ===== */
+    #shop-switch { grid-template-columns: repeat(3, 1fr); }
+    @media (max-width: 520px) { .shop-tab { padding: .9rem .3rem; font-size: 9.5px; letter-spacing: .1em; gap: .3rem; } .shop-tab i { display: none; } }
+    .shop-tab.f { color: #b5566b; border-color: rgba(214,138,155,.5); background: linear-gradient(180deg, rgba(246,211,217,.25), transparent); }
+    .dark .shop-tab.f { color: #f0b6c2; border-color: rgba(240,182,194,.3); }
+    .shop-tab.f.on { background: linear-gradient(135deg, #f8d5dc, #d98c9d); color: #4a1220; border-color: #f3c6cf; box-shadow: 0 0 28px rgba(230,150,170,.35); }
+    .shop-tab .fl { display: inline-block; font-size: 13px; }
+    .shop-tab.f:not(.on) .fl { animation: sfspin 10s linear infinite; }
+    #petal-cv { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 34; pointer-events: none; display: none; }
+    html.women #petal-cv { display: block; }
+    html.women body { background-image: radial-gradient(900px 520px at 8% -6%, rgba(255,196,210,.5), transparent 62%), radial-gradient(800px 520px at 100% 32%, rgba(246,205,175,.34), transparent 62%), radial-gradient(700px 400px at 40% 105%, rgba(235,190,215,.28), transparent 65%); background-attachment: fixed; }
+    html.women.dark body { background-image: radial-gradient(900px 520px at 8% -6%, rgba(200,90,125,.2), transparent 62%), radial-gradient(800px 520px at 100% 32%, rgba(210,140,110,.1), transparent 62%), radial-gradient(700px 400px at 40% 105%, rgba(160,90,170,.14), transparent 65%); }
+    html.women #catalog h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-weight: 500; letter-spacing: .02em; text-transform: none; font-size: clamp(3.4rem, 10vw, 6.4rem); line-height: .95; background: linear-gradient(95deg, #a9546a, #e7a9b3 45%, #b97a64 75%, #a9546a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    html.women.dark #catalog h2 { background: linear-gradient(95deg, #f6d3d9, #ffffff 45%, #e8b09a 75%, #f6d3d9); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    html.women .chip-c.active { background: linear-gradient(135deg, #f8d5dc, #d98c9d); color: #4a1220; border-color: #f3c6cf; }
+    html.women .chip-c { border-radius: 999px; }
+    html.women .card-media { border-radius: 999px 999px 14px 14px / 190px 190px 14px 14px; box-shadow: 0 14px 40px -18px rgba(190,100,125,.55); transition: box-shadow .5s, transform .5s; }
+    html.women article:hover .card-media { box-shadow: 0 22px 50px -16px rgba(200,100,130,.65); transform: translateY(-4px); }
+    html.women article h4 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 15px; letter-spacing: .06em; text-transform: none; font-weight: 600; }
+    html.women .card-media .absolute.top-2.left-2 { top: 1.6rem; left: 50%; transform: translateX(-50%); }
+    #w-hero { position: relative; overflow: hidden; margin-bottom: 1.4rem; border-radius: 22px; background: linear-gradient(120deg, rgba(255,226,232,.85), rgba(250,214,196,.6) 55%, rgba(236,200,225,.55)); border: 1px solid rgba(214,138,155,.35); }
+    .dark #w-hero { background: linear-gradient(120deg, rgba(120,40,70,.45), rgba(130,70,60,.3) 55%, rgba(100,50,120,.3)); border-color: rgba(240,182,194,.25); }
+    #w-hero .wh-in { position: relative; z-index: 2; padding: 2.2rem 1.6rem; max-width: 30rem; }
+    #w-hero .wh-k { font-size: 10px; letter-spacing: .32em; text-transform: uppercase; color: #b5566b; font-weight: 600; }
+    .dark #w-hero .wh-k { color: #f0b6c2; }
+    #w-hero h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-weight: 500; font-size: 3.1rem; line-height: 1; margin: .5rem 0 .7rem; color: #5a1e30; }
+    .dark #w-hero h3 { color: #fff0f3; }
+    #w-hero .wh-t { font-size: 12.5px; line-height: 1.6; color: #7a4a56; }
+    .dark #w-hero .wh-t { color: #e6c6ce; }
+    #w-hero .wh-art { position: absolute; right: 2%; bottom: -4px; height: 135%; width: auto; max-width: 48%; opacity: .9; animation: whfloat 8s ease-in-out infinite; }
+    @keyframes whfloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    @media (prefers-reduced-motion: reduce) { #w-hero .wh-art, .shop-tab .fl { animation: none !important; } }
   </style>
 
   
@@ -1123,6 +1156,13 @@
     let activeFilter = '';
     let activeCat = '';
     let shop = 'main';
+    const CATS_W = [
+      ['w_dresses', 'Сукні'], ['w_tops', 'Топи та блузки'], ['w_knit', 'Светри та кардигани'], ['w_pants', 'Штани та джинси'],
+      ['w_skirts', 'Спідниці'], ['w_suits', 'Костюми'], ['w_outer', 'Верхній одяг'], ['w_hoodies', 'Худі та світшоти'],
+      ['w_home', 'Білизна та домашній одяг'], ['w_acc', 'Аксесуари']
+    ];
+    const isW = (p) => typeof p.category === 'string' && p.category.indexOf('w_') === 0;
+    const inShop = (p) => shop === 'winter' ? p.category === 'winter' : shop === 'women' ? isW(p) : (p.category !== 'winter' && !isW(p));
     let page = 1;
     let sortMode = 'new';
     const CATS = [
@@ -1163,10 +1203,10 @@
     }
 
     function renderCats() {
-      const base = products.filter(p => shop === 'winter' ? p.category === 'winter' : p.category !== 'winter');
+      const base = products.filter(inShop);
       const cnt = {}; base.forEach(p => { if (p.category) cnt[p.category] = (cnt[p.category] || 0) + 1; });
       if (activeCat && !cnt[activeCat]) activeCat = '';
-      const tabs = [['', 'Усі', base.length]].concat(CATS.filter(c => cnt[c[0]]).map(c => [c[0], c[1], cnt[c[0]]]));
+      const tabs = [['', 'Усі', base.length]].concat((shop === 'women' ? CATS_W : CATS).filter(c => cnt[c[0]]).map(c => [c[0], c[1], cnt[c[0]]]));
       $('cats').innerHTML = tabs.map(t => `<button type="button" role="tab" data-cat="${t[0]}" class="chip chip-c ${t[0] === activeCat ? 'active' : ''}">${esc(t[1])}<i>${t[2]}</i></button>`).join('');
     }
 
@@ -1192,7 +1232,7 @@
     function renderProducts() {
       const grid = $('product-grid');
       renderCats();
-      let list = products.filter(p => (shop === 'winter' ? p.category === 'winter' : p.category !== 'winter') && (!activeCat || p.category === activeCat) && (!activeFilter || (activeFilter === 'FAV' ? favs.has(Number(p.id)) : p.badge === activeFilter)));
+      let list = products.filter(p => inShop(p) && (!activeCat || p.category === activeCat) && (!activeFilter || (activeFilter === 'FAV' ? favs.has(Number(p.id)) : p.badge === activeFilter)));
       if (sortMode === 'asc') list.sort((a, b) => a.price - b.price);
       else if (sortMode === 'desc') list.sort((a, b) => b.price - a.price);
       else list.sort((a, b) => Number(b.id) - Number(a.id));
@@ -1208,7 +1248,7 @@
       renderPager(list.length);
 
       if (!list.length) {
-        grid.innerHTML = `<div class="col-span-full text-center py-20 text-zinc-400 text-xs uppercase tracking-widest"><svg class="ic text-3xl mb-4 block mx-auto" aria-hidden="true"><use href="#i-smile"/></svg>${activeFilter === 'FAV' ? 'Ви ще нічого не додали в обране' : (shop === 'winter' ? 'Зимова колекція скоро з’явиться ❄' : 'Тут поки порожньо')}</div>`;
+        grid.innerHTML = `<div class="col-span-full text-center py-20 text-zinc-400 text-xs uppercase tracking-widest"><svg class="ic text-3xl mb-4 block mx-auto" aria-hidden="true"><use href="#i-smile"/></svg>${activeFilter === 'FAV' ? 'Ви ще нічого не додали в обране' : (shop === 'winter' ? 'Зимова колекція скоро з’явиться ❄' : shop === 'women' ? 'Жіноча колекція скоро з’явиться ✿' : 'Тут поки порожньо')}</div>`;
         return;
       }
 
@@ -2571,7 +2611,7 @@
 
     function sgUpdate(p) {
       sgProd = p;
-      const b = $('pm-sg-open'); if (b) b.classList.toggle('hidden', SG_CATS[p.category] === null);
+      const b = $('pm-sg-open'); if (b) b.classList.toggle('hidden', SG_CATS[p.category] === null || isW(p));
       const m = $('pm-model'), h = Number(p.model_height), sz = String(p.model_size || '').trim();
       if (m) { if (h > 0 && sz) { m.innerHTML = `Зріст моделі на фото: <b>${h} см</b> · розмір на моделі: <b>${esc(sz)}</b>`; m.classList.remove('hidden'); } else { m.classList.add('hidden'); m.textContent = ''; } }
     }
@@ -2716,6 +2756,35 @@
     })();
 </script>
   <script>
+  /* ===== ЖІНОЧА КОЛЕКЦІЯ: пелюстки та іскорки ===== */
+  (function () {
+    const cv = document.createElement('canvas'); cv.id = 'petal-cv'; document.body.appendChild(cv);
+    const ctx = cv.getContext('2d'); let W = 0, H = 0, dpr = 1, raf = 0, last = 0, items = [];
+    const COL = ['#f6c1cc', '#ee9fb0', '#f9d7dc', '#e8b4a0', '#f3b6d2'];
+    function resize() { dpr = Math.min(devicePixelRatio || 1, 1.5); W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+    const mk = (top) => ({ x: Math.random() * W, y: top ? -20 : Math.random() * H, s: 5 + Math.random() * 8, vy: 16 + Math.random() * 26, ph: Math.random() * 6.28, rot: Math.random() * 6.28, vr: (Math.random() - .5) * 1.6, c: COL[(Math.random() * COL.length) | 0], a: .5 + Math.random() * .4, sp: Math.random() < .22, tw: Math.random() * 6.28 });
+    function fill() { const n = matchMedia('(prefers-reduced-motion: reduce)').matches ? 6 : Math.round(Math.min(34, Math.max(14, W / 38))); items = Array.from({ length: n }, () => mk(false)); }
+    function frame(t) {
+      raf = requestAnimationFrame(frame);
+      if (document.hidden) { last = t; return; }
+      const dt = Math.min(.05, (t - last) / 1000 || .016); last = t; ctx.clearRect(0, 0, W, H);
+      for (const p of items) {
+        p.y += p.vy * dt; p.ph += dt * .8; p.rot += p.vr * dt; p.tw += dt * 3; p.x += Math.sin(p.ph) * 22 * dt;
+        if (p.y > H + 20) { Object.assign(p, mk(true)); }
+        ctx.save(); ctx.translate(p.x, p.y);
+        if (p.sp) { const k = .5 + .5 * Math.sin(p.tw); ctx.globalAlpha = .25 + .65 * k; ctx.fillStyle = '#f3d9a4'; ctx.rotate(Math.PI / 4); const r = 2 + 2.5 * k; ctx.fillRect(-r, -.8, r * 2, 1.6); ctx.fillRect(-.8, -r, 1.6, r * 2); }
+        else { ctx.rotate(p.rot); ctx.scale(1, .55 + .45 * Math.abs(Math.sin(p.ph))); ctx.globalAlpha = p.a; ctx.fillStyle = p.c; ctx.beginPath(); ctx.moveTo(0, -p.s); ctx.bezierCurveTo(p.s * .9, -p.s * .6, p.s * .8, p.s * .6, 0, p.s); ctx.bezierCurveTo(-p.s * .8, p.s * .6, -p.s * .9, -p.s * .6, 0, -p.s); ctx.fill(); }
+        ctx.restore();
+      }
+    }
+    window.petals = function (on) {
+      if (on && !raf) { resize(); fill(); last = performance.now(); raf = requestAnimationFrame(frame); }
+      else if (!on && raf) { cancelAnimationFrame(raf); raf = 0; ctx.clearRect(0, 0, W, H); }
+    };
+    window.addEventListener('resize', () => { if (raf) { resize(); fill(); } });
+  })();
+  </script>
+  <script>
   /* ===== ЗИМОВА КОЛЕКЦІЯ: сніг + сніжки ===== */
   (function () {
     const root = document.documentElement;
@@ -2727,17 +2796,25 @@
     const sw = document.createElement('div');
     sw.id = 'shop-switch';
     $('cats').parentNode.insertBefore(sw, $('cats'));
+    const wh = document.createElement('div'); wh.id = 'w-hero'; wh.style.display = 'none';
+    wh.innerHTML = '<div class="wh-in"><p class="wh-k">Нова колекція</p><h3>Для неї</h3><p class="wh-t">Сукні, светри, костюми та аксесуари. М’які тканини, чисті лінії, образи на кожен день.</p></div><svg class="wh-art" viewBox="0 0 200 200" aria-hidden="true"><defs><linearGradient id="wg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6d3d9"/><stop offset="1" stop-color="#d48a9a"/></linearGradient></defs><path d="M10 190V90a90 90 0 0 1 180 0v100" fill="none" stroke="url(#wg)" stroke-width="2"/><path d="M34 190V94a66 66 0 0 1 132 0v96" fill="none" stroke="url(#wg)" stroke-width="1.5" opacity=".7"/><path d="M58 190V98a42 42 0 0 1 84 0v92" fill="none" stroke="url(#wg)" stroke-width="1" opacity=".5"/><circle cx="100" cy="38" r="5" fill="url(#wg)"/></svg>';
+    sw.parentNode.insertBefore(wh, sw.nextSibling);
     function renderSwitch() {
-      const nm = products.filter(p => !isWinterP(p)).length, nw = products.filter(isWinterP).length;
-      sw.innerHTML = `<button type="button" data-shop="main" class="shop-tab ${shop === 'main' ? 'on' : ''}">Основний каталог<i>${nm}</i></button>` +
-        `<button type="button" data-shop="winter" class="shop-tab w ${shop === 'winter' ? 'on' : ''}">${SF()}Зимова колекція<i>${nw}</i></button>`;
+      const cnt = { main: 0, women: 0, winter: 0 };
+      products.forEach(p => { if (isWinterP(p)) cnt.winter++; else if (isW(p)) cnt.women++; else cnt.main++; });
+      sw.innerHTML = `<button type="button" data-shop="main" class="shop-tab ${shop === 'main' ? 'on' : ''}">Чоловічий<i>${cnt.main}</i></button>` +
+        `<button type="button" data-shop="women" class="shop-tab f ${shop === 'women' ? 'on' : ''}"><span class="fl">✿</span>Жіночий<i>${cnt.women}</i></button>` +
+        `<button type="button" data-shop="winter" class="shop-tab w ${shop === 'winter' ? 'on' : ''}">${SF()}Зима<i>${cnt.winter}</i></button>`;
     }
     sw.addEventListener('click', (e) => { const b = e.target.closest('[data-shop]'); if (b) setShop(b.dataset.shop); });
     const navW = document.createElement('button');
     navW.type = 'button'; navW.id = 'nav-winter';
     navW.className = 'hover:text-black dark:hover:text-white transition inline-flex items-center gap-1.5';
     navW.innerHTML = SF('w-3.5 h-3.5') + 'Зима';
-    const nav = document.querySelector('header nav'); if (nav) nav.insertBefore(navW, nav.children[1] || null);
+    const navF = document.createElement('button');
+    navF.type = 'button'; navF.id = 'nav-women'; navF.className = navW.className; navF.innerHTML = '<span class="fl">✿</span>Для неї';
+    navF.onclick = () => { setShop('women'); $('catalog').scrollIntoView({ behavior: rm() ? 'auto' : 'smooth', block: 'start' }); };
+    const nav = document.querySelector('header nav'); if (nav) { nav.insertBefore(navF, nav.children[1] || null); nav.insertBefore(navW, nav.children[2] || null); }
     navW.onclick = () => { setShop('winter'); $('catalog').scrollIntoView({ behavior: rm() ? 'auto' : 'smooth', block: 'start' }); };
 
     /* --- UI --- */
@@ -2860,14 +2937,15 @@
     function setShop(s) {
       if (s === shop) return;
       shop = s; activeCat = ''; page = 1;
-      const w = s === 'winter';
+      const w = s === 'winter', f = s === 'women';
       vt(() => {
-        root.classList.toggle('winter', w);
+        root.classList.toggle('winter', w); root.classList.toggle('women', f); if (window.petals) window.petals(f);
         if (w) { start(); burst = 1.1; } else { arm(false); stop(); }
         renderProducts();
       });
-      try { history.replaceState(null, '', w ? '#winter' : location.pathname + location.search); } catch (e) {}
+      try { history.replaceState(null, '', w ? '#winter' : f ? '#women' : location.pathname + location.search); } catch (e) {}
       if (w) setTimeout(() => toast('❄ Зимова колекція! Тицяй на ❄ внизу, щоб кидатись сніжками'), 600);
+      if (f) setTimeout(() => toast('✿ Жіноча колекція'), 500);
     }
     window.setShop = setShop;
 
@@ -2878,7 +2956,8 @@
       renderSwitch();
       const w = shop === 'winter';
       $('cats').style.display = w ? 'none' : '';
-      const h = document.querySelector('#catalog h2'); if (h) h.textContent = w ? 'Зима' : 'Каталог';
+      const h = document.querySelector('#catalog h2'); if (h) h.textContent = w ? 'Зима' : shop === 'women' ? 'Для неї' : 'Каталог';
+      const wh = $('w-hero'); if (wh) wh.style.display = shop === 'women' ? '' : 'none';
       if (w) {
         document.querySelectorAll('#product-grid .card-media').forEach(m => {
           if (m.querySelector('.snow-hit')) return;
@@ -2888,6 +2967,7 @@
       }
     };
     if (location.hash === '#winter') { shop = 'winter'; root.classList.add('winter'); start(); }
+    else if (location.hash === '#women') { shop = 'women'; root.classList.add('women'); if (window.petals) window.petals(true); }
     renderProducts();
   })();
   </script>

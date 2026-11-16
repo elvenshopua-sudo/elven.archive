@@ -209,6 +209,7 @@
             <div>
               <label class="block text-[10px] text-zinc-400 uppercase mb-2">Розміри</label>
               <div class="flex flex-wrap gap-4 text-xs">
+                <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="XS"> XS</label>
                 <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="S" checked> S</label>
                 <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="M" checked> M</label>
                 <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="L" checked> L</label>
@@ -224,7 +225,7 @@
         </div>
         <div class="lg:col-span-2 space-y-4">
           <h3 class="text-xs font-semibold uppercase tracking-ultra border-b border-zinc-200 dark:border-zinc-800 pb-3">Товари в каталозі</h3>
-          <div id="p-shops" class="grid grid-cols-2 gap-2 mb-4"></div>
+          <div id="p-shops" class="grid grid-cols-3 gap-2 mb-4"></div>
           <button type="button" id="p-thumbs" class="w-full mb-4 text-[10px] uppercase tracking-widest border border-emerald-500/60 text-emerald-500 px-3 py-3">Створити мініатюри для старих товарів (економить трафік)</button>
           <div id="p-list" class="space-y-3"></div>
         </div>
@@ -517,34 +518,24 @@
     }
 
     /* ---------- Товари ---------- */
-    const CATS = [['suits','Спортивні костюми'],['hoodies','Худі'],['sweatshirts','Кофти та світшоти'],['tshirts','Футболки та поло'],['pants','Штани'],['shorts','Шорти'],['outerwear','Куртки та жилети'],['thermal','Термобілизна'],['sets','Комплекти'],['accessories','Аксесуари'],['winter','❄ Зимова колекція']];
-    const catLabel = (k) => (CATS.find(c => c[0] === k) || [0, ''])[1];
+    const CATS_W = [['w_dresses','Сукні'],['w_tops','Топи та блузки'],['w_knit','Светри та кардигани'],['w_pants','Штани та джинси'],['w_skirts','Спідниці'],['w_suits','Костюми'],['w_outer','Верхній одяг'],['w_hoodies','Худі та світшоти'],['w_home','Білизна та домашній одяг'],['w_acc','Аксесуари']];
+    const CATS = [['suits','Спортивні костюми'],['hoodies','Худі'],['sweatshirts','Кофти та світшоти'],['tshirts','Футболки та поло'],['pants','Штани'],['shorts','Шорти'],['outerwear','Куртки та жилети'],['thermal','Термобілизна'],['sets','Комплекти'],['accessories','Аксесуари']];
+    const catLabel = (k) => (CATS.concat(CATS_W, [['winter', '❄ Зимова колекція']]).find(c => c[0] === k) || [0, ''])[1];
+    const isW = (p) => typeof p.category === 'string' && p.category.indexOf('w_') === 0;
+    const catOpts = (cur, blank) => `<option value="" class="dark:bg-zinc-900">${blank}</option><optgroup label="Чоловічий">${CATS.map(c => `<option value="${c[0]}" class="dark:bg-zinc-900" ${cur === c[0] ? 'selected' : ''}>${c[1]}</option>`).join('')}</optgroup><optgroup label="Жіночий">${CATS_W.map(c => `<option value="${c[0]}" class="dark:bg-zinc-900" ${cur === c[0] ? 'selected' : ''}>${c[1]}</option>`).join('')}</optgroup><optgroup label="Зима"><option value="winter" class="dark:bg-zinc-900" ${cur === 'winter' ? 'selected' : ''}>❄ Зимова колекція</option></optgroup>`;
+    const defCat = () => pShop === 'winter' ? 'winter' : pShop === 'women' ? 'w_dresses' : '';
+    const defSizes = () => document.querySelectorAll('input[name="p-size"]').forEach(cb => cb.checked = (pShop === 'women' ? ['XS', 'S', 'M', 'L'] : ['S', 'M', 'L', 'XL']).includes(cb.value));
     let pImages = [];
     let pShop = 'main';
-    const inShop = (p) => pShop === 'winter' ? p.category === 'winter' : p.category !== 'winter';
+    setTimeout(() => { $('p-cat').innerHTML = catOpts('', '— Чоловічий, без категорії —'); }, 0);
+    const inShop = (p) => pShop === 'winter' ? p.category === 'winter' : pShop === 'women' ? isW(p) : (p.category !== 'winter' && !isW(p));
     function renderShops() {
-      const nm = products.filter(p => p.category !== 'winter').length, nw = products.filter(p => p.category === 'winter').length;
-      $('p-shops').innerHTML = `<button type="button" data-pshop="main" class="px-3 py-3 text-[11px] uppercase tracking-widest border ${pShop === 'main' ? 'bg-black text-white dark:bg-white dark:text-black border-transparent' : 'border-zinc-300 dark:border-zinc-700 text-zinc-500'}">Основний каталог (${nm})</button><button type="button" data-pshop="winter" class="px-3 py-3 text-[11px] uppercase tracking-widest border ${pShop === 'winter' ? 'bg-sky-300 text-sky-950 border-transparent' : 'border-sky-400/50 text-sky-500'}">❄ Зимовий (${nw})</button>`;
+      const c = { main: 0, women: 0, winter: 0 };
+      products.forEach(p => { if (p.category === 'winter') c.winter++; else if (isW(p)) c.women++; else c.main++; });
+      const on = 'bg-black text-white dark:bg-white dark:text-black border-transparent', off = 'border-zinc-300 dark:border-zinc-700 text-zinc-500';
+      $('p-shops').innerHTML = `<button type="button" data-pshop="main" class="px-2 py-3 text-[11px] uppercase tracking-widest border ${pShop === 'main' ? on : off}">Чоловічий (${c.main})</button><button type="button" data-pshop="women" class="px-2 py-3 text-[11px] uppercase tracking-widest border ${pShop === 'women' ? 'bg-rose-300 text-rose-950 border-transparent' : 'border-rose-400/50 text-rose-400'}">✿ Жіночий (${c.women})</button><button type="button" data-pshop="winter" class="px-2 py-3 text-[11px] uppercase tracking-widest border ${pShop === 'winter' ? 'bg-sky-300 text-sky-950 border-transparent' : 'border-sky-400/50 text-sky-500'}">❄ Зима (${c.winter})</button>`;
     }
-    $('p-thumbs').onclick = async () => {
-      const btn = $('p-thumbs'); btn.disabled = true;
-      const marker = '/storage/v1/object/public/products/';
-      const urls = [...new Set(products.flatMap(p => getImgs(p)).filter(u => typeof u === 'string' && u.includes(marker) && /\.jpg$/i.test(u) && !/_s\.jpg$/i.test(u)))];
-      let done = 0, fail = 0;
-      for (const u of urls) {
-        btn.textContent = `Мініатюри: ${done + fail} / ${urls.length}...`;
-        try {
-          const path = decodeURIComponent(u.split(marker)[1].split('?')[0]).replace(/\.jpg$/i, '_s.jpg');
-          const r = await fetch(u); if (!r.ok) throw new Error('fetch');
-          const tb = await compressToBlob(await r.blob(), 560, .78);
-          const { error } = await db.storage.from('products').upload(path, tb, { contentType: 'image/jpeg', cacheControl: '31536000', upsert: true });
-          if (error) throw error; done++;
-        } catch (e) { fail++; }
-      }
-      btn.disabled = false; btn.textContent = 'Створити мініатюри для старих товарів (економить трафік)';
-      toast(`Готово: ${done} мініатюр${fail ? ', помилок: ' + fail : ''}`, fail ? 'err' : 'ok');
-    };
-    $('p-shops').addEventListener('click', (e) => { const b = e.target.closest('[data-pshop]'); if (!b) return; pShop = b.dataset.pshop; if (!$('p-id').value) $('p-cat').value = pShop === 'winter' ? 'winter' : ''; renderProducts(); });
+    $('p-shops').addEventListener('click', (e) => { const b = e.target.closest('[data-pshop]'); if (!b) return; pShop = b.dataset.pshop; if (!$('p-id').value) { $('p-cat').value = defCat(); defSizes(); } renderProducts(); });
     async function loadProducts() {
       const { data, error } = await db.from('products').select('*');
       if (error) { toast('Не вдалося завантажити товари', 'err'); return; }
@@ -563,7 +554,7 @@
               <p class="text-xs font-semibold truncate">${esc(p.name)} <span class="text-[10px] text-zinc-400 font-mono">[${esc(p.sku || 'без SKU')}]</span></p>
               <p class="text-[10px] text-zinc-400">${fmt(p.price)} ${p.badge ? `| [${esc(p.badge)}]` : ''}</p>
               <select data-setcat="${p.id}" class="mt-1 bg-transparent border border-zinc-300 dark:border-zinc-700 text-[10px] px-1.5 py-1 max-w-[190px] focus:outline-none">
-                <option value="" class="dark:bg-zinc-900">Без категорії</option>${CATS.map(c => `<option value="${c[0]}" class="dark:bg-zinc-900" ${p.category === c[0] ? 'selected' : ''}>${c[1]}</option>`).join('')}
+                ${catOpts(p.category, 'Без категорії')}
               </select>
             </div>
           </div>
@@ -615,7 +606,7 @@
     $('p-add-url').onclick = () => { const u = $('p-url').value.trim(); if (!u) return; pImages.push(u); $('p-url').value = ''; renderPreview(); };
 
     function resetForm() {
-      $('p-form').reset(); $('p-id').value = ''; pImages = []; renderPreview(); $('p-cat').value = pShop === 'winter' ? 'winter' : '';
+      $('p-form').reset(); $('p-id').value = ''; pImages = []; renderPreview(); $('p-cat').value = defCat(); defSizes();
       $('form-title').textContent = 'Додати новий товар'; $('p-save').textContent = 'Зберегти товар'; $('p-cancel').classList.add('hidden');
     }
     $('p-cancel').onclick = resetForm;
@@ -672,6 +663,7 @@
       const ed = e.target.closest('[data-edit]'), del = e.target.closest('[data-del]');
       if (ed) {
         const p = products.find(x => Number(x.id) === Number(ed.dataset.edit)); if (!p) return;
+        pShop = p.category === 'winter' ? 'winter' : isW(p) ? 'women' : 'main'; renderProducts();
         $('p-id').value = p.id; $('p-name').value = p.name; $('p-sku').value = p.sku || ''; $('p-mh').value = p.model_height || ''; $('p-ms').value = p.model_size || '';
         $('p-price').value = p.price; $('p-old').value = p.oldPrice || ''; $('p-badge').value = p.badge || ''; $('p-cat').value = p.category || ''; $('p-desc').value = p.desc || '';
         $('p-url').value = ''; pImages = [...getImgs(p)]; renderPreview();
