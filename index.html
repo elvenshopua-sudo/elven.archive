@@ -29,7 +29,7 @@
   <link rel="canonical" href="https://elven-archive.shop/">
   <meta name="robots" content="index, follow">
   <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","name":"ELVÉN","url":"https://elven-archive.shop/","logo":"https://elven-archive.shop/favicon-192.png","sameAs":["https://instagram.com/elven_archive"]},{"@type":"WebSite","name":"ELVÉN","url":"https://elven-archive.shop/"},{"@type":"Store","name":"ELVÉN","url":"https://elven-archive.shop/","image":"https://elven-archive.shop/og-image.png","description":"Інтернет-магазин одягу: худі, костюми, оверсайз. Доставка Новою поштою по Україні."}]}</script>
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="preconnect" href="https://tbkrdfspdozxdiptcmgi.supabase.co" crossorigin>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -1028,6 +1028,39 @@
     #w-hero .wh-art { position: absolute; right: 2%; bottom: -4px; height: 135%; width: auto; max-width: 48%; opacity: .9; animation: whfloat 8s ease-in-out infinite; }
     @keyframes whfloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
     @media (prefers-reduced-motion: reduce) { #w-hero .wh-art, .shop-tab .fl { animation: none !important; } }
+      /* ===== ЧОЛОВІЧИЙ РОЗДІЛ ===== */
+    #ember-cv { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 34; pointer-events: none; display: none; }
+    html.men #ember-cv { display: block; }
+    html.men #catalog h2 { font-family: 'Oswald', 'Arial Narrow', sans-serif; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; font-size: clamp(3rem, 9vw, 5.6rem); line-height: .95; background: linear-gradient(100deg, currentColor 0%, currentColor 40%, #f0a24a 50%, currentColor 60%, currentColor 100%); background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: mensweep 5s linear infinite; }
+    html.men #catalog h2 { --c: #000; }
+    @keyframes mensweep { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+    html.men:not(.dark) #catalog h2 { background-image: linear-gradient(100deg, #111 0%, #111 40%, #e08a2c 50%, #111 60%, #111 100%); background-size: 250% 100%; }
+    html.men.dark #catalog h2 { background-image: linear-gradient(100deg, #fff 0%, #fff 40%, #f0a24a 50%, #fff 60%, #fff 100%); background-size: 250% 100%; }
+    #m-hero { position: relative; overflow: hidden; margin-bottom: 1.4rem; background: #0a0a0b; color: #fff; border: 1px solid #27272a; }
+    #m-hero::before { content: ''; position: absolute; inset: -50%; background: repeating-linear-gradient(115deg, rgba(255,255,255,.045) 0 2px, transparent 2px 26px); animation: mstripe 14s linear infinite; }
+    @keyframes mstripe { to { transform: translateX(52px); } }
+    #m-hero::after { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: linear-gradient(90deg, transparent, #f0a24a, transparent); animation: mscan 3.6s ease-in-out infinite; }
+    @keyframes mscan { 0%, 100% { transform: translateX(-100%); } 50% { transform: translateX(100%); } }
+    #m-hero .mh-in { position: relative; z-index: 2; padding: 2rem 1.5rem 1.2rem; }
+    #m-hero .mh-k { font-size: 10px; letter-spacing: .34em; text-transform: uppercase; color: #f0a24a; font-weight: 600; }
+    #m-hero h3 { font-family: 'Oswald', 'Arial Narrow', sans-serif; font-weight: 700; text-transform: uppercase; font-size: clamp(2.6rem, 8vw, 4.4rem); line-height: .95; margin: .4rem 0 .6rem; color: transparent; -webkit-text-stroke: 1.5px #fff; letter-spacing: .03em; }
+    #m-hero h3 b { color: #fff; -webkit-text-stroke: 0; }
+    #m-hero .mh-t { font-size: 12.5px; line-height: 1.6; color: #a1a1aa; max-width: 30rem; }
+    #m-hero .mh-tick { position: relative; z-index: 2; overflow: hidden; border-top: 1px solid #27272a; padding: .65rem 0; white-space: nowrap; font-family: 'Oswald', sans-serif; font-size: 12px; letter-spacing: .28em; text-transform: uppercase; color: #71717a; }
+    #m-hero .mh-tick span { display: inline-block; animation: mtick 26s linear infinite; }
+    #m-hero .mh-tick em { font-style: normal; color: #f0a24a; margin: 0 1.1rem; }
+    @keyframes mtick { to { transform: translateX(-50%); } }
+    html.men .card-media { transition: transform .25s ease-out, box-shadow .4s; transform-style: preserve-3d; will-change: transform; }
+    html.men .card-media::before { content: ''; position: absolute; inset: 8px; z-index: 5; pointer-events: none; opacity: 0; transition: opacity .3s, inset .3s; background:
+      linear-gradient(#f0a24a, #f0a24a) top left / 16px 2px no-repeat, linear-gradient(#f0a24a, #f0a24a) top left / 2px 16px no-repeat,
+      linear-gradient(#f0a24a, #f0a24a) top right / 16px 2px no-repeat, linear-gradient(#f0a24a, #f0a24a) top right / 2px 16px no-repeat,
+      linear-gradient(#f0a24a, #f0a24a) bottom left / 16px 2px no-repeat, linear-gradient(#f0a24a, #f0a24a) bottom left / 2px 16px no-repeat,
+      linear-gradient(#f0a24a, #f0a24a) bottom right / 16px 2px no-repeat, linear-gradient(#f0a24a, #f0a24a) bottom right / 2px 16px no-repeat; }
+    html.men article:hover .card-media::before { opacity: 1; inset: 12px; }
+    html.men .card-media::after { content: ''; position: absolute; inset: 0; z-index: 4; pointer-events: none; opacity: 0; transition: opacity .3s; background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%), rgba(255,200,120,.26), transparent 65%); }
+    html.men article:hover .card-media::after { opacity: 1; }
+    html.men article:hover .card-media { box-shadow: 0 18px 44px -18px rgba(240,162,74,.5); }
+    @media (prefers-reduced-motion: reduce) { #m-hero::before, #m-hero::after, #m-hero .mh-tick span, html.men #catalog h2 { animation: none !important; } }
   </style>
 
   
@@ -2785,6 +2818,47 @@
   })();
   </script>
   <script>
+  /* ===== ЧОЛОВІЧИЙ РОЗДІЛ: іскри, підсвітка, нахил карток ===== */
+  (function () {
+    const cv = document.createElement('canvas'); cv.id = 'ember-cv'; document.body.appendChild(cv);
+    const ctx = cv.getContext('2d'); let W = 0, H = 0, dpr = 1, raf = 0, last = 0, it = [];
+    function resize() { dpr = Math.min(devicePixelRatio || 1, 1.5); W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+    const mk = (b) => ({ x: Math.random() * W, y: b ? H + 10 : Math.random() * H, r: .7 + Math.random() * 1.8, vy: 12 + Math.random() * 34, ph: Math.random() * 6.28, f: Math.random() * 6.28, h: 24 + Math.random() * 22 });
+    function fill() { const n = matchMedia('(prefers-reduced-motion: reduce)').matches ? 6 : Math.round(Math.min(36, Math.max(14, W / 34))); it = Array.from({ length: n }, () => mk(false)); }
+    function frame(t) {
+      raf = requestAnimationFrame(frame);
+      if (document.hidden) { last = t; return; }
+      const dt = Math.min(.05, (t - last) / 1000 || .016); last = t; ctx.clearRect(0, 0, W, H);
+      const dark = document.documentElement.classList.contains('dark');
+      for (const p of it) {
+        p.y -= p.vy * dt; p.ph += dt * .9; p.f += dt * 5; p.x += Math.sin(p.ph) * 14 * dt;
+        if (p.y < -10) Object.assign(p, mk(true));
+        const k = .55 + .45 * Math.sin(p.f), a = Math.min(1, p.y / (H * .5)) * k * (dark ? .85 : .6);
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 5);
+        g.addColorStop(0, `hsla(${p.h},100%,${dark ? 68 : 52}%,${a})`); g.addColorStop(1, `hsla(${p.h},100%,55%,0)`);
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 5, 0, 6.283); ctx.fill();
+      }
+    }
+    window.embers = function (on) {
+      if (on && !raf) { resize(); fill(); last = performance.now(); raf = requestAnimationFrame(frame); }
+      else if (!on && raf) { cancelAnimationFrame(raf); raf = 0; ctx.clearRect(0, 0, W, H); }
+    };
+    window.addEventListener('resize', () => { if (raf) { resize(); fill(); } });
+    /* підсвітка + нахил */
+    if (matchMedia('(hover: hover)').matches) {
+      const g = document.getElementById('product-grid'); let cur = null;
+      g.addEventListener('pointermove', (e) => {
+        if (!document.documentElement.classList.contains('men')) return;
+        const m = e.target.closest && e.target.closest('article') && e.target.closest('article').querySelector('.card-media'); if (!m) return;
+        cur = m; const r = m.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+        m.style.setProperty('--mx', x + 'px'); m.style.setProperty('--my', y + 'px');
+        m.style.transform = `perspective(800px) rotateX(${((.5 - y / r.height) * 7).toFixed(2)}deg) rotateY(${((x / r.width - .5) * 8).toFixed(2)}deg) translateY(-3px)`;
+      });
+      g.addEventListener('pointerout', (e) => { const a = e.target.closest && e.target.closest('article'); if (a && !a.contains(e.relatedTarget)) { const m = a.querySelector('.card-media'); if (m) m.style.transform = ''; } });
+    }
+  })();
+  </script>
+  <script>
   /* ===== ЗИМОВА КОЛЕКЦІЯ: сніг + сніжки ===== */
   (function () {
     const root = document.documentElement;
@@ -2799,6 +2873,10 @@
     const wh = document.createElement('div'); wh.id = 'w-hero'; wh.style.display = 'none';
     wh.innerHTML = '<div class="wh-in"><p class="wh-k">Нова колекція</p><h3>Для неї</h3><p class="wh-t">Сукні, светри, костюми та аксесуари. М’які тканини, чисті лінії, образи на кожен день.</p></div><svg class="wh-art" viewBox="0 0 200 200" aria-hidden="true"><defs><linearGradient id="wg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6d3d9"/><stop offset="1" stop-color="#d48a9a"/></linearGradient></defs><path d="M10 190V90a90 90 0 0 1 180 0v100" fill="none" stroke="url(#wg)" stroke-width="2"/><path d="M34 190V94a66 66 0 0 1 132 0v96" fill="none" stroke="url(#wg)" stroke-width="1.5" opacity=".7"/><path d="M58 190V98a42 42 0 0 1 84 0v92" fill="none" stroke="url(#wg)" stroke-width="1" opacity=".5"/><circle cx="100" cy="38" r="5" fill="url(#wg)"/></svg>';
     sw.parentNode.insertBefore(wh, sw.nextSibling);
+    const mh = document.createElement('div'); mh.id = 'm-hero';
+    const tk = ['NEW DROP', 'ELVÉN ARCHIVE', 'STREET', 'CLASSIC', 'СТИЛЬ БЕЗ ШУМУ', 'ОДЯГ ДЛЯ НЬОГО'].map(x => x + '<em>✦</em>').join('');
+    mh.innerHTML = '<div class="mh-in"><p class="mh-k">Колекція</p><h3>Для <b>нього</b></h3><p class="mh-t">Чисті лінії, щільні тканини, образи без зайвого шуму. Худі, костюми, куртки та базові речі.</p></div><div class="mh-tick"><span>' + tk + tk + tk + tk + '</span></div>';
+    sw.parentNode.insertBefore(mh, sw.nextSibling);
     function renderSwitch() {
       const cnt = { main: 0, women: 0, winter: 0 };
       products.forEach(p => { if (isWinterP(p)) cnt.winter++; else if (isW(p)) cnt.women++; else cnt.main++; });
@@ -2939,7 +3017,7 @@
       shop = s; activeCat = ''; page = 1;
       const w = s === 'winter', f = s === 'women';
       vt(() => {
-        root.classList.toggle('winter', w); root.classList.toggle('women', f); if (window.petals) window.petals(f);
+        root.classList.toggle('winter', w); root.classList.toggle('women', f); root.classList.toggle('men', s === 'main'); if (window.petals) window.petals(f); if (window.embers) window.embers(s === 'main');
         if (w) { start(); burst = 1.1; } else { arm(false); stop(); }
         renderProducts();
       });
@@ -2958,6 +3036,7 @@
       $('cats').style.display = w ? 'none' : '';
       const h = document.querySelector('#catalog h2'); if (h) h.textContent = w ? 'Зима' : shop === 'women' ? 'Для неї' : 'Каталог';
       const wh = $('w-hero'); if (wh) wh.style.display = shop === 'women' ? '' : 'none';
+      const mh = $('m-hero'); if (mh) mh.style.display = shop === 'main' ? '' : 'none';
       if (w) {
         document.querySelectorAll('#product-grid .card-media').forEach(m => {
           if (m.querySelector('.snow-hit')) return;
@@ -2968,6 +3047,7 @@
     };
     if (location.hash === '#winter') { shop = 'winter'; root.classList.add('winter'); start(); }
     else if (location.hash === '#women') { shop = 'women'; root.classList.add('women'); if (window.petals) window.petals(true); }
+    else { root.classList.add('men'); if (window.embers) window.embers(true); }
     renderProducts();
   })();
   </script>
