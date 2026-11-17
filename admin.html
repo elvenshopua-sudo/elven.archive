@@ -661,7 +661,7 @@
     const inShop = (p) => pShop === 'winter' ? p.category === 'winter' : pShop === 'women' ? isW(p) : (p.category !== 'winter' && !isW(p));
     function renderShops() {
       const c = { main: 0, women: 0, winter: 0 };
-      products.forEach(p => { if (p.category === 'winter') c.winter++; else if (isW(p)) c.women++; else c.main++; });
+      products.forEach(p => { const n = 1 + ((pDet(p).variants || []).length); if (p.category === 'winter') c.winter += n; else if (isW(p)) c.women += n; else c.main += n; });
       const on = 'bg-black text-white dark:bg-white dark:text-black border-transparent', off = 'border-zinc-300 dark:border-zinc-700 text-zinc-500';
       $('p-shops').innerHTML = `<button type="button" data-pshop="main" class="px-2 py-3 text-[11px] uppercase tracking-widest border ${pShop === 'main' ? on : off}">Чоловічий (${c.main})</button><button type="button" data-pshop="women" class="px-2 py-3 text-[11px] uppercase tracking-widest border ${pShop === 'women' ? 'bg-rose-300 text-rose-950 border-transparent' : 'border-rose-400/50 text-rose-400'}">✿ Жіночий (${c.women})</button><button type="button" data-pshop="winter" class="px-2 py-3 text-[11px] uppercase tracking-widest border ${pShop === 'winter' ? 'bg-sky-300 text-sky-950 border-transparent' : 'border-sky-400/50 text-sky-500'}">❄ Зима (${c.winter})</button>`;
     }
