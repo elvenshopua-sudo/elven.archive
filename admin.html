@@ -327,7 +327,7 @@
             <div id="det-box">
               <div class="space-y-4 mt-4">
                 <div class="grid grid-cols-3 gap-3">
-                  <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Колір</label><input id="d-color" class="field" placeholder="напр. синій"></div>
+                  <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Колір (цього товару)</label><div class="flex items-end gap-3"><input id="d-color" class="field" placeholder="напр. чорний" list="v-colors"><input type="color" id="d-colorhex" value="#888888" title="Колір кружечка" style="width:44px;height:44px;padding:0;border:0;background:none;cursor:pointer"></div></div>
                   <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Матеріал</label><input id="d-material" class="field" placeholder="напр. велюр"></div>
                   <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Склад</label><input id="d-comp" class="field" placeholder="59% поліестер, 21% еластан, 20% бавовна"></div>
                 </div>
@@ -348,6 +348,12 @@
               </div>
             </div>
 </section>
+<section class="ed-sec" id="sec-var"><h4><i>5</i>Інші кольори цього товару</h4>
+        <p class="text-sm text-zinc-500 mb-5 leading-relaxed">Усе інше (опис, ціна, розміри, заміри, догляд) береться з цього товару. Тут додайте лише колір, артикул, фото й відео для кожного іншого кольору.</p>
+        <datalist id="v-colors"><option value="Чорний"><option value="Білий"><option value="Сірий"><option value="Графіт"><option value="Молочний"><option value="Бежевий"><option value="Коричневий"><option value="Шоколадний"><option value="Червоний"><option value="Бордовий"><option value="Рожевий"><option value="Пудровий"><option value="Фіолетовий"><option value="Синій"><option value="Темно-синій"><option value="Блакитний"><option value="Зелений"><option value="Оливковий"><option value="Хакі"><option value="Жовтий"><option value="Бірюзовий"></datalist>
+        <div id="v-list" class="space-y-5"></div>
+        <button type="button" id="v-add" class="mt-5 w-full border border-dashed border-zinc-400 py-4 text-sm uppercase tracking-widest">+ Додати колір</button>
+      </section>
       </form>
     </div>
     <div class="ed-bar">
@@ -838,13 +844,75 @@
     });
     document.addEventListener('change', (e) => { if (e.target.name === 'p-size') renderMeas(); });
     $('d-care-def').onclick = () => { $('d-care').value = 'Ручне або машинне прання при температурі до 40° C\nНе відбілювати\nДелікатний віджим та сушка\nПрасувати заборонено'; };
+
+    /* ---- Варіанти кольорів ---- */
+    let vars = [];
+    const CLR = { 'темно-синій': '#14213d', 'чорний': '#000000', 'білий': '#ffffff', 'графіт': '#3a3a3d', 'сірий': '#808080', 'молочний': '#f3efe0', 'бежевий': '#d8c3a5', 'шоколад': '#4a2c1a', 'коричнев': '#5c3d1e', 'бордов': '#6d1a2b', 'червон': '#b3261e', 'пудров': '#e8c9c4', 'рожев': '#f0a6b8', 'фіолет': '#6b3fa0', 'лаванд': '#b9a7d9', 'блакит': '#7fb7e6', 'синій': '#1d3e8a', 'бірюз': '#40b5a8', 'оливк': '#6b6b2e', 'хакі': '#6b6b3a', 'зелен': '#1f4d2e', 'жовт': '#f2c230', 'гірчич': '#c9962a', 'кавов': '#6f4e37' };
+    const guessHex = (name) => { const n = String(name || '').toLowerCase(); const k = Object.keys(CLR).find(x => n.includes(x)); return k ? CLR[k] : ''; };
+    $('d-color').addEventListener('change', () => { const g = guessHex($('d-color').value); if (g && $('d-colorhex').value === '#888888') $('d-colorhex').value = g; });
+    async function uploadVideoFile(f) {
+      if (f.size > 12 * 1024 * 1024) throw new Error('Відео завелике (' + Math.round(f.size / 1048576) + ' МБ). Стисніть до 8 МБ.');
+      const ext = (f.name.split('.').pop() || 'mp4').toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (ghOn()) return await ghPut(`videos/${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`, f);
+      const path = `v/${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
+      const { error } = await db.storage.from('products').upload(path, f, { contentType: f.type || 'video/mp4', cacheControl: '31536000' });
+      if (error) throw error;
+      return db.storage.from('products').getPublicUrl(path).data.publicUrl;
+    }
+    const thumbU = (u) => (typeof u === 'string' && /\/img\/[^/?]+\.jpg$/i.test(u) && !/_s\.jpg$/i.test(u)) ? u.replace(/\.jpg$/i, '_s.jpg') : u;
+    function renderVars() {
+      const mainName = $('p-name').value.trim();
+      $('v-list').innerHTML = vars.map((v, i) => `<div class="border border-zinc-300 dark:border-zinc-700 p-5 space-y-5" data-vi="${i}">
+        <div class="flex items-center justify-between"><b class="text-sm uppercase tracking-widest">Колір ${i + 1}${v.color ? ': ' + esc(v.color) : ''}</b><button type="button" data-vdel class="px-4 py-2 bg-red-600 text-white text-xs uppercase">Видалити</button></div>
+        <div class="grid md:grid-cols-2 gap-x-8 gap-y-5">
+          <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Назва кольору *</label><input class="field" data-vf="color" list="v-colors" placeholder="напр. Червоний" value="${esc(v.color)}"></div>
+          <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Колір кружечка (для клієнта)</label><input type="color" data-vf="hex" value="${esc(v.hex || '#888888')}" style="width:64px;height:44px;padding:0;border:0;background:none;cursor:pointer"></div>
+          <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Артикул цього кольору</label><input class="field" data-vf="sku" placeholder="напр. 13637_червоний" value="${esc(v.sku)}"></div>
+          <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Назва товару (якщо інша, інакше порожньо)</label><input class="field" data-vf="name" placeholder="${esc(mainName || 'така сама, як в основному товарі')}" value="${esc(v.name)}"></div>
+        </div>
+        <div>
+          <label class="block text-[10px] text-zinc-400 uppercase mb-2">Фото цього кольору ${v.images.length ? '(' + v.images.length + ')' : ''}</label>
+          <div class="flex gap-3 flex-wrap items-center"><label class="px-4 py-3 bg-zinc-200 dark:bg-zinc-800 cursor-pointer text-sm">Вибрати файли<input type="file" multiple accept="image/*" class="hidden" data-vfiles></label><span data-vstat class="text-xs text-zinc-400"></span></div>
+          <div class="flex gap-2 flex-wrap mt-3">${v.images.map((u, k) => `<div class="relative" style="width:96px;height:96px"><img src="${esc(thumbU(u))}" style="width:96px;height:96px;object-fit:cover" onerror="this.onerror=null;this.src='${esc(u)}'"><button type="button" data-vimgdel="${k}" class="absolute top-0 right-0 bg-black/70 text-white w-6 h-6 text-xs">×</button></div>`).join('')}</div>
+          <div class="flex gap-2 mt-3"><input class="field" data-vurl placeholder="Або посилання на фото"><button type="button" data-vurladd class="px-4 text-sm bg-zinc-200 dark:bg-zinc-800">+</button></div>
+        </div>
+        <div>
+          <label class="block text-[10px] text-zinc-400 uppercase mb-1">Відео цього кольору (необов’язково)</label>
+          <div class="flex gap-2 items-end"><input class="field" data-vf="video" placeholder="Посилання на .mp4 / .webm" value="${esc(v.video)}"><label class="px-4 py-3 bg-zinc-200 dark:bg-zinc-800 cursor-pointer text-sm whitespace-nowrap">Файл<input type="file" accept="video/mp4,video/webm,video/quicktime" class="hidden" data-vvid></label></div>
+        </div>
+      </div>`).join('');
+    }
+    $('v-add').onclick = () => { vars.push({ color: '', hex: '#888888', sku: '', name: '', images: [], video: '' }); renderVars(); const l = $('v-list').lastElementChild; if (l) l.scrollIntoView({ behavior: 'smooth', block: 'center' }); };
+    $('v-list').addEventListener('input', (e) => {
+      const box = e.target.closest('[data-vi]'); if (!box) return; const v = vars[+box.dataset.vi]; const k = e.target.dataset.vf; if (v && k) v[k] = e.target.value;
+    });
+    $('v-list').addEventListener('change', (e) => {
+      const box = e.target.closest('[data-vi]'); if (!box) return; const v = vars[+box.dataset.vi]; if (!v) return;
+      if (e.target.dataset.vf === 'color') { const g = guessHex(v.color); if (g && (!v.hex || v.hex === '#888888')) { v.hex = g; renderVars(); } }
+      if (e.target.hasAttribute('data-vfiles')) {
+        const files = [...e.target.files]; if (!files.length) return; const st = box.querySelector('[data-vstat]');
+        (async () => { let n = 0; for (const f of files) { st.textContent = `Завантаження ${++n} з ${files.length}…`; try { v.images.push(await uploadImage(f)); } catch (er) { toast('Фото не завантажилось: ' + (er.message || ''), 'err'); } } renderVars(); toast('Фото додано'); })();
+      }
+      if (e.target.hasAttribute('data-vvid')) {
+        const f = e.target.files[0]; if (!f) return; toast('Завантаження відео…');
+        uploadVideoFile(f).then(u => { v.video = u; renderVars(); toast('Відео додано'); }).catch(er => toast(er.message || 'Не вдалося', 'err'));
+      }
+    });
+    $('v-list').addEventListener('click', (e) => {
+      const box = e.target.closest('[data-vi]'); if (!box) return; const i = +box.dataset.vi, v = vars[i];
+      if (e.target.closest('[data-vdel]')) { if (confirm('Видалити цей колір?')) { vars.splice(i, 1); renderVars(); } }
+      else if (e.target.closest('[data-vimgdel]')) { v.images.splice(+e.target.closest('[data-vimgdel]').dataset.vimgdel, 1); renderVars(); }
+      else if (e.target.closest('[data-vurladd]')) { const inp = box.querySelector('[data-vurl]'); if (inp.value.trim()) { v.images.push(inp.value.trim()); renderVars(); } }
+    });
     function fillDetails(d) {
       d = (d && typeof d === 'object') ? d : {};
       $('d-color').value = d.color || ''; $('d-material').value = d.material || ''; $('d-comp').value = d.composition || '';
       $('d-care').value = Array.isArray(d.care) ? d.care.join('\n') : '';
       const mo = d.model || {}; $('d-mchest').value = mo.chest || ''; $('d-mwaist').value = mo.waist || ''; $('d-mhips').value = mo.hips || '';
       meas = (d.measures || []).map(m => ({ title: m.title || '', rows: (m.rows || []).map(r => ({ label: r.label || '', vals: { ...(r.vals || {}) } })), notes: Array.isArray(m.notes) ? m.notes.join('\n') : '' }));
-      renderMeas();
+      $('d-colorhex').value = d.colorHex || '#888888';
+      vars = (Array.isArray(d.variants) ? d.variants : []).map(v => ({ color: v.color || '', hex: v.hex || '#888888', sku: v.sku || '', name: v.name || '', images: Array.isArray(v.images) ? [...v.images] : [], video: v.video || '' }));
+      renderMeas(); renderVars();
     }
     function collectDetails() {
       const d = {}, t = (id) => $(id).value.trim();
@@ -854,6 +922,8 @@
       const ms = meas.map(m => ({ title: m.title.trim(), rows: m.rows.map(r => { const v = {}; sz.forEach(z => { if (String(r.vals[z] || '').trim()) v[z] = String(r.vals[z]).trim(); }); return { label: r.label.trim(), vals: v }; }).filter(r => r.label && Object.keys(r.vals).length), notes: m.notes.split('\n').map(x => x.trim()).filter(Boolean) })).filter(m => m.rows.length || m.notes.length);
       if (ms.length) d.measures = ms;
       const mo = {}; [['chest', 'd-mchest'], ['waist', 'd-mwaist'], ['hips', 'd-mhips']].forEach(([k, id]) => { if (t(id)) mo[k] = t(id); }); if (Object.keys(mo).length) d.model = mo;
+      const vv = vars.filter(v => v.color.trim()).map(v => ({ color: v.color.trim(), hex: v.hex || '#888888', sku: (v.sku || '').trim(), name: (v.name || '').trim(), images: v.images.filter(Boolean), video: (v.video || '').trim() }));
+      if (vv.length) { d.variants = vv; d.colorHex = $('d-colorhex').value || '#888888'; } else if (d.color && $('d-colorhex').value !== '#888888') d.colorHex = $('d-colorhex').value;
       return Object.keys(d).length ? d : null;
     }
     const vShow = () => { const u = $('p-video').value.trim(), v = $('p-vprev'); if (u) { v.src = u; v.classList.remove('hidden'); } else { v.removeAttribute('src'); v.classList.add('hidden'); } };
@@ -974,6 +1044,7 @@
       { t: 'Догляд', ok: () => $('d-care').value.trim(), go: 'd-care' },
       { t: 'Таблиця замірів', ok: () => { const d = collectDetails(); return d && d.measures; }, go: 'd-meas-add' },
       { t: 'Параметри моделі (груди/талія/стегна)', ok: () => $('d-mchest').value.trim() || $('d-mwaist').value.trim() || $('d-mhips').value.trim(), go: 'd-mchest' },
+      { t: 'Інші кольори (якщо є)', opt: 1, ok: () => vars.some(v => v.color.trim()), go: 'v-add' },
       { t: 'Відео', opt: 1, ok: () => $('p-video').value.trim(), go: 'p-video' }
     ];
     function edCheck() {
@@ -1001,8 +1072,8 @@
       if (e.target.id !== 'p-form') return;
       const miss = EDI.filter(i => i.req && !i.ok());
       if (miss.length) { e.preventDefault(); e.stopImmediatePropagation(); toast('Заповніть: ' + miss.map(i => i.t).join(', '), 'err'); const el = $(miss[0].go); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
-      const rec = EDI.filter(i => !i.req && !i.opt && !i.ok());
-      if (rec.length && !confirm('Не заповнено:\n• ' + rec.map(i => i.t).join('\n• ') + '\n\nЗберегти все одно?')) { e.preventDefault(); e.stopImmediatePropagation(); }
+      const rec = EDI.filter(i => !i.req && !i.opt && !i.ok()).map(i => i.t).concat(vars.filter(v => v.color.trim() && !v.images.length).map(v => 'Фото для кольору «' + v.color.trim() + '»'));
+      if (rec.length && !confirm('Не заповнено:\n• ' + rec.join('\n• ') + '\n\nЗберегти все одно?')) { e.preventDefault(); e.stopImmediatePropagation(); }
     }, true);
   </script>
 </body>

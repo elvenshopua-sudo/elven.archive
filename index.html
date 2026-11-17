@@ -221,6 +221,16 @@
     .pm-th { flex: 0 0 auto; width: 62px; height: 80px; padding: 0; overflow: hidden; border: 1.5px solid transparent; opacity: .55; background: #e4e4e7; transition: opacity .25s, border-color .25s, transform .2s; }
     .dark .pm-th { background: #18181b; }
     .pm-th img { width: 100%; height: 100%; object-fit: cover; }
+    .clr-l { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: #71717a; margin-bottom: .6rem; }
+    .clr-l b { color: inherit; font-weight: 600; }
+    .dark .clr-l b { color: #fff; }
+    .clr-row { display: flex; flex-wrap: wrap; gap: .7rem; }
+    .clr { width: 34px; height: 34px; border-radius: 999px; background: var(--c); border: 2px solid rgba(128,128,128,.35); box-shadow: 0 0 0 0 transparent; transition: transform .2s, box-shadow .2s; cursor: pointer; }
+    .clr:hover { transform: scale(1.1); }
+    .clr.on { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #000; }
+    .dark .clr.on { box-shadow: 0 0 0 2px #09090b, 0 0 0 4px #fff; }
+    .card-dots { display: flex; gap: .4rem; margin-top: .5rem; }
+    .card-dots i { width: 14px; height: 14px; border-radius: 99px; background: var(--c); border: 1px solid rgba(128,128,128,.45); cursor: pointer; }
     .pm-th { position: relative; }
     .det-dl { display: grid; grid-template-columns: max-content 1fr; gap: .45rem 1.6rem; }
     .det-dl dt { color: #71717a; }
@@ -557,6 +567,7 @@
               </div>
               <h2 id="pm-title" class="pm-st text-4xl sm:text-5xl xl:text-6xl font-extralight uppercase leading-[1.08] tracking-wide text-black dark:text-white"></h2>
               <div id="pm-price" class="pm-st flex items-baseline flex-wrap gap-3"></div>
+              <div id="pm-colors" class="pm-st hidden"></div>
               <div class="pm-st">
                 <div class="flex items-center justify-between mb-3">
                   <p class="text-[11px] uppercase tracking-wider text-zinc-400 font-semibold">Розмір</p>
@@ -1335,6 +1346,12 @@
       observeReveal();
     }
 
+    $('product-grid').addEventListener('click', (e) => {
+      const dot = e.target.closest && e.target.closest('[data-cd]'); if (!dot) return; e.stopPropagation();
+      const a = dot.closest('article'), pr = products.find(x => Number(x.id) === Number(a.dataset.open)); if (!pr) return;
+      const i = Number(dot.dataset.cd), v = i ? varsOf(pr)[i - 1] : null, src = v && v.images && v.images[0] ? v.images[0] : getImgs(pr)[0], im = a.querySelector('.card-media img');
+      if (im && src) { im.src = thumbOf(src); im.onerror = () => { im.onerror = null; im.src = src; }; }
+    }, true);
     $('product-grid').addEventListener('pointerover', (e) => {
       const c = e.target.closest && e.target.closest('article'); if (!c) return;
       const im = c.querySelector('img.hov2[data-src]'); if (!im) return;
@@ -1423,18 +1440,12 @@
       $('pm-size-cur').textContent = curSize || '';
     }
 
-    function renderProduct(p) {
-      curProduct = p; curImgs = getImgs(p); const nPh = curImgs.length; if (p.video) curImgs = curImgs.concat([p.video]);
-      const sizes = (p.sizes && p.sizes.length) ? p.sizes : ['S', 'M', 'L'];
-      curSize = sizes[0];
-      sgUpdate(p);
-      if (!curList.length) curList = products.slice();
-      const idx = curList.findIndex(x => Number(x.id) === Number(p.id));
-      $('pm-counter').textContent = idx >= 0 ? `${pad2(idx + 1)} / ${pad2(curList.length)}` : '—';
-      $('pm-fav').dataset.fav = p.id;
-      $('pm-fav').classList.toggle('fav-on', favs.has(Number(p.id)));
-      $('pm-bgtext').textContent = (p.name || '').split(/\s+/)[0] || 'ELVÉN';
-
+    let curColor = -1;
+    const detOf = (p) => { let d = p && p.details; if (typeof d === 'string') { try { d = JSON.parse(d); } catch (e) { d = null; } } return d && typeof d === 'object' ? d : {}; };
+    const varsOf = (p) => (Array.isArray(detOf(p).variants) ? detOf(p).variants.filter(v => v && v.color) : []);
+    function pmMedia(p, v) {
+      const ph0 = v ? (v.images || []).filter(Boolean) : getImgs(p), ph = ph0.length ? ph0 : getImgs(p), vid = v ? (v.video || '') : (p.video || '');
+      const nPh = ph.length; curImgs = vid ? ph.concat([vid]) : ph;
       const n = curImgs.length;
       $('pm-gallery').scrollLeft = 0;
       $('pm-gallery').innerHTML = curImgs.map((src, k) => `
@@ -1447,6 +1458,22 @@
       $('pm-thumbs').innerHTML = n > 1 ? curImgs.map((src, k) => `<button type="button" class="pm-th ${k === 0 ? 'on' : ''}" data-th="${k}" aria-label="${k >= nPh ? 'Відео' : 'Фото ' + (k + 1)}"><img src="${esc(k >= nPh ? thumbOf(curImgs[0]) : thumbOf(src))}" alt="" loading="lazy" draggable="false">${k >= nPh ? '<span class="pm-play">▶</span>' : ''}</button>`).join('') : '';
       pmUpdateGallery();
       $('pm-dots').innerHTML = n > 1 ? curImgs.map((_, k) => `<span class="h-1.5 rounded-full transition-all duration-300 ${k === 0 ? 'w-5 bg-black dark:bg-white' : 'w-1.5 bg-black/25 dark:bg-white/25'}"></span>`).join('') : '';
+
+    }
+
+    function renderProduct(p) {
+      curProduct = p; curColor = -1;
+      const sizes = (p.sizes && p.sizes.length) ? p.sizes : ['S', 'M', 'L'];
+      curSize = sizes[0];
+      sgUpdate(p);
+      if (!curList.length) curList = products.slice();
+      const idx = curList.findIndex(x => Number(x.id) === Number(p.id));
+      $('pm-counter').textContent = idx >= 0 ? `${pad2(idx + 1)} / ${pad2(curList.length)}` : '—';
+      $('pm-fav').dataset.fav = p.id;
+      $('pm-fav').classList.toggle('fav-on', favs.has(Number(p.id)));
+      $('pm-bgtext').textContent = (p.name || '').split(/\s+/)[0] || 'ELVÉN';
+
+      pmMedia(p, null);
 
       const badgeEl = $('pm-badge');
       if (p.badge) {
@@ -1467,6 +1494,7 @@
       $('pm-bar-price').textContent = fmt(p.price);
       $('pm-desc').textContent = p.desc || 'Преміальний оверсайз крій, щільна європейська бавовна.';
       $('pm-det').innerHTML = detHTML(p);
+      renderColors(p);
 
       $('pm-sizes').innerHTML = `<span id="pm-size-ind" class="absolute left-0 top-0 bg-black dark:bg-white pointer-events-none" style="width:0;height:0"></span>`
         + sizes.map(sz => `<button type="button" data-size="${esc(sz)}" class="sz ${sz === curSize ? 'active' : ''}">${esc(sz)}</button>`).join('');
@@ -1592,9 +1620,10 @@
 
     function addCurrentToCart(btn) {
       if (!curProduct) return;
-      const found = cart.find(i => Number(i.id) === Number(curProduct.id) && i.size === curSize);
+      const vs0 = varsOf(curProduct), vv = curColor >= 0 ? vs0[curColor] : null, clr = vs0.length ? (vv ? vv.color : (detOf(curProduct).color || 'Основний')) : '';
+      const found = cart.find(i => Number(i.id) === Number(curProduct.id) && i.size === curSize && (i.color || '') === clr);
       if (found) found.qty++;
-      else cart.push({ id: curProduct.id, name: curProduct.name, sku: curProduct.sku || '', price: Number(curProduct.price), img: curImgs[0], size: curSize, qty: 1 });
+      else cart.push({ id: curProduct.id, name: (vv && vv.name) || curProduct.name, sku: (vv && vv.sku) || curProduct.sku || '', price: Number(curProduct.price), img: curImgs[0], size: curSize, color: clr, vsku: vv && vv.sku ? vv.sku : '', qty: 1 });
       saveCart(); updateCartUI(); flyToCart(btn); bumpCart();
       document.querySelectorAll('.pm-add').forEach(b => { b.classList.add('added'); const l = b.querySelector('.lbl'); if (l) l.textContent = 'Додано ✓'; });
       clearTimeout(addCurrentToCart.t);
@@ -1720,7 +1749,7 @@
                 <p class="text-xs uppercase font-medium tracking-wide text-black dark:text-white truncate">${esc(it.name)}</p>
                 <button data-remove="${idx}" aria-label="Видалити" class="text-zinc-400 hover:text-red-500 text-xs px-1"><svg class="ic " aria-hidden="true"><use href="#i-trash"/></svg></button>
               </div>
-              <p class="text-[10px] text-zinc-400 uppercase tracking-widest mt-0.5">Розмір ${esc(it.size)}${it.sku ? ' · ' + esc(it.sku) : ''}</p>
+              <p class="text-[10px] text-zinc-400 uppercase tracking-widest mt-0.5">Розмір ${esc(it.size)}${it.color ? ' · ' + esc(it.color) : ''}${it.sku ? ' · ' + esc(it.sku) : ''}</p>
               <div class="flex justify-between items-center mt-3">
                 <div class="flex items-center border border-zinc-200 dark:border-zinc-800">
                   <button data-dec="${idx}" class="w-8 h-8 text-sm">−</button>
@@ -1828,7 +1857,7 @@
       // 1) зберігаємо замовлення в базі (ціни рахує сервер)
       try {
         const { data, error } = await db.rpc('place_order', {
-          p_items: cart.map(i => ({ id: i.id, size: i.size, qty: i.qty })),
+          p_items: cart.map(i => ({ id: i.id, size: i.color ? [i.size, i.color, i.vsku].filter(Boolean).join(' / ').slice(0, 80) : i.size, qty: i.qty })),
           p_name: name, p_phone: phoneInput.value, p_telegram: tg, p_instagram: insta, p_delivery: delivery, p_address: address, p_promo: promo || null
         });
         if (error) throw error;
@@ -2662,6 +2691,22 @@
     const sgIdx = (v, th) => { let i = 0; while (i < th.length && v > th[i]) i++; return i; };
     let sgProd = null, sgHl = -1;
 
+    function renderColors(p) {
+      const el = $('pm-colors'), vs = varsOf(p), d = detOf(p);
+      if (!vs.length) { el.classList.add('hidden'); el.innerHTML = ''; return; }
+      const all = [{ color: d.color || 'Основний', hex: d.colorHex || '#888888' }].concat(vs);
+      el.classList.remove('hidden');
+      el.innerHTML = `<p class="clr-l">Колір: <b id="clr-name">${esc(all[curColor + 1].color)}</b></p><div class="clr-row">` + all.map((c, i) => `<button type="button" class="clr ${i === curColor + 1 ? 'on' : ''}" data-ci="${i}" title="${esc(c.color)}" aria-label="${esc(c.color)}" style="--c:${esc(c.hex || '#888')}"></button>`).join('') + '</div>';
+    }
+    function pmPickColor(i) {
+      const p = curProduct; if (!p) return; const vs = varsOf(p), v = i > 0 ? vs[i - 1] : null; if (i > 0 && !v) return;
+      curColor = i - 1; pmMedia(p, v);
+      const nm = (v && v.name) || p.name, sk = (v && v.sku) || p.sku;
+      $('pm-sku').textContent = sk ? `SKU: ${sk}` : '';
+      $('pm-title').innerHTML = (nm || '').split(/\s+/).filter(Boolean).map((w, k) => `<span class="word"><span style="animation-delay:${.05 + k * .07}s">${esc(w)}</span></span>`).join(' ');
+      renderColors(p);
+    }
+    $('pm-colors').addEventListener('click', (e) => { const b = e.target.closest('[data-ci]'); if (b) pmPickColor(Number(b.dataset.ci)); });
     function detHTML(p) {
       let d = p.details; if (typeof d === 'string') { try { d = JSON.parse(d); } catch (e) { d = null; } }
       d = d && typeof d === 'object' ? d : {};
@@ -3075,6 +3120,12 @@
       _rp();
       renderSwitch();
       document.querySelectorAll('#product-grid article[data-open]').forEach(a => { const pr = products.find(x => Number(x.id) === Number(a.dataset.open)); const m = a.querySelector('.card-media'); if (pr && pr.video && m && !m.querySelector('.vid-chip')) { const c = document.createElement('span'); c.className = 'vid-chip'; c.textContent = '▶'; c.title = 'Є відео'; m.appendChild(c); } });
+      document.querySelectorAll('#product-grid article[data-open]').forEach(a => {
+        if (a.querySelector('.card-dots')) return; const pr = products.find(x => Number(x.id) === Number(a.dataset.open)); if (!pr) return; const vs = varsOf(pr); if (!vs.length) return;
+        const d = detOf(pr), row = document.createElement('div'); row.className = 'card-dots';
+        row.innerHTML = [{ color: d.color || '', hex: d.colorHex || '#888' }].concat(vs).map((c, i) => `<i data-cd="${i}" title="${esc(c.color || '')}" style="--c:${esc(c.hex || '#888')}"></i>`).join('');
+        a.appendChild(row);
+      });
       const w = shop === 'winter';
       $('cats').style.display = w ? 'none' : '';
       const h = document.querySelector('#catalog h2'); if (h) h.textContent = w ? 'Зима' : shop === 'women' ? 'Для неї' : 'Каталог';
