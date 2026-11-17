@@ -2745,7 +2745,7 @@
       if (Array.isArray(d.measures) && d.measures.length) {
         const ord = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'];
         out += acc('Заміри', '<p class="mb-3">Ми вимірюємо готові вироби. Порівняйте з вашими мірками, у сантиметрах.</p>' + d.measures.map(m => {
-          const cols = ord.filter(z => (m.rows || []).some(r => r.vals && r.vals[z] != null));
+          const ks = []; (m.rows || []).forEach(r => Object.keys(r.vals || {}).forEach(k => { if (!ks.includes(k)) ks.push(k); })); const cols = ks.filter(z => (m.rows || []).some(r => r.vals && r.vals[z] != null && r.vals[z] !== '')).sort((a, b) => (ord.indexOf(a) < 0 ? 99 : ord.indexOf(a)) - (ord.indexOf(b) < 0 ? 99 : ord.indexOf(b)) || ks.indexOf(a) - ks.indexOf(b));
           return (m.title ? `<p class="sg-cap">${esc(m.title)}</p>` : '') + (cols.length ? `<div class="overflow-x-auto"><table class="sg-tb"><tr><th></th>${cols.map(z => `<th>${z}</th>`).join('')}</tr>${m.rows.map(r => `<tr><td>${esc(r.label)}</td>${cols.map(z => `<td>${esc((r.vals && r.vals[z]) || '')}</td>`).join('')}</tr>`).join('')}</table></div>` : '') +
             ((m.notes || []).length ? '<p class="mt-2 mb-3">' + m.notes.map(esc).join('<br>') + '</p>' : '');
         }).join(''));

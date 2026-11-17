@@ -308,7 +308,7 @@
 <section class="ed-sec" id="sec-sizes"><h4><i>3</i>Розміри та модель на фото</h4><div class="space-y-6">
             <div>
               <label class="block text-[10px] text-zinc-400 uppercase mb-2">Розміри</label>
-              <div class="flex flex-wrap gap-4 text-xs">
+              <div class="flex flex-wrap gap-4 text-xs" id="p-sizes">
                 <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="XS"> XS</label>
                 <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="S" checked> S</label>
                 <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="M" checked> M</label>
@@ -317,10 +317,22 @@
                 <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="XXL"> XXL</label>
                 <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="3XL"> 3XL</label>
               </div>
+              <div class="mt-4 space-y-2">
+                <p class="text-[10px] text-zinc-400 uppercase">Свої розміри (як у постачальника)</p>
+                <div class="flex gap-2"><input type="text" id="p-size-x" maxlength="12" placeholder="напр. 42  або  S/M  або  ONE SIZE" class="field flex-1"><button type="button" id="p-size-add" class="px-4 text-xs uppercase bg-zinc-200 dark:bg-zinc-800">Додати</button></div>
+                <div class="flex flex-wrap gap-2 text-[11px]">
+                  <button type="button" data-szp="42,44,46,48" class="px-2 py-1 border border-zinc-300 dark:border-zinc-700">42 · 44 · 46 · 48</button>
+                  <button type="button" data-szp="40,42,44,46,48,50" class="px-2 py-1 border border-zinc-300 dark:border-zinc-700">40–50</button>
+                  <button type="button" data-szp="S/M,L/XL" class="px-2 py-1 border border-zinc-300 dark:border-zinc-700">S/M · L/XL</button>
+                  <button type="button" data-szp="ONE SIZE" class="px-2 py-1 border border-zinc-300 dark:border-zinc-700">ONE SIZE</button>
+                  <button type="button" data-szp="XS,S,M,L" class="px-2 py-1 border border-zinc-300 dark:border-zinc-700">XS–L</button>
+                </div>
+                <p class="text-[10px] text-zinc-400">Натисніть кнопку-набір або впишіть свій розмір і «Додати». Хрестик біля свого розміру прибирає його.</p>
+              </div>
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Зріст моделі, см</label><input type="number" id="p-mh" min="140" max="220" placeholder="напр. 175" class="field"></div>
-              <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Розмір на моделі</label><input type="text" id="p-ms" maxlength="8" placeholder="напр. S" class="field"></div>
+              <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Розмір на моделі</label><input type="text" id="p-ms" maxlength="12" placeholder="напр. S" class="field"></div>
             </div>
 </div></section>
 <section class="ed-sec" id="sec-det"><h4><i>4</i>Характеристики, догляд, заміри</h4>
@@ -654,7 +666,30 @@
     const isW = (p) => typeof p.category === 'string' && p.category.indexOf('w_') === 0;
     const catOpts = (cur, blank) => `<option value="" class="dark:bg-zinc-900">${blank}</option><optgroup label="Чоловічий">${CATS.map(c => `<option value="${c[0]}" class="dark:bg-zinc-900" ${cur === c[0] ? 'selected' : ''}>${c[1]}</option>`).join('')}</optgroup><optgroup label="Жіночий">${CATS_W.map(c => `<option value="${c[0]}" class="dark:bg-zinc-900" ${cur === c[0] ? 'selected' : ''}>${c[1]}</option>`).join('')}</optgroup><optgroup label="Зима"><option value="winter" class="dark:bg-zinc-900" ${cur === 'winter' ? 'selected' : ''}>❄ Зимова колекція</option></optgroup>`;
     const defCat = () => pShop === 'winter' ? 'winter' : pShop === 'women' ? 'w_dresses' : '';
-    const defSizes = () => document.querySelectorAll('input[name="p-size"]').forEach(cb => cb.checked = (pShop === 'women' ? ['XS', 'S', 'M', 'L'] : ['S', 'M', 'L', 'XL']).includes(cb.value));
+    function setSizes(arr) {
+      arr = (arr || []).map(String);
+      document.querySelectorAll('#p-sizes label[data-x]').forEach(l => { if (!arr.includes(l.querySelector('input').value)) l.remove(); });
+      document.querySelectorAll('input[name="p-size"]').forEach(cb => { cb.checked = arr.includes(cb.value); });
+      arr.forEach(v => { if (!Array.from(document.querySelectorAll('input[name="p-size"]')).some(c => c.value === v)) addSizeBox(v, true); });
+      document.dispatchEvent(new CustomEvent('szrefresh'));
+      const f = document.querySelector('input[name="p-size"]'); if (f) f.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    function addSizeBox(v, on) {
+      const l = document.createElement('label'); l.dataset.x = '1'; l.className = 'flex items-center gap-1.5';
+      l.innerHTML = '<input type="checkbox" name="p-size"> <span></span> <button type="button" class="text-red-500 px-1" title="Прибрати">×</button>';
+      const i = l.querySelector('input'); i.value = v; i.checked = !!on; l.querySelector('span').textContent = v;
+      l.querySelector('button').onclick = (e) => { e.preventDefault(); l.remove(); i.dispatchEvent(new Event('change', { bubbles: true })); };
+      $('p-sizes').appendChild(l);
+    }
+    const defSizes = () => setSizes(pShop === 'women' ? ['XS', 'S', 'M', 'L'] : ['S', 'M', 'L', 'XL']);
+    $('p-size-add').onclick = () => {
+      const v = $('p-size-x').value.trim().toUpperCase().replace(/\s+/g, ' '); if (!v) return;
+      const ex = Array.from(document.querySelectorAll('input[name="p-size"]')).find(c => c.value === v);
+      if (ex) ex.checked = true; else addSizeBox(v, true);
+      $('p-size-x').value = ''; const f = document.querySelector('input[name="p-size"]'); f.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    $('p-size-x').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); $('p-size-add').click(); } });
+    document.querySelectorAll('[data-szp]').forEach(b => b.onclick = () => setSizes(b.dataset.szp.split(',')));
     let pImages = [];
     let pShop = 'main';
     setTimeout(() => { $('p-cat').innerHTML = catOpts('', '— Чоловічий, без категорії —'); }, 0);
@@ -838,7 +873,7 @@
     /* ---- Характеристики, догляд, заміри ---- */
     const SZ_ORD = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'];
     let meas = [];
-    const selSizes = () => SZ_ORD.filter(z => { const c = document.querySelector(`input[name="p-size"][value="${z}"]`); return c && c.checked; });
+    const selSizes = () => Array.from(document.querySelectorAll('input[name="p-size"]:checked')).map(c => c.value);
     function renderMeas() {
       const sz = selSizes(), ta = 'w-full bg-transparent border border-zinc-300 dark:border-zinc-700 p-2 text-xs outline-none';
       $('d-meas').innerHTML = meas.map((m, mi) => `<div class="border border-zinc-300 dark:border-zinc-700 p-3 space-y-2" data-mi="${mi}">
@@ -1054,7 +1089,7 @@
         $('p-id').value = p.id; $('p-name').value = p.name; $('p-sku').value = p.sku || ''; $('p-mh').value = p.model_height || ''; $('p-ms').value = p.model_size || '';
         $('p-price').value = p.price; $('p-old').value = p.oldPrice || ''; $('p-badge').value = p.badge || ''; $('p-cat').value = p.category || ''; $('p-desc').value = p.desc || '';
         $('p-url').value = ''; pImages = [...getImgs(p)]; renderPreview(); $('p-video').value = p.video || ''; vShow(); fillDetails(p.details);
-        document.querySelectorAll('input[name="p-size"]').forEach(cb => cb.checked = (p.sizes || ['S', 'M', 'L']).includes(cb.value));
+        setSizes(p.sizes && p.sizes.length ? p.sizes : ['S', 'M', 'L']);
         $('form-title').textContent = 'Редагувати товар'; $('p-save').textContent = 'Оновити товар'; $('p-cancel').classList.remove('hidden');
         openEditor();
       }
