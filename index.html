@@ -2992,7 +2992,7 @@
     sw.parentNode.insertBefore(mh, sw.nextSibling);
     function renderSwitch() {
       const cnt = { main: 0, women: 0, winter: 0 }; const ld = loaded;
-      products.forEach(p => { if (isWinterP(p)) cnt.winter++; else if (isW(p)) cnt.women++; else cnt.main++; });
+      products.forEach(p => { let n = 1; try { n += (varsOf(p) || []).length; } catch (e) {} if (isWinterP(p)) cnt.winter += n; else if (isW(p)) cnt.women += n; else cnt.main += n; });
       sw.innerHTML = `<button type="button" data-shop="main" class="shop-tab ${shop === 'main' ? 'on' : ''}">Чоловічий<i>${ld ? cnt.main : ''}</i></button>` +
         `<button type="button" data-shop="women" class="shop-tab f ${shop === 'women' ? 'on' : ''}"><span class="fl">✿</span>Жіночий<i>${ld ? cnt.women : ''}</i></button>` +
         `<button type="button" data-shop="winter" class="shop-tab w ${shop === 'winter' ? 'on' : ''}">${SF()}Зима<i>${ld ? cnt.winter : ''}</i></button>`;
