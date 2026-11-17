@@ -694,14 +694,17 @@
         localStorage.setItem('elven_gh', JSON.stringify(GH)); ghShow(); toast('GitHub підключено ✓');
       } catch (e) { toast(e.message, 'err'); }
     };
-    $('gh-snap').onclick = async () => { if (!ghOn()) { toast('Спершу підключіть GitHub', 'err'); return; } try { await ghPut('products.json', new Blob([JSON.stringify(products)], { type: 'application/json' })); toast('Швидкий каталог оновлено ✓'); } catch (e) { toast(e.message, 'err'); } };
+    $('gh-snap').onclick = async () => { if (!ghOn()) { toast('Спершу підключіть GitHub', 'err'); return; } try { await ghPut('products.json', new Blob([JSON.stringify(products)], { type: 'application/json' })); try { localStorage.setItem('elven_snap_hash', hashStr(JSON.stringify(products))); } catch (e) {} toast('Швидкий каталог оновлено ✓'); } catch (e) { toast(e.message, 'err'); } };
     $('gh-off').onclick = () => { localStorage.removeItem('elven_gh'); GH.repo = GH.token = GH.branch = ''; ghShow(); toast('GitHub вимкнено: фото знову йдуть у Supabase'); };
     ghShow();
     let snapT = 0;
     function snap() {
       if (!ghOn()) return; clearTimeout(snapT);
-      snapT = setTimeout(async () => { try { await ghPut('products.json', new Blob([JSON.stringify(products)], { type: 'application/json' })); } catch (e) { console.warn('snapshot', e); } }, 1500);
+      snapT = setTimeout(async () => { try { await ghPut('products.json', new Blob([JSON.stringify(products)], { type: 'application/json' })); try { localStorage.setItem('elven_snap_hash', hashStr(JSON.stringify(products))); } catch (e) {} } catch (e) { console.warn('snapshot', e); } }, 1500);
     }
+    const hashStr = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return String(h) + ':' + s.length; };
+    const _lp = loadProducts;
+    loadProducts = async function () { const r = await _lp.apply(this, arguments); try { if (ghOn() && localStorage.getItem('elven_snap_hash') !== hashStr(JSON.stringify(products))) snap(); } catch (e) {} return r; };
     async function uploadImage(file) {
       if (ghOn()) {
         const name = `img/${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
