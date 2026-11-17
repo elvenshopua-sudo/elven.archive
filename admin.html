@@ -13,7 +13,8 @@
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <meta name="theme-color" content="#09090b">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
+  
+<script>
     tailwind.config = { darkMode: 'class', theme: { extend: {
       fontFamily: { sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'] },
       letterSpacing: { ultra: '0.25em', mega: '0.35em' } } } }
@@ -46,6 +47,58 @@
     .ord.open .ord-body { grid-template-rows: 1fr; }
     .pulse-dot { animation: pulse 1.6s ease-in-out infinite; }
     @keyframes pulse { 50% { opacity: .35; transform: scale(.8); } }
+      /* ===== Повноекранний редактор товару ===== */
+    .ed { position: fixed; inset: 0; z-index: 60; background: #fafafa; overflow-y: auto; }
+    .dark .ed { background: #09090b; }
+    .ed.hidden { display: none; }
+    .ed-top { position: sticky; top: 0; z-index: 6; display: flex; align-items: center; gap: 1.2rem; padding: .9rem 1.4rem; background: rgba(250,250,250,.92); border-bottom: 1px solid #e4e4e7; backdrop-filter: blur(10px); }
+    .dark .ed-top { background: rgba(9,9,11,.92); border-color: #27272a; }
+    .ed-top h3 { font-size: 13px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; white-space: nowrap; }
+    .ed-prog { flex: 1; display: flex; align-items: center; gap: .8rem; min-width: 0; }
+    .ed-pbar { flex: 1; height: 6px; background: #e4e4e7; border-radius: 9px; overflow: hidden; }
+    .dark .ed-pbar { background: #27272a; }
+    .ed-pbar span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #f0a24a, #34d399); transition: width .4s; }
+    .ed-prog b { font-size: 13px; min-width: 2.6rem; text-align: right; }
+    .ed-x { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; padding: .6rem 1rem; border: 1px solid #d4d4d8; white-space: nowrap; }
+    .dark .ed-x { border-color: #3f3f46; }
+    .ed-wrap { max-width: 1180px; margin: 0 auto; padding: 1.6rem 1.2rem 8rem; display: grid; grid-template-columns: 290px 1fr; gap: 2rem; }
+    @media (max-width: 900px) { .ed-wrap { grid-template-columns: 1fr; } .ed-side { position: static !important; } .ed-top { flex-wrap: wrap; gap: .6rem; } .ed-top h3 { font-size: 11px; } }
+    .ed-side { position: sticky; top: 84px; align-self: start; border: 1px solid #e4e4e7; padding: 1.2rem; background: #fff; }
+    .dark .ed-side { border-color: #27272a; background: #0f0f12; }
+    .ed-cap { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: #71717a; margin-bottom: .8rem; }
+    .ck { display: flex; align-items: center; gap: .65rem; width: 100%; text-align: left; padding: .5rem .3rem; font-size: 14px; cursor: pointer; border-radius: 6px; }
+    .ck:hover { background: rgba(120,120,120,.1); }
+    .ck .d { flex: none; width: 20px; height: 20px; border-radius: 99px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; border: 2px solid #d4d4d8; color: transparent; }
+    .ck.ok .d { background: #10b981; border-color: #10b981; color: #fff; }
+    .ck.bad .d { border-color: #ef4444; }
+    .ck.opt .d { border-style: dashed; }
+    .ck.ok { opacity: .7; }
+    .ck small { margin-left: auto; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: #a1a1aa; }
+    .ck.bad small { color: #ef4444; }
+    .ck-h { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: #a1a1aa; margin: 1rem 0 .3rem; }
+    .ed-sec { border: 1px solid #e4e4e7; background: #fff; padding: 1.8rem; margin-bottom: 1.4rem; scroll-margin-top: 90px; }
+    .dark .ed-sec { border-color: #27272a; background: #0f0f12; }
+    .ed-sec h4 { display: flex; align-items: center; gap: .8rem; font-size: 14px; letter-spacing: .2em; text-transform: uppercase; font-weight: 700; margin-bottom: 1.5rem; }
+    .ed-sec h4 i { font-style: normal; width: 30px; height: 30px; border-radius: 99px; display: flex; align-items: center; justify-content: center; background: #000; color: #fff; font-size: 14px; }
+    .dark .ed-sec h4 i { background: #fff; color: #000; }
+    .ed .field { font-size: 17px; padding: .9rem 0; }
+    .ed select.field { padding: .9rem 0; }
+    .ed label.block { font-size: 12px !important; letter-spacing: .1em; color: #71717a; margin-bottom: .35rem; }
+    .ed textarea { font-size: 16px; padding: .9rem !important; line-height: 1.5; }
+    .ed input[type=checkbox] { width: 20px; height: 20px; accent-color: #000; }
+    .dark .ed input[type=checkbox] { accent-color: #fff; }
+    .ed .flex-wrap > label { font-size: 15px; padding: .6rem .9rem; border: 1px solid #d4d4d8; gap: .5rem; cursor: pointer; }
+    .dark .ed .flex-wrap > label { border-color: #3f3f46; }
+    .ed #d-meas input.field { font-size: 15px; }
+    .ed .text-\[10px\] { font-size: 12px; }
+    .ed-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 7; display: flex; gap: .8rem; justify-content: center; padding: .9rem 1.2rem calc(.9rem + env(safe-area-inset-bottom)); background: rgba(250,250,250,.95); border-top: 1px solid #e4e4e7; backdrop-filter: blur(10px); }
+    .dark .ed-bar { background: rgba(9,9,11,.95); border-color: #27272a; }
+    .ed-save { flex: 1; max-width: 520px; background: #000; color: #fff; padding: 1rem; font-size: 13px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
+    .dark .ed-save { background: #fff; color: #000; }
+    .ed-save:disabled { opacity: .4; }
+    .ed-sec-btn { padding: 1rem 1.6rem; font-size: 12px; letter-spacing: .15em; text-transform: uppercase; border: 1px solid #d4d4d8; }
+    .dark .ed-sec-btn { border-color: #3f3f46; }
+    .ed #p-preview img, .ed #p-preview > div { width: 96px; height: 96px; }
   </style>
 </head>
 <body class="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans min-h-screen">
@@ -168,25 +221,59 @@
       </section>
 
       <!-- ТОВАРИ -->
-      <section id="tab-products" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div class="lg:col-span-1 border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6 space-y-5 h-fit bg-zinc-50/50 dark:bg-zinc-900/30">
-          <h3 id="form-title" class="text-xs font-semibold uppercase tracking-ultra border-b border-zinc-200 dark:border-zinc-800 pb-3">Додати новий товар</h3>
-          <form id="p-form" class="space-y-4">
-            <input type="hidden" id="p-id">
-            <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Назва товару</label><input type="text" id="p-name" required class="field"></div>
-            <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Артикул (SKU)</label><input type="text" id="p-sku" placeholder="напр. ELV-001" class="field"></div>
-            <div class="grid grid-cols-2 gap-4">
-              <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Зріст моделі, см</label><input type="number" id="p-mh" min="140" max="220" placeholder="напр. 175" class="field"></div>
-              <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Розмір на моделі</label><input type="text" id="p-ms" maxlength="8" placeholder="напр. S" class="field"></div>
+      <section id="tab-products" class="hidden grid grid-cols-1 gap-8">
+        <div class="space-y-4">
+          <h3 class="text-xs font-semibold uppercase tracking-ultra border-b border-zinc-200 dark:border-zinc-800 pb-3">Товари в каталозі</h3>
+          <button type="button" id="p-new" class="w-full bg-black dark:bg-white text-white dark:text-black py-4 text-xs font-semibold uppercase tracking-ultra mb-4">+ Додати новий товар</button>
+          <div id="p-shops" class="grid grid-cols-3 gap-2 mb-4"></div>
+          <details id="gh-box" class="mb-4 border border-zinc-300 dark:border-zinc-700 p-3 text-xs">
+            <summary class="cursor-pointer uppercase tracking-widest text-[10px]">Фото й відео через GitHub (безкоштовний трафік) <span id="gh-state" class="ml-1 text-emerald-500"></span></summary>
+            <div class="space-y-2 mt-3">
+              <input id="gh-repo" class="field" placeholder="Репозиторій: ваш-логін/назва-репо">
+              <input id="gh-branch" class="field" placeholder="Гілка (зазвичай main)">
+              <input id="gh-token" type="password" class="field" placeholder="Токен GitHub (Contents: Read and write)">
+              <div class="flex gap-2"><button type="button" id="gh-save" class="flex-1 bg-black dark:bg-white text-white dark:text-black py-2 uppercase text-[10px] tracking-widest">Зберегти й перевірити</button><button type="button" id="gh-off" class="px-3 bg-zinc-200 dark:bg-zinc-800 uppercase text-[10px]">Вимкнути</button></div>
+              <p class="text-[10px] text-zinc-400 leading-relaxed">Токен зберігається лише в цьому браузері. Створіть його на github.com → Settings → Developer settings → Fine-grained tokens: лише цей репозиторій, дозвіл Contents: Read and write. Після завантаження фото з’являється на сайті приблизно через хвилину.</p>
+              <button type="button" id="gh-snap" class="w-full bg-zinc-200 dark:bg-zinc-800 py-2 uppercase text-[10px] tracking-widest">Оновити швидкий каталог (products.json)</button>
+              <button type="button" id="gh-migrate" class="w-full border border-emerald-500/60 text-emerald-500 py-2 uppercase text-[10px] tracking-widest">Перенести старі фото з Supabase на GitHub</button>
             </div>
+          </details>
+          <button type="button" id="p-thumbs" class="w-full mb-4 text-[10px] uppercase tracking-widest border border-emerald-500/60 text-emerald-500 px-3 py-3">Створити мініатюри для старих товарів (економить трафік)</button>
+          <div id="p-list" class="space-y-3"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="p-editor" class="ed hidden" role="dialog" aria-modal="true">
+    <div class="ed-top">
+      <h3 id="form-title">Додати новий товар</h3>
+      <div class="ed-prog"><div class="ed-pbar"><span id="ed-pfill"></span></div><b id="ed-ppct">0%</b></div>
+      <button type="button" id="ed-close" class="ed-x" aria-label="Закрити">✕ Закрити</button>
+    </div>
+    <div class="ed-wrap">
+      <aside class="ed-side">
+        <p class="ed-cap">Що заповнено</p>
+        <div id="ed-check"></div>
+      </aside>
+      <form id="p-form" class="ed-main" novalidate>
+            <input type="hidden" id="p-id">
+<section class="ed-sec" id="sec-main"><h4><i>1</i>Основне</h4><div class="grid md:grid-cols-2 gap-x-8 gap-y-6">
+<div class="md:col-span-2">
+            <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Назва товару</label><input type="text" id="p-name" required class="field"></div>
+</div>
+            <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Артикул (SKU)</label><input type="text" id="p-sku" placeholder="напр. ELV-001" class="field"></div>
             <div>
               <label class="block text-[10px] text-zinc-400 uppercase mb-1">Категорія</label>
               <select id="p-cat" class="field"><option value="" class="dark:bg-zinc-900">— Без категорії (лише у вкладці «Усі») —</option><option value="suits" class="dark:bg-zinc-900">Спортивні костюми</option><option value="hoodies" class="dark:bg-zinc-900">Худі</option><option value="sweatshirts" class="dark:bg-zinc-900">Кофти та світшоти</option><option value="tshirts" class="dark:bg-zinc-900">Футболки та поло</option><option value="pants" class="dark:bg-zinc-900">Штани</option><option value="shorts" class="dark:bg-zinc-900">Шорти</option><option value="outerwear" class="dark:bg-zinc-900">Куртки та жилети</option><option value="thermal" class="dark:bg-zinc-900">Термобілизна</option><option value="sets" class="dark:bg-zinc-900">Комплекти</option><option value="accessories" class="dark:bg-zinc-900">Аксесуари</option><option value="winter" class="dark:bg-zinc-900">❄ Зимова колекція (окремий розділ)</option></select>
             </div>
+<div class="md:col-span-2">
             <div class="grid grid-cols-2 gap-4">
               <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Ціна (UAH)</label><input type="number" id="p-price" required min="0" inputmode="numeric" class="field"></div>
               <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Стара ціна</label><input type="number" id="p-old" min="0" inputmode="numeric" placeholder="Необов'язково" class="field"></div>
             </div>
+</div>
+<div class="md:col-span-2">
             <div>
               <label class="block text-[10px] text-zinc-400 uppercase mb-1">Статус</label>
               <select id="p-badge" class="field">
@@ -196,9 +283,48 @@
                 <option value="TOP" class="dark:bg-zinc-900">Топ продажів (TOP)</option>
               </select>
             </div>
+</div>
+<div class="md:col-span-2">
             <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Опис</label><textarea id="p-desc" rows="3" class="w-full bg-transparent border border-zinc-300 dark:border-zinc-700 p-2 focus:outline-none focus:border-black dark:focus:border-white"></textarea></div>
-            <details id="det-box" class="border border-zinc-300 dark:border-zinc-700 p-3">
-              <summary class="cursor-pointer uppercase tracking-widest text-[10px] text-zinc-400">Характеристики, догляд, заміри, параметри моделі</summary>
+</div>
+</div></section>
+<section class="ed-sec" id="sec-photo"><h4><i>2</i>Фото та відео</h4><div class="space-y-6">
+            <div>
+              <label class="block text-[10px] text-zinc-400 uppercase mb-1">Фотографії (завантажуються у сховище)</label>
+              <input type="file" id="p-files" accept="image/*" multiple class="w-full text-xs text-zinc-500 file:mr-4 file:py-2 file:px-3 file:border-0 file:text-xs file:font-semibold file:bg-zinc-200 dark:file:bg-zinc-800 file:text-zinc-800 dark:file:text-zinc-200">
+            </div>
+            <div>
+              <label class="block text-[10px] text-zinc-400 uppercase mb-1">Або URL картинки</label>
+              <div class="flex gap-2"><input type="text" id="p-url" placeholder="https://..." class="field"><button type="button" id="p-add-url" class="px-3 text-xs bg-zinc-200 dark:bg-zinc-800">+</button></div>
+            </div>
+            <div id="p-preview" class="flex gap-2 flex-wrap"></div>
+            <div>
+              <label class="block text-[10px] text-zinc-400 uppercase mb-2">Відео товару (необов’язково)</label>
+              <div class="flex gap-2 mb-2"><input type="text" id="p-video" placeholder="Посилання на .mp4 / .webm" class="field"><label class="px-3 text-xs bg-zinc-200 dark:bg-zinc-800 flex items-center cursor-pointer whitespace-nowrap">Файл<input type="file" id="p-vfile" accept="video/mp4,video/webm,video/quicktime" class="hidden"></label></div>
+              <video id="p-vprev" class="hidden w-40 mb-1 bg-black" controls playsinline muted></video>
+              <p class="text-[10px] text-zinc-400 leading-relaxed">До 10 секунд і до 8 МБ: відео витрачає трафік Supabase. Краще покласти mp4 у папку репозиторію на GitHub і вставити посилання, там трафік безкоштовний.</p>
+            </div>
+</div></section>
+<section class="ed-sec" id="sec-sizes"><h4><i>3</i>Розміри та модель на фото</h4><div class="space-y-6">
+            <div>
+              <label class="block text-[10px] text-zinc-400 uppercase mb-2">Розміри</label>
+              <div class="flex flex-wrap gap-4 text-xs">
+                <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="XS"> XS</label>
+                <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="S" checked> S</label>
+                <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="M" checked> M</label>
+                <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="L" checked> L</label>
+                <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="XL" checked> XL</label>
+                <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="XXL"> XXL</label>
+                <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="3XL"> 3XL</label>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Зріст моделі, см</label><input type="number" id="p-mh" min="140" max="220" placeholder="напр. 175" class="field"></div>
+              <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Розмір на моделі</label><input type="text" id="p-ms" maxlength="8" placeholder="напр. S" class="field"></div>
+            </div>
+</div></section>
+<section class="ed-sec" id="sec-det"><h4><i>4</i>Характеристики, догляд, заміри</h4>
+            <div id="det-box">
               <div class="space-y-4 mt-4">
                 <div class="grid grid-cols-3 gap-3">
                   <div><label class="block text-[10px] text-zinc-400 uppercase mb-1">Колір</label><input id="d-color" class="field" placeholder="напр. синій"></div>
@@ -220,60 +346,15 @@
                   <div class="grid grid-cols-3 gap-3"><input id="d-mchest" class="field" placeholder="Груди, см"><input id="d-mwaist" class="field" placeholder="Талія, см"><input id="d-mhips" class="field" placeholder="Стегна, см"></div>
                 </div>
               </div>
-            </details>
-            <div>
-              <label class="block text-[10px] text-zinc-400 uppercase mb-1">Фотографії (завантажуються у сховище)</label>
-              <input type="file" id="p-files" accept="image/*" multiple class="w-full text-xs text-zinc-500 file:mr-4 file:py-2 file:px-3 file:border-0 file:text-xs file:font-semibold file:bg-zinc-200 dark:file:bg-zinc-800 file:text-zinc-800 dark:file:text-zinc-200">
             </div>
-            <div>
-              <label class="block text-[10px] text-zinc-400 uppercase mb-1">Або URL картинки</label>
-              <div class="flex gap-2"><input type="text" id="p-url" placeholder="https://..." class="field"><button type="button" id="p-add-url" class="px-3 text-xs bg-zinc-200 dark:bg-zinc-800">+</button></div>
-            </div>
-            <div id="p-preview" class="flex gap-2 flex-wrap"></div>
-            <div>
-              <label class="block text-[10px] text-zinc-400 uppercase mb-2">Відео товару (необов’язково)</label>
-              <div class="flex gap-2 mb-2"><input type="text" id="p-video" placeholder="Посилання на .mp4 / .webm" class="field"><label class="px-3 text-xs bg-zinc-200 dark:bg-zinc-800 flex items-center cursor-pointer whitespace-nowrap">Файл<input type="file" id="p-vfile" accept="video/mp4,video/webm,video/quicktime" class="hidden"></label></div>
-              <video id="p-vprev" class="hidden w-40 mb-1 bg-black" controls playsinline muted></video>
-              <p class="text-[10px] text-zinc-400 leading-relaxed">До 10 секунд і до 8 МБ: відео витрачає трафік Supabase. Краще покласти mp4 у папку репозиторію на GitHub і вставити посилання, там трафік безкоштовний.</p>
-            </div>
-            <div>
-              <label class="block text-[10px] text-zinc-400 uppercase mb-2">Розміри</label>
-              <div class="flex flex-wrap gap-4 text-xs">
-                <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="XS"> XS</label>
-                <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="S" checked> S</label>
-                <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="M" checked> M</label>
-                <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="L" checked> L</label>
-                <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="XL" checked> XL</label>
-                <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="XXL"> XXL</label>
-                <label class="flex items-center gap-1.5"><input type="checkbox" name="p-size" value="3XL"> 3XL</label>
-              </div>
-            </div>
-            <div class="flex gap-2 pt-2">
-              <button type="submit" id="p-save" class="flex-grow bg-black dark:bg-white text-white dark:text-black font-semibold py-3 text-xs uppercase tracking-ultra disabled:opacity-40">Зберегти товар</button>
-              <button type="button" id="p-cancel" class="hidden bg-zinc-300 dark:bg-zinc-800 px-4 text-xs uppercase">Скасувати</button>
-            </div>
-          </form>
-        </div>
-        <div class="lg:col-span-2 space-y-4">
-          <h3 class="text-xs font-semibold uppercase tracking-ultra border-b border-zinc-200 dark:border-zinc-800 pb-3">Товари в каталозі</h3>
-          <div id="p-shops" class="grid grid-cols-3 gap-2 mb-4"></div>
-          <details id="gh-box" class="mb-4 border border-zinc-300 dark:border-zinc-700 p-3 text-xs">
-            <summary class="cursor-pointer uppercase tracking-widest text-[10px]">Фото й відео через GitHub (безкоштовний трафік) <span id="gh-state" class="ml-1 text-emerald-500"></span></summary>
-            <div class="space-y-2 mt-3">
-              <input id="gh-repo" class="field" placeholder="Репозиторій: ваш-логін/назва-репо">
-              <input id="gh-branch" class="field" placeholder="Гілка (зазвичай main)">
-              <input id="gh-token" type="password" class="field" placeholder="Токен GitHub (Contents: Read and write)">
-              <div class="flex gap-2"><button type="button" id="gh-save" class="flex-1 bg-black dark:bg-white text-white dark:text-black py-2 uppercase text-[10px] tracking-widest">Зберегти й перевірити</button><button type="button" id="gh-off" class="px-3 bg-zinc-200 dark:bg-zinc-800 uppercase text-[10px]">Вимкнути</button></div>
-              <p class="text-[10px] text-zinc-400 leading-relaxed">Токен зберігається лише в цьому браузері. Створіть його на github.com → Settings → Developer settings → Fine-grained tokens: лише цей репозиторій, дозвіл Contents: Read and write. Після завантаження фото з’являється на сайті приблизно через хвилину.</p>
-              <button type="button" id="gh-snap" class="w-full bg-zinc-200 dark:bg-zinc-800 py-2 uppercase text-[10px] tracking-widest">Оновити швидкий каталог (products.json)</button>
-              <button type="button" id="gh-migrate" class="w-full border border-emerald-500/60 text-emerald-500 py-2 uppercase text-[10px] tracking-widest">Перенести старі фото з Supabase на GitHub</button>
-            </div>
-          </details>
-          <button type="button" id="p-thumbs" class="w-full mb-4 text-[10px] uppercase tracking-widest border border-emerald-500/60 text-emerald-500 px-3 py-3">Створити мініатюри для старих товарів (економить трафік)</button>
-          <div id="p-list" class="space-y-3"></div>
-        </div>
-      </section>
-    </main>
+</section>
+      </form>
+    </div>
+    <div class="ed-bar">
+      <button type="button" id="ed-close2" class="ed-sec-btn">Скасувати</button>
+      <button type="submit" form="p-form" id="p-save" class="ed-save">Зберегти товар</button>
+      <button type="button" id="p-cancel" class="hidden">Скасувати</button>
+    </div>
   </div>
 
   <script>
@@ -844,7 +925,7 @@
           if (!error) toast('Збережено без даних моделі: виконайте supabase-sizes.sql', 'err');
         }
         if (error) throw error;
-        resetForm(); await loadProducts(); snap(); toast('Збережено');
+        resetForm(); closeEditor(); await loadProducts(); snap(); toast('Збережено');
       } catch (err) { toast('Помилка: ' + err.message, 'err'); }
       finally { btn.disabled = false; btn.textContent = $('p-id').value ? 'Оновити товар' : 'Зберегти товар'; }
     });
@@ -870,13 +951,59 @@
         $('p-url').value = ''; pImages = [...getImgs(p)]; renderPreview(); $('p-video').value = p.video || ''; vShow(); fillDetails(p.details);
         document.querySelectorAll('input[name="p-size"]').forEach(cb => cb.checked = (p.sizes || ['S', 'M', 'L']).includes(cb.value));
         $('form-title').textContent = 'Редагувати товар'; $('p-save').textContent = 'Оновити товар'; $('p-cancel').classList.remove('hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        openEditor();
       }
       if (del && confirm('Видалити цей товар?')) {
         const { error } = await db.from('products').delete().eq('id', del.dataset.del);
         if (error) toast('Помилка видалення: ' + error.message, 'err'); else { await loadProducts(); snap(); toast('Видалено'); }
       }
     });
+  
+    /* ---- Повноекранний редактор + чек-лист ---- */
+    let edDirty = false, edTimer = 0;
+    const EDI = [
+      { t: 'Назва товару', req: 1, ok: () => $('p-name').value.trim(), go: 'p-name' },
+      { t: 'Категорія', req: 1, ok: () => $('p-cat').value, go: 'p-cat' },
+      { t: 'Ціна', req: 1, ok: () => Number($('p-price').value) > 0, go: 'p-price' },
+      { t: 'Хоча б одне фото', req: 1, ok: () => pImages.length || $('p-url').value.trim(), go: 'sec-photo' },
+      { t: 'Розміри (хоча б один)', req: 1, ok: () => selSizes().length, go: 'sec-sizes' },
+      { t: 'Артикул', ok: () => $('p-sku').value.trim(), go: 'p-sku' },
+      { t: 'Опис', ok: () => $('p-desc').value.trim(), go: 'p-desc' },
+      { t: 'Зріст і розмір моделі', ok: () => $('p-mh').value && $('p-ms').value.trim(), go: 'p-mh' },
+      { t: 'Колір, матеріал, склад', ok: () => $('d-color').value.trim() && $('d-material').value.trim() && $('d-comp').value.trim(), go: 'd-color' },
+      { t: 'Догляд', ok: () => $('d-care').value.trim(), go: 'd-care' },
+      { t: 'Таблиця замірів', ok: () => { const d = collectDetails(); return d && d.measures; }, go: 'd-meas-add' },
+      { t: 'Параметри моделі (груди/талія/стегна)', ok: () => $('d-mchest').value.trim() || $('d-mwaist').value.trim() || $('d-mhips').value.trim(), go: 'd-mchest' },
+      { t: 'Відео', opt: 1, ok: () => $('p-video').value.trim(), go: 'p-video' }
+    ];
+    function edCheck() {
+      const done = EDI.map(i => !!i.ok());
+      const req = EDI.filter(i => i.req), rec = EDI.filter(i => !i.req && !i.opt), op = EDI.filter(i => i.opt);
+      const row = (i) => { const ok = !!i.ok(); return `<button type="button" class="ck ${ok ? 'ok' : i.req ? 'bad' : ''} ${i.opt ? 'opt' : ''}" data-go="${i.go}"><span class="d">✓</span>${i.t}<small>${ok ? '' : i.req ? 'обов’язково' : i.opt ? 'за бажанням' : 'варто'}</small></button>`; };
+      $('ed-check').innerHTML = '<p class="ck-h" style="margin-top:0">Обов’язкове</p>' + req.map(row).join('') + '<p class="ck-h">Щоб клієнт усе бачив</p>' + rec.map(row).join('') + '<p class="ck-h">Додатково</p>' + op.map(row).join('');
+      const n = EDI.filter(i => !i.opt).length, d = EDI.filter((i, k) => !i.opt && done[k]).length, p = Math.round(d / n * 100);
+      $('ed-pfill').style.width = p + '%'; $('ed-ppct').textContent = p + '%';
+    }
+    function openEditor() { $('p-editor').classList.remove('hidden'); document.body.style.overflow = 'hidden'; $('p-editor').scrollTop = 0; edDirty = false; edCheck(); clearInterval(edTimer); edTimer = setInterval(edCheck, 700); }
+    function closeEditor() { $('p-editor').classList.add('hidden'); document.body.style.overflow = ''; clearInterval(edTimer); edDirty = false; }
+    function edAskClose() { if (edDirty && !confirm('Закрити без збереження? Введені дані буде втрачено.')) return; resetForm(); closeEditor(); }
+    $('ed-close').onclick = $('ed-close2').onclick = edAskClose;
+    $('p-form').addEventListener('input', () => { edDirty = true; });
+    $('p-new').onclick = () => { resetForm(); openEditor(); };
+    $('ed-check').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-go]'); if (!b) return; const el = $(b.dataset.go); if (!el) return;
+      const det = el.closest('details'); if (det) det.open = true;
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' }); if (el.focus && /INPUT|TEXTAREA|SELECT/.test(el.tagName)) setTimeout(() => el.focus({ preventScroll: true }), 350);
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('p-editor').classList.contains('hidden')) edAskClose(); });
+    /* перевірка перед збереженням: нічого не пропустити */
+    document.addEventListener('submit', (e) => {
+      if (e.target.id !== 'p-form') return;
+      const miss = EDI.filter(i => i.req && !i.ok());
+      if (miss.length) { e.preventDefault(); e.stopImmediatePropagation(); toast('Заповніть: ' + miss.map(i => i.t).join(', '), 'err'); const el = $(miss[0].go); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+      const rec = EDI.filter(i => !i.req && !i.opt && !i.ok());
+      if (rec.length && !confirm('Не заповнено:\n• ' + rec.map(i => i.t).join('\n• ') + '\n\nЗберегти все одно?')) { e.preventDefault(); e.stopImmediatePropagation(); }
+    }, true);
   </script>
 </body>
 </html>
