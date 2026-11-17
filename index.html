@@ -230,7 +230,9 @@
     .clr.on { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #000; }
     .dark .clr.on { box-shadow: 0 0 0 2px #09090b, 0 0 0 4px #fff; }
     .card-dots { display: flex; gap: .4rem; margin-top: .5rem; }
-    .card-dots i { width: 14px; height: 14px; border-radius: 99px; background: var(--c); border: 1px solid rgba(128,128,128,.45); cursor: pointer; }
+    .card-clr { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; opacity: .6; margin-top: .25rem; }
+    .card-dots i.on { outline: 1px solid currentColor; outline-offset: 2px; }
+    .card-dots i { cursor: pointer; width: 14px; height: 14px; border-radius: 99px; background: var(--c); border: 1px solid rgba(128,128,128,.45); cursor: pointer; }
     .pm-th { position: relative; }
     .det-dl { display: grid; grid-template-columns: max-content 1fr; gap: .45rem 1.6rem; }
     .det-dl dt { color: #71717a; }
@@ -1289,6 +1291,25 @@
       nav.innerHTML = html;
     }
 
+    function cardColors(p) {
+      const b = p._base || p; let vs = []; try { vs = varsOf(b) || []; } catch (e) {}
+      if (!vs.length) return '';
+      const d = detOf(b), all = [{ color: d.color || 'Основний', hex: d.colorHex || '#888' }].concat(vs), cur = p._ci || 0;
+      const cn = all[cur].color || '';
+      return (cn && !String(p.name || '').toLowerCase().includes(cn.toLowerCase())) ? `<p class="card-clr">${esc(cn)}</p>` : '';
+    }
+    function expandVariants(list) {
+      const out = [];
+      list.forEach(p => {
+        out.push(p);
+        let vs = []; try { vs = varsOf(p) || []; } catch (e) {}
+        vs.forEach((v, i) => {
+          const imgs = Array.isArray(v.images) ? v.images.filter(Boolean) : [];
+          out.push(Object.assign({}, p, { name: v.name || ((p.name || '') + (v.color ? ' · ' + v.color : '')), sku: v.sku || p.sku, images: imgs.length ? imgs : p.images, img: imgs.length ? imgs[0] : p.img, video: v.video || '', _ci: i + 1, _base: p }));
+        });
+      });
+      return out;
+    }
     function renderProducts() {
       const grid = $('product-grid');
       if (!loaded) { renderSkeleton(); $('catalog-count').textContent = 'Завантаження…'; return; }
@@ -1297,6 +1318,7 @@
       if (sortMode === 'asc') list.sort((a, b) => a.price - b.price);
       else if (sortMode === 'desc') list.sort((a, b) => b.price - a.price);
       else list.sort((a, b) => Number(b.id) - Number(a.id));
+      list = expandVariants(list);
       curList = list;
 
       const pp = perPage(), pages = Math.max(1, Math.ceil(list.length / pp));
@@ -1325,7 +1347,7 @@
         const sizes = (p.sizes && p.sizes.length ? p.sizes : ['S', 'M', 'L']).map(esc).join('<span class="opacity-30">·</span>');
         const fav = favs.has(Number(p.id));
         return `
-        <article class="group cursor-pointer reveal" style="transition-delay:${Math.min(i, 8) * 50}ms" data-open="${p.id}">
+        <article class="group cursor-pointer reveal" style="transition-delay:${Math.min(i, 8) * 50}ms" data-open="${p.id}" data-ci="${p._ci || 0}">
           <div class="card-media relative overflow-hidden bg-zinc-100 dark:bg-zinc-900 mb-3 aspect-[3/4]">
             ${badge}
             <img src="${esc(thumbOf(imgs[0]))}" onerror="${esc(thumbErr(imgs[0]))}" alt="${esc(p.name)}" decoding="async" ${i < 4 ? 'fetchpriority="high"' : 'loading="lazy"'} draggable="false" class="absolute inset-0 w-full h-full object-cover transition duration-700 ease-out ${imgs[1] ? 'group-hover:opacity-0' : 'group-hover:scale-105'}">
@@ -1340,18 +1362,13 @@
               ${p.sku ? `<span class="hidden sm:inline text-[9px] text-zinc-400/60 tracking-wider font-mono shrink-0">${esc(p.sku)}</span>` : ''}
             </div>
             <div class="price-line">${priceHtml}</div>
+            ${cardColors(p)}
           </div>
         </article>`;
       }).join('');
       observeReveal();
     }
 
-    $('product-grid').addEventListener('click', (e) => {
-      const dot = e.target.closest && e.target.closest('[data-cd]'); if (!dot) return; e.stopPropagation();
-      const a = dot.closest('article'), pr = products.find(x => Number(x.id) === Number(a.dataset.open)); if (!pr) return;
-      const i = Number(dot.dataset.cd), v = i ? varsOf(pr)[i - 1] : null, src = v && v.images && v.images[0] ? v.images[0] : getImgs(pr)[0], im = a.querySelector('.card-media img');
-      if (im && src) { im.src = thumbOf(src); im.onerror = () => { im.onerror = null; im.src = src; }; }
-    }, true);
     $('product-grid').addEventListener('pointerover', (e) => {
       const c = e.target.closest && e.target.closest('article'); if (!c) return;
       const im = c.querySelector('img.hov2[data-src]'); if (!im) return;
@@ -1369,9 +1386,13 @@
     }
 
     $('product-grid').addEventListener('click', (e) => {
+      const dot = e.target.closest('[data-cd]'); if (!dot) return; e.stopPropagation();
+      const a = dot.closest('article'); openProductModal(Number(a.dataset.open), Number(dot.dataset.cd));
+    }, true);
+    $('product-grid').addEventListener('click', (e) => {
       if (e.target.closest('[data-fav]')) return;
       const card = e.target.closest('[data-open]');
-      if (card) openProductModal(Number(card.dataset.open));
+      if (card) openProductModal(Number(card.dataset.open), Number(card.dataset.ci || 0));
     });
     $('filters').addEventListener('click', (e) => {
       const b = e.target.closest('.chip'); if (!b) return;
@@ -1461,13 +1482,14 @@
 
     }
 
-    function renderProduct(p) {
+    function renderProduct(p0) {
+      const p = p0._base || p0, ci0 = p0._ci || 0;
       curProduct = p; curColor = -1;
       const sizes = (p.sizes && p.sizes.length) ? p.sizes : ['S', 'M', 'L'];
       curSize = sizes[0];
       sgUpdate(p);
       if (!curList.length) curList = products.slice();
-      const idx = curList.findIndex(x => Number(x.id) === Number(p.id));
+      const idx = curList.findIndex(x => Number(x.id) === Number(p.id) && (x._ci || 0) === ci0);
       $('pm-counter').textContent = idx >= 0 ? `${pad2(idx + 1)} / ${pad2(curList.length)}` : '—';
       $('pm-fav').dataset.fav = p.id;
       $('pm-fav').classList.toggle('fav-on', favs.has(Number(p.id)));
@@ -1515,6 +1537,7 @@
         el.style.animation = `fadeUp .7s cubic-bezier(.2,.7,.2,1) ${.1 + i * .07}s both`;
       });
       pmParallax();
+      if (ci0 > 0) pmPickColor(ci0);
     }
 
     function setHash(id) {
@@ -1524,15 +1547,15 @@
       } catch (e) {}
     }
 
-    function openProductModal(id) {
+    function openProductModal(id, ci = 0) {
       const p = products.find(x => Number(x.id) === Number(id)); if (!p) return;
       const m = $('product-modal');
       if (!curList.length) curList = products.slice();
-      const card = document.querySelector(`[data-open="${p.id}"] .card-media`);
+      const card = document.querySelector(`[data-open="${p.id}"][data-ci="${ci}"] .card-media`)||document.querySelector(`[data-open="${p.id}"] .card-media`);
       if (card) card.style.transform = '';
       const show = () => {
         m.classList.remove('hidden');
-        renderProduct(p);
+        renderProduct(ci ? { _base: p, _ci: ci, id: p.id } : p);
         m.scrollTop = 0;
         lockScroll(true);
         const first = m.querySelector('.pm-zoom');
@@ -1552,7 +1575,7 @@
       if (m.classList.contains('hidden')) return;
       document.querySelectorAll('#pm-gallery video').forEach(v => v.pause());
       const finish = () => { m.classList.add('hidden'); lockScroll(false); };
-      const card = curProduct && document.querySelector(`[data-open="${curProduct.id}"] .card-media`);
+      const card = curProduct && (document.querySelector(`[data-open="${curProduct.id}"][data-ci="${curColor + 1}"] .card-media`)||document.querySelector(`[data-open="${curProduct.id}"] .card-media`));
       const first = m.querySelector('.pm-zoom');
       let morph = false;
       if (!instant && vtOK() && card && first && m.scrollTop < 250) {
@@ -1582,9 +1605,10 @@
     }
     function navProduct(dir) {
       if (!curList.length || !curProduct) return;
-      const i = curList.findIndex(x => Number(x.id) === Number(curProduct.id));
+      let i = curList.findIndex(x => Number(x.id) === Number(curProduct.id) && (x._ci || 0) === curColor + 1);
+      if (i < 0) i = curList.findIndex(x => Number(x.id) === Number(curProduct.id));
       const n = curList[(i + dir + curList.length) % curList.length];
-      if (n && Number(n.id) !== Number(curProduct.id)) swapProduct(n, dir);
+      if (n && (Number(n.id) !== Number(curProduct.id) || (n._ci || 0) !== curColor + 1)) swapProduct(n._ci ? { _base: n._base, _ci: n._ci, id: n.id } : n, dir);
     }
 
     function openFromHash() {
@@ -2705,6 +2729,8 @@
       $('pm-sku').textContent = sk ? `SKU: ${sk}` : '';
       $('pm-title').innerHTML = (nm || '').split(/\s+/).filter(Boolean).map((w, k) => `<span class="word"><span style="animation-delay:${.05 + k * .07}s">${esc(w)}</span></span>`).join(' ');
       renderColors(p);
+      const cn = v ? v.color : (detOf(p).color || '');
+      document.querySelectorAll('#pm-det dt').forEach(dt => { if (dt.textContent.trim() === 'Колір' && dt.nextElementSibling && cn) dt.nextElementSibling.textContent = cn; });
     }
     $('pm-colors').addEventListener('click', (e) => { const b = e.target.closest('[data-ci]'); if (b) pmPickColor(Number(b.dataset.ci)); });
     function detHTML(p) {
@@ -3119,13 +3145,7 @@
     renderProducts = function () {
       _rp();
       renderSwitch();
-      document.querySelectorAll('#product-grid article[data-open]').forEach(a => { const pr = products.find(x => Number(x.id) === Number(a.dataset.open)); const m = a.querySelector('.card-media'); if (pr && pr.video && m && !m.querySelector('.vid-chip')) { const c = document.createElement('span'); c.className = 'vid-chip'; c.textContent = '▶'; c.title = 'Є відео'; m.appendChild(c); } });
-      document.querySelectorAll('#product-grid article[data-open]').forEach(a => {
-        if (a.querySelector('.card-dots')) return; const pr = products.find(x => Number(x.id) === Number(a.dataset.open)); if (!pr) return; const vs = varsOf(pr); if (!vs.length) return;
-        const d = detOf(pr), row = document.createElement('div'); row.className = 'card-dots';
-        row.innerHTML = [{ color: d.color || '', hex: d.colorHex || '#888' }].concat(vs).map((c, i) => `<i data-cd="${i}" title="${esc(c.color || '')}" style="--c:${esc(c.hex || '#888')}"></i>`).join('');
-        a.appendChild(row);
-      });
+      document.querySelectorAll('#product-grid article[data-open]').forEach(a => { const pr0 = products.find(x => Number(x.id) === Number(a.dataset.open)), ci = Number(a.dataset.ci || 0), vv = ci && pr0 ? varsOf(pr0)[ci - 1] : null, pr = pr0 && { video: ci ? (vv && vv.video) : pr0.video }; const m = a.querySelector('.card-media'); if (pr && pr.video && m && !m.querySelector('.vid-chip')) { const c = document.createElement('span'); c.className = 'vid-chip'; c.textContent = '▶'; c.title = 'Є відео'; m.appendChild(c); } });
       const w = shop === 'winter';
       $('cats').style.display = w ? 'none' : '';
       const h = document.querySelector('#catalog h2'); if (h) h.textContent = w ? 'Зима' : shop === 'women' ? 'Для неї' : 'Каталог';
