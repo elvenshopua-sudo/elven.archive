@@ -230,6 +230,12 @@
     .clr.on { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #000; }
     .dark .clr.on { box-shadow: 0 0 0 2px #09090b, 0 0 0 4px #fff; }
     .card-dots { display: flex; gap: .4rem; margin-top: .5rem; }
+    .np-list { position: absolute; left: 0; right: 0; top: 100%; z-index: 30; max-height: 16rem; overflow-y: auto; background: #fff; border: 1px solid #d4d4d8; box-shadow: 0 18px 40px rgba(0,0,0,.18); -webkit-overflow-scrolling: touch; }
+    .dark .np-list { background: #0a0a0a; border-color: #3f3f46; }
+    .np-it { display: block; width: 100%; text-align: left; padding: .7rem .8rem; font-size: 12px; line-height: 1.35; border-bottom: 1px solid rgba(128,128,128,.15); }
+    .np-it:hover, .np-it:focus { background: rgba(128,128,128,.14); outline: none; }
+    .np-it small { display: block; opacity: .55; font-size: 10px; margin-top: 1px; }
+    .np-empty { padding: .8rem; font-size: 11px; opacity: .55; }
     .card-clr { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; opacity: .6; margin-top: .25rem; }
     .card-dots i.on { outline: 1px solid currentColor; outline-offset: 2px; }
     .card-dots i { cursor: pointer; width: 14px; height: 14px; border-radius: 99px; background: var(--c); border: 1px solid rgba(128,128,128,.45); cursor: pointer; }
@@ -683,7 +689,19 @@
               <option value="Закордон (Польща / Молдова)" class="dark:bg-zinc-900">Міжнародна доставка</option>
             </select>
           </div>
-          <div>
+          <div id="np-box" class="space-y-4 hidden">
+            <div class="relative">
+              <label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Місто *</label>
+              <input type="text" id="np-city" autocomplete="off" placeholder="Почніть вводити: Київ, Львів, Дніпро…" class="field">
+              <div id="np-city-list" class="np-list hidden"></div>
+            </div>
+            <div class="relative">
+              <label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Відділення або поштомат *</label>
+              <input type="text" id="np-wh" autocomplete="off" disabled placeholder="Спочатку оберіть місто" class="field disabled:opacity-50">
+              <div id="np-wh-list" class="np-list hidden"></div>
+            </div>
+          </div>
+          <div id="addr-box">
             <label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Місто та Відділення *</label>
             <input type="text" id="cust-address" required autocomplete="street-address" placeholder="м. Київ, №15" class="field">
           </div>
@@ -1862,6 +1880,7 @@
     $('order-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!cart.length) return toast('Кошик порожній', 'err');
+      const npm = window.npMissing && window.npMissing(); if (npm) { toast('Оберіть місто та відділення зі списку', 'err'); npm.focus(); return; }
       const rawPhone = phoneInput.value.replace(/\D/g, '');
       if (rawPhone.length !== 12) { $('phone-error').classList.remove('hidden'); phoneInput.focus(); return; }
 
@@ -3235,5 +3254,78 @@
     if (root.classList.contains('winter')) build();
   })();
   </script>
+<script>
+/* Нова Пошта: місто й відділення зі списку (через Supabase-функцію "np", ключ НП лишається на сервері) */
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const dlv = $('cust-delivery'), addr = $('cust-address'), box = $('np-box'), abox = $('addr-box');
+  const city = $('np-city'), wh = $('np-wh'), cl = $('np-city-list'), wl = $('np-wh-list');
+  if (!dlv || !box) return;
+  let npOK = true, cur = null, whAll = [], reqId = 0, tm = 0; const cache = {};
+  const isNP = () => /^Нова/.test(dlv.value);
+  const esc = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  async function call(body) {
+    const { data, error } = await db.functions.invoke('np', { body });
+    if (error || !data || data.ok === false) throw (error || new Error('np'));
+    return data;
+  }
+  function mode() {
+    const on = isNP() && npOK;
+    box.classList.toggle('hidden', !on); abox.classList.toggle('hidden', on); addr.required = !on;
+    if (!isNP() && addr.dataset.np) { addr.value = ''; delete addr.dataset.np; }
+  }
+  function fail() { if (!npOK) return; npOK = false; mode(); if (window.toast) window.toast('Список відділень зараз недоступний — впишіть місто і відділення вручну', 'err'); }
+  function reset(full) {
+    cur = null; whAll = []; wh.value = ''; wh.disabled = true; wh.placeholder = 'Спочатку оберіть місто'; wl.classList.add('hidden');
+    if (addr.dataset.np) { addr.value = ''; delete addr.dataset.np; }
+    if (full) { city.value = ''; cl.classList.add('hidden'); }
+  }
+  /* --- місто --- */
+  city.addEventListener('input', () => {
+    reset(false); clearTimeout(tm); const q = city.value.trim();
+    if (q.length < 2) { cl.classList.add('hidden'); return; }
+    const id = ++reqId;
+    tm = setTimeout(async () => {
+      cl.innerHTML = '<div class="np-empty">Шукаємо…</div>'; cl.classList.remove('hidden');
+      try {
+        const d = await call({ op: 'cities', q }); if (id !== reqId) return;
+        const list = d.cities || [];
+        cl.innerHTML = list.length ? list.map((c, i) => `<button type="button" class="np-it" data-i="${i}">${esc(c.name)}<small>${esc(c.area)}</small></button>`).join('') : '<div class="np-empty">Нічого не знайдено</div>';
+        cl._list = list;
+      } catch (e) { fail(); }
+    }, 250);
+  });
+  cl.addEventListener('click', async (e) => {
+    const b = e.target.closest('.np-it'); if (!b) return; const c = cl._list[Number(b.dataset.i)]; if (!c) return;
+    cur = c; city.value = c.name; cl.classList.add('hidden');
+    wh.disabled = false; wh.value = ''; wh.placeholder = 'Завантажуємо відділення…';
+    try {
+      whAll = cache[c.ref] || (cache[c.ref] = (await call({ op: 'whs', ref: c.ref })).whs || []);
+      wh.placeholder = `Відділення або поштомат (${whAll.length}) — введіть номер чи вулицю`;
+      wh.focus(); showWh();
+    } catch (er) { fail(); }
+  });
+  /* --- відділення --- */
+  function showWh() {
+    const q = wh.value.trim().toLowerCase();
+    let res = whAll;
+    if (q) res = whAll.filter((w) => w.d.toLowerCase().includes(q) || String(w.n) === q);
+    const part = res.slice(0, 150);
+    wl.innerHTML = part.length ? part.map((w) => `<button type="button" class="np-it" data-r="${esc(w.r)}">${esc(w.d)}</button>`).join('') + (res.length > 150 ? `<div class="np-empty">Ще ${res.length - 150}… уточніть пошук</div>` : '') : '<div class="np-empty">Нічого не знайдено</div>';
+    wl.classList.remove('hidden');
+  }
+  wh.addEventListener('focus', () => { if (cur) showWh(); });
+  wh.addEventListener('input', () => { if (addr.dataset.np) { addr.value = ''; delete addr.dataset.np; } showWh(); });
+  wl.addEventListener('click', (e) => {
+    const b = e.target.closest('.np-it'); if (!b || !b.dataset.r) return; const w = whAll.find((x) => x.r === b.dataset.r); if (!w || !cur) return;
+    wh.value = w.d; addr.value = `${cur.name}, ${w.d}`.slice(0, 190); addr.dataset.np = '1'; wl.classList.add('hidden');
+  });
+  document.addEventListener('click', (e) => { if (!box.contains(e.target)) { cl.classList.add('hidden'); wl.classList.add('hidden'); } });
+  dlv.addEventListener('change', mode);
+  $('order-form').addEventListener('reset', () => setTimeout(() => { reset(true); mode(); }, 0));
+  window.npMissing = () => (isNP() && npOK && !addr.dataset.np) ? (city.value.trim() && cur ? wh : city) : null;
+  mode();
+})();
+</script>
 </body>
 </html>
