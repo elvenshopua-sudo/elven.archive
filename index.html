@@ -236,6 +236,76 @@
     .np-it:hover, .np-it:focus { background: rgba(128,128,128,.14); outline: none; }
     .np-it small { display: block; opacity: .55; font-size: 10px; margin-top: 1px; }
     .np-empty { padding: .8rem; font-size: 11px; opacity: .55; }
+    /* ===== Кошик: «квиток» з кольором акценту під розділ ===== */
+    .cart-ux { --ac: #c8a45a; --ac2: rgba(200,164,90,.16); --bd: rgba(0,0,0,.09); --cd: #fafaf9; background-image: radial-gradient(120% 50% at 100% 0%, var(--ac2), transparent 62%); }
+    html.women .cart-ux { --ac: #e0709a; --ac2: rgba(224,112,154,.18); }
+    html.winter .cart-ux { --ac: #5aa9f5; --ac2: rgba(90,169,245,.18); }
+    .dark .cart-ux { --bd: rgba(255,255,255,.1); --cd: rgba(255,255,255,.04); }
+    .cx-head { display: flex; align-items: flex-end; justify-content: space-between; padding: 1.4rem 1.5rem .9rem; flex-shrink: 0; }
+    @media (min-width: 640px) { .cx-head { padding-left: 2rem; padding-right: 2rem; } }
+    .cx-eyebrow { font-size: 9px; letter-spacing: .32em; text-transform: uppercase; color: var(--ac); font-weight: 600; margin-bottom: .15rem; }
+    .cx-title { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-weight: 500; font-size: 2.6rem; line-height: 1; display: flex; align-items: baseline; gap: .6rem; }
+    .cx-title span { font-family: Inter, sans-serif; font-style: normal; font-size: 11px; letter-spacing: .12em; padding: .22rem .6rem; border-radius: 99px; background: var(--ac); color: #fff; font-weight: 600; transform: translateY(-.5rem); }
+    .cx-title span:empty { display: none; }
+    .cx-x { width: 2.6rem; height: 2.6rem; border-radius: 99px; border: 1px solid var(--bd); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; line-height: 1; color: #71717a; transition: transform .35s cubic-bezier(.3,1.6,.5,1), background .2s, color .2s; }
+    .cx-x:hover { transform: rotate(90deg); background: var(--ac); color: #fff; border-color: var(--ac); }
+    #cx-prog { padding: 0 1.5rem 1.1rem; flex-shrink: 0; border-bottom: 1px solid var(--bd); }
+    @media (min-width: 640px) { #cx-prog { padding-left: 2rem; padding-right: 2rem; } }
+    .cx-segs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .cx-segs i { height: 4px; border-radius: 4px; background: var(--bd); position: relative; overflow: hidden; }
+    .cx-segs i::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, var(--ac), #fff 140%); transform: scaleX(0); transform-origin: left; transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+    .cx-segs i.on::after { transform: none; }
+    #cx-prog-t { margin-top: .55rem; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #a1a1aa; display: flex; justify-content: space-between; }
+    #cx-prog-t b { color: var(--ac); font-weight: 600; }
+    .cx-sec { display: flex; align-items: center; gap: .7rem; font-size: 10px; letter-spacing: .24em; text-transform: uppercase; font-weight: 600; color: #71717a; margin-bottom: 1rem; }
+    .cx-sec i { font-style: normal; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.15rem; color: var(--ac); letter-spacing: 0; }
+    .cx-sec::after { content: ""; flex: 1; height: 1px; background: var(--bd); }
+    .cx-it { display: flex; gap: .95rem; padding: .8rem; border: 1px solid var(--bd); background: var(--cd); border-radius: 18px; transition: border-color .25s, transform .25s; }
+    .cx-it:hover { border-color: var(--ac); }
+    .cx-open .cx-it { animation: cxIn .55s cubic-bezier(.2,.8,.2,1) both; animation-delay: var(--d, 0ms); }
+    @keyframes cxIn { from { opacity: 0; transform: translateX(26px) scale(.97); } to { opacity: 1; transform: none; } }
+    .cx-img { width: 76px; height: 98px; border-radius: 12px; overflow: hidden; background: #e4e4e7; flex-shrink: 0; }
+    .dark .cx-img { background: #18181b; }
+    .cx-img img { width: 100%; height: 100%; object-fit: cover; }
+    .cx-b { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .cx-top { display: flex; justify-content: space-between; gap: .5rem; }
+    .cx-nm { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.1rem; font-weight: 600; line-height: 1.15; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .cx-rm { color: #a1a1aa; padding: .2rem; transition: color .2s, transform .2s; align-self: flex-start; } .cx-rm:hover { color: #ef4444; transform: scale(1.15); }
+    .cx-chips { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .4rem; }
+    .cx-chips span { font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; padding: .18rem .55rem; border-radius: 99px; border: 1px solid var(--bd); color: #71717a; }
+    .cx-chips .m { font-family: ui-monospace, monospace; text-transform: none; letter-spacing: 0; opacity: .7; }
+    .cx-bot { margin-top: auto; padding-top: .7rem; display: flex; justify-content: space-between; align-items: center; }
+    .cx-q { display: inline-flex; align-items: center; border: 1px solid var(--bd); border-radius: 99px; overflow: hidden; }
+    .cx-q button { width: 2rem; height: 2rem; font-size: 1rem; transition: background .2s, color .2s; } .cx-q button:hover { background: var(--ac); color: #fff; }
+    .cx-q b { min-width: 1.6rem; text-align: center; font-size: 12px; font-weight: 600; }
+    .cx-pr { font-size: 13px; font-weight: 600; letter-spacing: .02em; }
+    .cx-empty { text-align: center; padding: 2.6rem 1rem 1.4rem; color: #a1a1aa; }
+    .cx-empty svg { width: 130px; height: 130px; margin: 0 auto 1rem; display: block; color: var(--ac); animation: cxFloat 4s ease-in-out infinite; }
+    @keyframes cxFloat { 0%,100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-10px) rotate(3deg); } }
+    .cx-empty p { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 1.7rem; color: inherit; }
+    .cx-empty small { display: block; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; margin-top: .4rem; }
+    .cx-empty button { margin-top: 1.3rem; padding: .8rem 1.6rem; border-radius: 99px; border: 1px solid var(--ac); color: var(--ac); font-size: 10px; letter-spacing: .24em; text-transform: uppercase; font-weight: 600; transition: background .25s, color .25s; }
+    .cx-empty button:hover { background: var(--ac); color: #fff; }
+    .cart-ux .field { border: 1px solid var(--bd); border-radius: 14px; padding: .8rem 1rem; background: var(--cd); transition: border-color .2s, box-shadow .2s; }
+    .cart-ux .field:focus { border-color: var(--ac); box-shadow: 0 0 0 4px var(--ac2); }
+    .cart-ux .np-list { border-radius: 14px; margin-top: 6px; overflow-x: hidden; }
+    .cx-foot { flex-shrink: 0; padding: 0 1.5rem; background: inherit; position: relative; }
+    @media (min-width: 640px) { .cx-foot { padding-left: 2rem; padding-right: 2rem; } }
+    .cx-perf { position: relative; border-top: 2px dashed var(--bd); margin: 0 -1.5rem 1rem; }
+    .cx-perf::after { content: "✦"; position: absolute; left: 50%; top: -.72rem; transform: translateX(-50%); padding: 0 .6rem; font-size: 12px; color: var(--ac); background: #fff; } .dark .cx-perf::after { background: #09090b; }
+    .cx-sum { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .9rem; }
+    .cx-sum span { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #71717a; }
+    .cx-sum b { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 2.1rem; font-weight: 600; line-height: 1; }
+    .cx-go { position: relative; overflow: hidden; width: 100%; padding: 1.1rem 3.2rem 1.1rem 1.4rem; border-radius: 16px; background: #09090b; color: #fff; font-size: 11px; font-weight: 600; letter-spacing: .26em; text-transform: uppercase; transition: transform .2s, box-shadow .3s; box-shadow: 0 12px 30px -10px var(--ac); }
+    .dark .cx-go { background: #fff; color: #09090b; }
+    .cx-go::before { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, var(--ac2) 50%, transparent 70%); transform: translateX(-100%); animation: cxShine 3.2s ease-in-out infinite; }
+    @keyframes cxShine { 0%,55% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+    .cx-go::after { content: "→"; position: absolute; right: 1.3rem; top: 50%; transform: translateY(-50%); font-size: 1.2rem; transition: transform .3s cubic-bezier(.3,1.6,.5,1); }
+    .cx-go:hover:not(:disabled)::after { transform: translate(6px,-50%); }
+    .cx-go:active:not(:disabled) { transform: scale(.985); }
+    .cx-go:disabled { opacity: .35; box-shadow: none; } .cx-go:disabled::before { display: none; }
+    .cx-trust { display: flex; justify-content: center; gap: .9rem; margin: .9rem 0 .2rem; font-size: 9px; letter-spacing: .16em; text-transform: uppercase; color: #a1a1aa; flex-wrap: wrap; }
+    .cx-trust span::before { content: "✓ "; color: var(--ac); }
     .card-clr { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; opacity: .6; margin-top: .25rem; }
     .card-dots i.on { outline: 1px solid currentColor; outline-offset: 2px; }
     .card-dots i { cursor: pointer; width: 14px; height: 14px; border-radius: 99px; background: var(--c); border: 1px solid rgba(128,128,128,.45); cursor: pointer; }
@@ -650,18 +720,19 @@
   <!-- КОШИК -->
   <div id="cart-modal" class="fixed inset-0 z-50 hidden">
     <div class="backdrop absolute inset-0 bg-black/60" id="cart-backdrop"></div>
-    <aside class="drawer absolute right-0 top-0 h-[100dvh] w-full max-w-md bg-white dark:bg-zinc-950 border-l border-zinc-200 dark:border-zinc-900 flex flex-col">
-      <div class="flex justify-between items-center px-5 sm:px-8 h-16 border-b border-zinc-100 dark:border-zinc-900 shrink-0">
-        <h3 class="text-xs font-semibold uppercase tracking-ultra text-black dark:text-white">Кошик</h3>
-        <button id="close-cart" aria-label="Закрити" class="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-black dark:hover:text-white text-2xl font-light">&times;</button>
+    <aside class="drawer cart-ux absolute right-0 top-0 h-[100dvh] w-full max-w-md bg-white dark:bg-zinc-950 border-l border-zinc-200 dark:border-zinc-900 flex flex-col">
+      <div class="cx-head">
+        <div><p class="cx-eyebrow">ELVÉN · ваш вибір</p><h3 class="cx-title">Кошик <span id="cx-cnt"></span></h3></div>
+        <button id="close-cart" aria-label="Закрити" class="cx-x">&times;</button>
       </div>
+      <div id="cx-prog"><div class="cx-segs"><i></i><i></i><i></i></div><div id="cx-prog-t"><span>Вибір · Контакти · Доставка</span><b></b></div></div>
 
       <div class="flex-grow overflow-y-auto px-5 sm:px-8 py-6 space-y-8">
-        <div id="cart-items" class="space-y-4"></div>
+        <div><div class="cx-sec"><i>01</i>Ваше замовлення</div><div id="cart-items" class="space-y-3"></div></div>
 
         <div id="cart-auth-note"></div>
         <form id="order-form" class="space-y-4">
-          <p class="text-[10px] uppercase tracking-widest text-zinc-400 font-semibold">Дані для доставки</p>
+          <div class="cx-sec"><i>02</i>Контакти</div>
           <div>
             <label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Прізвище та Ім'я *</label>
             <input type="text" id="cust-name" required autocomplete="name" placeholder="Іван Іванов" class="field">
@@ -681,6 +752,7 @@
               <input type="text" id="cust-insta" placeholder="@nickname" autocapitalize="none" class="field">
             </div>
           </div>
+          <div class="cx-sec" style="margin-top:1.6rem"><i>03</i>Доставка</div>
           <div>
             <label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Доставка *</label>
             <select id="cust-delivery" required class="field text-zinc-700 dark:text-zinc-300">
@@ -705,6 +777,7 @@
             <label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Місто та Відділення *</label>
             <input type="text" id="cust-address" required autocomplete="street-address" placeholder="м. Київ, №15" class="field">
           </div>
+          <div class="cx-sec" style="margin-top:1.6rem"><i>04</i>Подарунок</div>
           <div>
             <label class="block text-[10px] uppercase tracking-wider text-zinc-400 mb-1">Призовий код з колеса (за наявності)</label>
             <input type="text" id="cust-promo" autocomplete="off" autocapitalize="characters" placeholder="ELV-XXXX" class="field font-mono uppercase">
@@ -713,12 +786,12 @@
         </form>
       </div>
 
-      <div class="shrink-0 border-t border-zinc-100 dark:border-zinc-900 px-5 sm:px-8 pt-4 safe-b bg-white dark:bg-zinc-950">
+      <div class="cx-foot safe-b bg-white dark:bg-zinc-950" style="padding-top:.2rem">
+        <div class="cx-perf"></div>
         <div id="cart-disc-row" class="hidden justify-between text-[11px] tracking-widest uppercase text-emerald-500 mb-2"><span id="cart-disc-label">Знижка</span><span id="cart-disc"></span></div>
-        <div class="flex justify-between text-xs tracking-ultra uppercase font-medium mb-3">
-          <span>Сума</span><span id="cart-total">0 UAH</span>
-        </div>
-        <button type="submit" form="order-form" id="submit-btn" class="w-full bg-black dark:bg-white text-white dark:text-black font-semibold py-4 text-xs tracking-ultra uppercase hover:opacity-80 active:scale-[.99] transition disabled:opacity-40">Оформити замовлення</button>
+        <div class="cx-sum"><span>Разом</span><b id="cart-total">0 UAH</b></div>
+        <button type="submit" form="order-form" id="submit-btn" class="cx-go">Оформити замовлення</button>
+        <div class="cx-trust"><span>Накладений платіж</span><span>Огляд на пошті</span><span>Обмін 14 днів</span></div>
       </div>
     </aside>
   </div>
@@ -1778,33 +1851,30 @@
 
     function updateCartUI() {
       const count = cart.reduce((s, i) => s + i.qty, 0);
-      $('cart-count').textContent = count; $('pm-cart-count').textContent = count;
+      $('cart-count').textContent = count; $('pm-cart-count').textContent = count; { const cx = $('cx-cnt'); if (cx) cx.textContent = count || ''; }
       const box = $('cart-items');
       if (!cart.length) {
-        box.innerHTML = `<div class="text-center py-10 text-zinc-400"><svg class="ic text-3xl mb-4 block opacity-40" aria-hidden="true"><use href="#i-bag"/></svg><p class="text-xs tracking-ultra uppercase">Кошик порожній</p></div>`;
+        box.innerHTML = `<div class="cx-empty"><svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M60 22a8 8 0 1 1 8 8c-4 0-8 3-8 8v6"/><path d="M60 46L18 80a6 6 0 0 0 4 10.5h76A6 6 0 0 0 102 80L60 46z"/><path d="M30 98h60" opacity=".35"/><circle cx="96" cy="26" r="2.2" fill="currentColor" stroke="none"/><circle cx="20" cy="40" r="1.8" fill="currentColor" stroke="none"/><path d="M92 54l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="currentColor" stroke="none" opacity=".7"/></svg><p>Тут поки порожньо</p><small>Обери щось, що тобі пасує</small><button type="button" data-cx-close>До каталогу</button></div>`;
       } else {
         box.innerHTML = cart.map((it, idx) => `
-          <div class="flex gap-4 border-b border-zinc-100 dark:border-zinc-900 pb-4">
-            <div class="w-16 h-20 bg-zinc-100 dark:bg-zinc-900 shrink-0 overflow-hidden">${it.img ? `<img src="${esc(it.img)}" class="w-full h-full object-cover">` : ''}</div>
-            <div class="flex-grow min-w-0">
-              <div class="flex justify-between gap-2">
-                <p class="text-xs uppercase font-medium tracking-wide text-black dark:text-white truncate">${esc(it.name)}</p>
-                <button data-remove="${idx}" aria-label="Видалити" class="text-zinc-400 hover:text-red-500 text-xs px-1"><svg class="ic " aria-hidden="true"><use href="#i-trash"/></svg></button>
+          <div class="cx-it" style="--d:${idx * 70}ms">
+            <div class="cx-img">${it.img ? `<img src="${esc(it.img)}" alt="">` : ''}</div>
+            <div class="cx-b">
+              <div class="cx-top">
+                <p class="cx-nm">${esc(it.name)}</p>
+                <button data-remove="${idx}" aria-label="Видалити" class="cx-rm"><svg class="ic" aria-hidden="true"><use href="#i-trash"/></svg></button>
               </div>
-              <p class="text-[10px] text-zinc-400 uppercase tracking-widest mt-0.5">Розмір ${esc(it.size)}${it.color ? ' · ' + esc(it.color) : ''}${it.sku ? ' · ' + esc(it.sku) : ''}</p>
-              <div class="flex justify-between items-center mt-3">
-                <div class="flex items-center border border-zinc-200 dark:border-zinc-800">
-                  <button data-dec="${idx}" class="w-8 h-8 text-sm">−</button>
-                  <span class="w-8 text-center text-xs">${it.qty}</span>
-                  <button data-inc="${idx}" class="w-8 h-8 text-sm">+</button>
-                </div>
-                <p class="text-xs font-medium">${fmt(it.price * it.qty)}</p>
+              <div class="cx-chips"><span>${esc(it.size)}</span>${it.color ? `<span>${esc(it.color)}</span>` : ''}${it.sku ? `<span class="m">${esc(it.sku)}</span>` : ''}</div>
+              <div class="cx-bot">
+                <div class="cx-q"><button data-dec="${idx}" aria-label="Менше">−</button><b>${it.qty}</b><button data-inc="${idx}" aria-label="Більше">+</button></div>
+                <p class="cx-pr">${fmt(it.price * it.qty)}</p>
               </div>
             </div>
           </div>`).join('');
       }
       updateCartTotals();
       $('submit-btn').disabled = !cart.length;
+      if (window.cxProg) cxProg();
     }
 
     function promoInfo(sub) {
@@ -1842,7 +1912,7 @@
       saveCart(); updateCartUI();
     });
 
-    function openCart() { prefillOrder(); $('cart-modal').classList.remove('hidden'); lockScroll(true); }
+    function openCart() { prefillOrder(); const cm = $('cart-modal'); cm.classList.remove('hidden'); cm.classList.add('cx-open'); setTimeout(() => cm.classList.remove('cx-open'), 1100); lockScroll(true); if (window.cxProg) cxProg(); }
     function closeCart() { $('cart-modal').classList.add('hidden'); lockScroll(false); }
     $('cart-btn').onclick = playCartIntro;
     $('close-cart').onclick = closeCart;
@@ -3325,6 +3395,25 @@
   $('order-form').addEventListener('reset', () => setTimeout(() => { reset(true); mode(); }, 0));
   window.npMissing = () => (isNP() && npOK && !addr.dataset.np) ? (city.value.trim() && cur ? wh : city) : null;
   mode();
+})();
+</script>
+<script>
+/* Кошик: прогрес заповнення + кнопка «До каталогу» */
+(function () {
+  const $ = (id) => document.getElementById(id);
+  window.cxProg = function () {
+    const segs = document.querySelectorAll('.cx-segs i'); if (!segs.length) return;
+    const s1 = cart.length > 0;
+    const s2 = $('cust-name').value.trim().length >= 2 && $('cust-phone').value.replace(/\D/g, '').length === 12;
+    const s3 = !!$('cust-address').value.trim() && !(window.npMissing && window.npMissing());
+    const arr = [s1, s2, s3]; segs.forEach((e, i) => e.classList.toggle('on', arr[i]));
+    const n = arr.filter(Boolean).length, t = document.querySelector('#cx-prog-t b');
+    if (t) t.textContent = !s1 ? '' : n === 3 ? 'Усе готово ✦' : `Ще ${3 - n} ${3 - n === 1 ? 'крок' : 'кроки'}`;
+  };
+  const f = $('order-form');
+  ['input', 'change', 'click'].forEach((ev) => f.addEventListener(ev, () => setTimeout(window.cxProg, 40)));
+  $('cart-items').addEventListener('click', (e) => { if (e.target.closest('[data-cx-close]')) { $('close-cart').click(); const c = $('catalog'); if (c) setTimeout(() => c.scrollIntoView({ behavior: 'smooth' }), 150); } });
+  window.cxProg();
 })();
 </script>
 </body>
